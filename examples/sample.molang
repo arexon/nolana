@@ -1,0 +1,1 @@
+math.cos(q.anim_time * 38) * v.rotation_scale + v.x * v.x * q.life_time

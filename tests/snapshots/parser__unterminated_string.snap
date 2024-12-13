@@ -1,0 +1,40 @@
+---
+source: tests/parser.rs
+---
+ParserReturn {
+    program: Program {
+        span: Span {
+            start: 0,
+            end: 0,
+        },
+        source: "'hello wor-",
+        is_complex: false,
+        body: Vec(
+            [],
+        ),
+    },
+    errors: [
+        Diagnostic {
+            inner: DiagnosticInner {
+                message: "Unterminated string",
+                labels: Some(
+                    [
+                        LabeledSpan {
+                            label: None,
+                            span: SourceSpan {
+                                offset: SourceOffset(
+                                    0,
+                                ),
+                                length: 0,
+                            },
+                            primary: false,
+                        },
+                    ],
+                ),
+                help: None,
+                severity: Error,
+            },
+        },
+    ],
+    panicked: true,
+}

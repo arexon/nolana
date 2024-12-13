@@ -1,0 +1,28 @@
+---
+source: tests/parser.rs
+---
+ParserReturn {
+    program: Program {
+        span: Span {
+            start: 0,
+            end: 4,
+        },
+        source: "true",
+        is_complex: false,
+        body: Vec(
+            [
+                BooleanLiteral(
+                    BooleanLiteral {
+                        span: Span {
+                            start: 0,
+                            end: 4,
+                        },
+                        value: true,
+                    },
+                ),
+            ],
+        ),
+    },
+    errors: [],
+    panicked: false,
+}

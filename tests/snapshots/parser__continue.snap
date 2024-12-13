@@ -1,0 +1,27 @@
+---
+source: tests/parser.rs
+---
+ParserReturn {
+    program: Program {
+        span: Span {
+            start: 0,
+            end: 8,
+        },
+        source: "continue",
+        is_complex: false,
+        body: Vec(
+            [
+                Continue(
+                    Continue {
+                        span: Span {
+                            start: 0,
+                            end: 8,
+                        },
+                    },
+                ),
+            ],
+        ),
+    },
+    errors: [],
+    panicked: false,
+}

@@ -1,0 +1,26 @@
+---
+source: tests/semantics.rs
+---
+[
+    Diagnostic {
+        inner: DiagnosticInner {
+            message: "Block expressions must contain at least one expression",
+            labels: Some(
+                [
+                    LabeledSpan {
+                        label: None,
+                        span: SourceSpan {
+                            offset: SourceOffset(
+                                0,
+                            ),
+                            length: 2,
+                        },
+                        primary: false,
+                    },
+                ],
+            ),
+            help: None,
+            severity: Error,
+        },
+    },
+]
