@@ -65,7 +65,7 @@ if !errors.is_empty() {
 println!("AST: {:#?}", program);
 ```
 
-For more examples, check the [examples](./examples) directory.
+For more info, check the [examples](./examples) directory or read the [documentation](https://docs.rs/nolana).
 
 ## 📖 License
 
