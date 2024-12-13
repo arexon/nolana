@@ -1,5 +1,10 @@
 ## 🌺 Nolana
 
+[![Crates.io][crates-badge]][crates-url]
+[![Docs.rs][docs-badge]][docs-url]
+[![MIT licensed][license-badge]][license-url]
+[![Build Status][ci-badge]][ci-url]
+
 > Nolana is an extremely fast parser for [Molang](https://bedrock.dev/docs/stable/Molang).
 
 Project goals, in roughly descending priority:
@@ -65,3 +70,12 @@ For more examples, check the [examples](./examples) directory.
 ## 📖 License
 
 Nolana is free and open-source software distributed under the [MIT License](./LICENSE).
+
+[crates-url]: https://crates.io/crates/nolana
+[crates-badge]: https://img.shields.io/crates/d/nolana?label=crates.io
+[docs-url]: https://docs.rs/nolana
+[docs-badge]: https://img.shields.io/docsrs/nolana
+[license-url]: https://github.com/arexon/nolana/blob/main/LICENSE
+[license-badge]: https://img.shields.io/badge/license-MIT-blue.svg
+[ci-badge]: https://github.com/arexon/nolana/actions/workflows/ci.yml/badge.svg?event=push&branch=main
+[ci-url]: https://github.com/arexon/nolana/actions/workflows/ci.yml?query=event%3Apush+branch%3Amain
