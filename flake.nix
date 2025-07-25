@@ -26,9 +26,7 @@
 
       devShells.default = pkgs.mkShell {
         packages = with pkgs; [
-          (rust-bin.stable.latest.default.override {
-            extensions = ["rust-analyzer" "rust-src"];
-          })
+          (rust-bin.fromRustupToolchainFile ./rust-toolchain.toml)
           cargo-insta
           just
           gnuplot
