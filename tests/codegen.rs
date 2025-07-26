@@ -2,8 +2,7 @@ macro_rules! test_codegen {
     ($name:ident, $source:literal, @$result:literal $(,)?) => {
         #[test]
         fn $name() {
-            let allocator = nolana::allocator::Allocator::default();
-            let ret = nolana::parser::Parser::new(&allocator, $source).parse();
+            let ret = nolana::parser::Parser::new($source).parse();
             let out = nolana::codegen::Codegen::default().build(&ret.program);
             assert!(ret.errors.is_empty());
             assert!(!ret.panicked);

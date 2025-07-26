@@ -9,32 +9,30 @@ ParserReturn {
         },
         source: "t.foo",
         is_complex: false,
-        body: Vec(
-            [
-                Variable(
-                    VariableExpression {
+        body: [
+            Variable(
+                VariableExpression {
+                    span: Span {
+                        start: 0,
+                        end: 5,
+                    },
+                    lifetime: Temporary,
+                    member: Property {
                         span: Span {
                             start: 0,
                             end: 5,
                         },
-                        lifetime: Temporary,
-                        member: Property {
+                        property: IdentifierReference {
                             span: Span {
-                                start: 0,
+                                start: 2,
                                 end: 5,
                             },
-                            property: IdentifierReference {
-                                span: Span {
-                                    start: 2,
-                                    end: 5,
-                                },
-                                name: "foo",
-                            },
+                            name: "foo",
                         },
                     },
-                ),
-            ],
-        ),
+                },
+            ),
+        ],
     },
     errors: [],
     panicked: false,

@@ -9,9 +9,7 @@ ParserReturn {
         },
         source: "'hello wor-",
         is_complex: false,
-        body: Vec(
-            [],
-        ),
+        body: [],
     },
     errors: [
         Diagnostic {

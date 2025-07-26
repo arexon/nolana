@@ -9,51 +9,49 @@ ParserReturn {
         },
         source: "v.a ?? 1.2",
         is_complex: false,
-        body: Vec(
-            [
-                Binary(
-                    BinaryExpression {
-                        span: Span {
-                            start: 0,
-                            end: 10,
-                        },
-                        left: Variable(
-                            VariableExpression {
+        body: [
+            Binary(
+                BinaryExpression {
+                    span: Span {
+                        start: 0,
+                        end: 10,
+                    },
+                    left: Variable(
+                        VariableExpression {
+                            span: Span {
+                                start: 0,
+                                end: 3,
+                            },
+                            lifetime: Variable,
+                            member: Property {
                                 span: Span {
                                     start: 0,
                                     end: 3,
                                 },
-                                lifetime: Variable,
-                                member: Property {
+                                property: IdentifierReference {
                                     span: Span {
-                                        start: 0,
+                                        start: 2,
                                         end: 3,
                                     },
-                                    property: IdentifierReference {
-                                        span: Span {
-                                            start: 2,
-                                            end: 3,
-                                        },
-                                        name: "a",
-                                    },
+                                    name: "a",
                                 },
                             },
-                        ),
-                        operator: Coalesce,
-                        right: NumericLiteral(
-                            NumericLiteral {
-                                span: Span {
-                                    start: 7,
-                                    end: 10,
-                                },
-                                value: 1.2,
-                                raw: "1.2",
+                        },
+                    ),
+                    operator: Coalesce,
+                    right: NumericLiteral(
+                        NumericLiteral {
+                            span: Span {
+                                start: 7,
+                                end: 10,
                             },
-                        ),
-                    },
-                ),
-            ],
-        ),
+                            value: 1.2,
+                            raw: "1.2",
+                        },
+                    ),
+                },
+            ),
+        ],
     },
     errors: [],
     panicked: false,

@@ -11,7 +11,6 @@ license = "MIT"
 [dependencies]
 logos = "0.15.0"
 miette = "7.2.0"
-oxc_allocator = "0.40.1"
 
 [dev-dependencies]
 criterion = "0.5.1"

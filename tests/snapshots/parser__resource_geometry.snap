@@ -9,26 +9,24 @@ ParserReturn {
         },
         source: "geometry.foo",
         is_complex: false,
-        body: Vec(
-            [
-                Resource(
-                    ResourceExpression {
+        body: [
+            Resource(
+                ResourceExpression {
+                    span: Span {
+                        start: 0,
+                        end: 12,
+                    },
+                    section: Geometry,
+                    name: IdentifierReference {
                         span: Span {
-                            start: 0,
+                            start: 9,
                             end: 12,
                         },
-                        section: Geometry,
-                        name: IdentifierReference {
-                            span: Span {
-                                start: 9,
-                                end: 12,
-                            },
-                            name: "foo",
-                        },
+                        name: "foo",
                     },
-                ),
-            ],
-        ),
+                },
+            ),
+        ],
     },
     errors: [],
     panicked: false,

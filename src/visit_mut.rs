@@ -1,5 +1,3 @@
-use oxc_allocator::Vec;
-
 use crate::ast::*;
 
 use walk_mut::*;
@@ -20,7 +18,7 @@ pub trait VisitMut<'a>: Sized {
     }
 
     #[inline]
-    fn visit_expressions(&mut self, it: &mut Vec<'a, Expression<'a>>) {
+    fn visit_expressions(&mut self, it: &mut Vec<Expression<'a>>) {
         walk_expressions(self, it);
     }
 
@@ -157,7 +155,7 @@ pub mod walk_mut {
     }
 
     #[inline]
-    pub fn walk_expressions<'a>(visitor: &mut impl VisitMut<'a>, it: &mut Vec<'a, Expression<'a>>) {
+    pub fn walk_expressions<'a>(visitor: &mut impl VisitMut<'a>, it: &mut Vec<Expression<'a>>) {
         for expr in it.iter_mut() {
             visitor.visit_expression(expr);
         }

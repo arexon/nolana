@@ -2,8 +2,7 @@ macro_rules! test_semantics {
     ($name:ident, $source:literal) => {
         #[test]
         fn $name() {
-            let allocator = nolana::allocator::Allocator::default();
-            let ret = nolana::parser::Parser::new(&allocator, $source).parse();
+            let ret = nolana::parser::Parser::new($source).parse();
             let errors = nolana::semantic::SemanticChecker::default().check(&ret.program);
             insta::with_settings!({ omit_expression => true }, {
                 insta::assert_debug_snapshot!(errors);

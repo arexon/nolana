@@ -9,40 +9,38 @@ ParserReturn {
         },
         source: "0; 0; 0;",
         is_complex: true,
-        body: Vec(
-            [
-                NumericLiteral(
-                    NumericLiteral {
-                        span: Span {
-                            start: 0,
-                            end: 1,
-                        },
-                        value: 0.0,
-                        raw: "0",
+        body: [
+            NumericLiteral(
+                NumericLiteral {
+                    span: Span {
+                        start: 0,
+                        end: 1,
                     },
-                ),
-                NumericLiteral(
-                    NumericLiteral {
-                        span: Span {
-                            start: 3,
-                            end: 4,
-                        },
-                        value: 0.0,
-                        raw: "0",
+                    value: 0.0,
+                    raw: "0",
+                },
+            ),
+            NumericLiteral(
+                NumericLiteral {
+                    span: Span {
+                        start: 3,
+                        end: 4,
                     },
-                ),
-                NumericLiteral(
-                    NumericLiteral {
-                        span: Span {
-                            start: 6,
-                            end: 7,
-                        },
-                        value: 0.0,
-                        raw: "0",
+                    value: 0.0,
+                    raw: "0",
+                },
+            ),
+            NumericLiteral(
+                NumericLiteral {
+                    span: Span {
+                        start: 6,
+                        end: 7,
                     },
-                ),
-            ],
-        ),
+                    value: 0.0,
+                    raw: "0",
+                },
+            ),
+        ],
     },
     errors: [],
     panicked: false,

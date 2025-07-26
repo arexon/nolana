@@ -9,18 +9,16 @@ ParserReturn {
         },
         source: "continue",
         is_complex: false,
-        body: Vec(
-            [
-                Continue(
-                    Continue {
-                        span: Span {
-                            start: 0,
-                            end: 8,
-                        },
+        body: [
+            Continue(
+                Continue {
+                    span: Span {
+                        start: 0,
+                        end: 8,
                     },
-                ),
-            ],
-        ),
+                },
+            ),
+        ],
     },
     errors: [],
     panicked: false,

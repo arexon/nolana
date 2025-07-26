@@ -9,9 +9,7 @@ ParserReturn {
         },
         source: "(1+1",
         is_complex: false,
-        body: Vec(
-            [],
-        ),
+        body: [],
     },
     errors: [
         Diagnostic {

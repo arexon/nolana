@@ -9,19 +9,17 @@ ParserReturn {
         },
         source: "false",
         is_complex: false,
-        body: Vec(
-            [
-                BooleanLiteral(
-                    BooleanLiteral {
-                        span: Span {
-                            start: 0,
-                            end: 5,
-                        },
-                        value: false,
+        body: [
+            BooleanLiteral(
+                BooleanLiteral {
+                    span: Span {
+                        start: 0,
+                        end: 5,
                     },
-                ),
-            ],
-        ),
+                    value: false,
+                },
+            ),
+        ],
     },
     errors: [],
     panicked: false,

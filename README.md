@@ -31,7 +31,6 @@ Nolana achieves this performance by leveraging [logos](https://github.com/maciej
 
 ```rust
 use nolana::{
-    allocator::Allocator,
     codegen::{Codegen, CodegenOptions},
     parser::{Parser, ParserReturn},
     semantic::SemanticChecker,
@@ -39,15 +38,12 @@ use nolana::{
 
 let source_text = "math.cos(q.anim_time * 38) * v.rotation_scale + v.x * v.x * q.life_time";
 
-// Create an arena allocator to store the AST nodes.
-let allocator = Allocator::default();
-
 // Parse the provided Molang source code.
 let ParserReturn {
     program,
     errors,
     panicked,
-} = Parser::new(&allocator, source_text).parse();
+} = Parser::new(source_text).parse();
 
 // Check for syntax errors.
 if !errors.is_empty() {

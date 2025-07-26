@@ -9,9 +9,7 @@ ParserReturn {
         },
         source: "\n    ;;;;;;; ;;;;;;; ;;;    ;;; ;;\n    ;;      ;;      ;;;;  ;;;; ;;\n    ;;;;;;; ;;;;;   ;; ;;;; ;; ;;\n         ;; ;;      ;;  ;;  ;; ;;\n    ;;;;;;; ;;;;;;; ;;      ;; ;;\n    ",
         is_complex: true,
-        body: Vec(
-            [],
-        ),
+        body: [],
     },
     errors: [],
     panicked: false,

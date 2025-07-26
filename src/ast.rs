@@ -1,6 +1,4 @@
-use oxc_allocator::{Box, Vec};
-
-use crate::{span::Span, token::Kind};
+use crate::span::Span;
 
 /// Untyped AST Node kind.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -40,33 +38,33 @@ pub struct Program<'a> {
     /// Determines whether the expression is complex or simple. If it contains
     /// at least one `;` or `=`, it is considered a complex expression.
     pub is_complex: bool,
-    pub body: Vec<'a, Expression<'a>>,
+    pub body: Vec<Expression<'a>>,
 }
 
 /// <https://bedrock.dev/docs/stable/Molang#Lexical%20Structure>
 #[derive(Debug)]
 pub enum Expression<'a> {
-    BooleanLiteral(Box<'a, BooleanLiteral>),
-    NumericLiteral(Box<'a, NumericLiteral<'a>>),
-    StringLiteral(Box<'a, StringLiteral<'a>>),
-    Variable(Box<'a, VariableExpression<'a>>),
-    Parenthesized(Box<'a, ParenthesizedExpression<'a>>),
-    Block(Box<'a, BlockExpression<'a>>),
-    Binary(Box<'a, BinaryExpression<'a>>),
-    Unary(Box<'a, UnaryExpression<'a>>),
-    Ternary(Box<'a, TernaryExpression<'a>>),
-    Conditional(Box<'a, ConditionalExpression<'a>>),
-    Assignment(Box<'a, AssignmentExpression<'a>>),
-    Resource(Box<'a, ResourceExpression<'a>>),
-    ArrayAccess(Box<'a, ArrayAccessExpression<'a>>),
-    ArrowAccess(Box<'a, ArrowAccessExpression<'a>>),
-    Call(Box<'a, CallExpression<'a>>),
-    Loop(Box<'a, LoopExpression<'a>>),
-    ForEach(Box<'a, ForEachExpression<'a>>),
-    Break(Box<'a, Break>),
-    Continue(Box<'a, Continue>),
-    This(Box<'a, This>),
-    Return(Box<'a, Return<'a>>),
+    BooleanLiteral(Box<BooleanLiteral>),
+    NumericLiteral(Box<NumericLiteral<'a>>),
+    StringLiteral(Box<StringLiteral<'a>>),
+    Variable(Box<VariableExpression<'a>>),
+    Parenthesized(Box<ParenthesizedExpression<'a>>),
+    Block(Box<BlockExpression<'a>>),
+    Binary(Box<BinaryExpression<'a>>),
+    Unary(Box<UnaryExpression<'a>>),
+    Ternary(Box<TernaryExpression<'a>>),
+    Conditional(Box<ConditionalExpression<'a>>),
+    Assignment(Box<AssignmentExpression<'a>>),
+    Resource(Box<ResourceExpression<'a>>),
+    ArrayAccess(Box<ArrayAccessExpression<'a>>),
+    ArrowAccess(Box<ArrowAccessExpression<'a>>),
+    Call(Box<CallExpression<'a>>),
+    Loop(Box<LoopExpression<'a>>),
+    ForEach(Box<ForEachExpression<'a>>),
+    Break(Box<Break>),
+    Continue(Box<Continue>),
+    This(Box<This>),
+    Return(Box<Return<'a>>),
 }
 
 /// `true` or `false`
@@ -74,17 +72,6 @@ pub enum Expression<'a> {
 pub struct BooleanLiteral {
     pub span: Span,
     pub value: bool,
-}
-
-impl BooleanLiteral {
-    /// Returns `"true"` or `"false"` depending on this boolean's value.
-    pub fn as_str(&self) -> &'static str {
-        if self.value {
-            "true"
-        } else {
-            "false"
-        }
-    }
 }
 
 /// `1.23` in `v.a = 1.23;`
@@ -130,35 +117,13 @@ pub enum VariableLifetime {
     Context,
 }
 
-impl VariableLifetime {
-    /// String representation of the call kind ("temp", "variable", or "context").
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            Self::Temporary => "temp",
-            Self::Variable => "variable",
-            Self::Context => "context",
-        }
-    }
-}
-
-impl From<Kind> for VariableLifetime {
-    fn from(kind: Kind) -> Self {
-        match kind {
-            Kind::Temporary => Self::Temporary,
-            Kind::Variable => Self::Variable,
-            Kind::Context => Self::Context,
-            _ => unreachable!("Variable Lifetime: {kind:?}"),
-        }
-    }
-}
-
 /// <https://bedrock.dev/docs/stable/Molang#Structs>
 #[derive(Debug)]
 pub enum VariableMember<'a> {
     /// `foo.bar` in `v.foo.bar`
     Object {
         span: Span,
-        object: Box<'a, VariableMember<'a>>,
+        object: Box<VariableMember<'a>>,
         property: IdentifierReference<'a>,
     },
     /// `foo` in `v.foo`
@@ -178,7 +143,7 @@ pub enum ParenthesizedExpression<'a> {
     /// `(v.a = 1;)` in `(v.b = 'B'; v.a = 1;);`
     Complex {
         span: Span,
-        expressions: Vec<'a, Expression<'a>>,
+        expressions: Vec<Expression<'a>>,
     },
 }
 
@@ -186,7 +151,7 @@ pub enum ParenthesizedExpression<'a> {
 #[derive(Debug)]
 pub struct BlockExpression<'a> {
     pub span: Span,
-    pub expressions: Vec<'a, Expression<'a>>,
+    pub expressions: Vec<Expression<'a>>,
 }
 
 /// `1 + 1` in `v.a = 1 + 1;`
@@ -229,48 +194,6 @@ pub enum BinaryOperator {
     Coalesce,
 }
 
-impl BinaryOperator {
-    /// The string representation of this operator as it appears in source code.
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            Self::Equality => "==",
-            Self::Inequality => "!=",
-            Self::LessThan => "<",
-            Self::LessEqualThan => "<=",
-            Self::GreaterThan => ">",
-            Self::GreaterEqualThan => ">=",
-            Self::Addition => "+",
-            Self::Subtraction => "-",
-            Self::Multiplication => "*",
-            Self::Division => "/",
-            Self::Or => "||",
-            Self::And => "&&",
-            Self::Coalesce => "??",
-        }
-    }
-}
-
-impl From<Kind> for BinaryOperator {
-    fn from(token: Kind) -> Self {
-        match token {
-            Kind::Eq => Self::Equality,
-            Kind::NotEq => Self::Inequality,
-            Kind::Lt => Self::LessThan,
-            Kind::Gt => Self::GreaterThan,
-            Kind::LtEq => Self::LessEqualThan,
-            Kind::GtEq => Self::GreaterEqualThan,
-            Kind::Or => Self::Or,
-            Kind::And => Self::And,
-            Kind::NullCoal => Self::Coalesce,
-            Kind::Minus => Self::Subtraction,
-            Kind::Plus => Self::Addition,
-            Kind::Star => Self::Multiplication,
-            Kind::Slash => Self::Division,
-            _ => unreachable!("Binary Operator: {token:?}"),
-        }
-    }
-}
-
 /// `-1` in `q.foo(-1)`
 #[derive(Debug)]
 pub struct UnaryExpression<'a> {
@@ -286,26 +209,6 @@ pub enum UnaryOperator {
     Negate,
     /// `!`
     Not,
-}
-
-impl UnaryOperator {
-    /// The string representation of this operator as it appears in source code.
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            Self::Negate => "-",
-            Self::Not => "!",
-        }
-    }
-}
-
-impl From<Kind> for UnaryOperator {
-    fn from(token: Kind) -> Self {
-        match token {
-            Kind::Minus => Self::Negate,
-            Kind::Not => Self::Not,
-            _ => unreachable!("Unary Operator: {token:?}"),
-        }
-    }
 }
 
 /// <https://bedrock.dev/docs/stable/Molang#Conditionals>
@@ -356,28 +259,6 @@ pub enum ResourceSection {
     Texture,
 }
 
-impl ResourceSection {
-    /// String representation of the resource section ("geometry", "material", or "texture").
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            Self::Geometry => "geometry",
-            Self::Material => "material",
-            Self::Texture => "texture",
-        }
-    }
-}
-
-impl From<Kind> for ResourceSection {
-    fn from(kind: Kind) -> Self {
-        match kind {
-            Kind::Geometry => Self::Geometry,
-            Kind::Material => Self::Material,
-            Kind::Texture => Self::Texture,
-            _ => unreachable!("Resource Section: {kind:?}"),
-        }
-    }
-}
-
 /// <https://bedrock.dev/docs/stable/Molang#Array%20Expressions>
 ///
 /// `array.foo[0]`
@@ -407,27 +288,7 @@ pub struct CallExpression<'a> {
     pub span: Span,
     pub kind: CallKind,
     pub callee: IdentifierReference<'a>,
-    pub arguments: Option<Vec<'a, Expression<'a>>>,
-}
-
-impl CallKind {
-    /// String representation of the call kind ("math" or "query").
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            Self::Math => "math",
-            Self::Query => "query",
-        }
-    }
-}
-
-impl From<Kind> for CallKind {
-    fn from(kind: Kind) -> Self {
-        match kind {
-            Kind::Math => Self::Math,
-            Kind::Query => Self::Query,
-            _ => unreachable!("Call Kind: {kind:?}"),
-        }
-    }
+    pub arguments: Option<Vec<Expression<'a>>>,
 }
 
 /// The call kind for [`CallExpression`].

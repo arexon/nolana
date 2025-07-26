@@ -1,7 +1,6 @@
 use std::fs;
 
 use nolana::{
-    allocator::Allocator,
     codegen::{Codegen, CodegenOptions},
     parser::{Parser, ParserReturn},
     semantic::SemanticChecker,
@@ -10,13 +9,11 @@ use nolana::{
 fn main() {
     let source_text = fs::read_to_string("examples/sample.molang").unwrap();
 
-    let allocator = Allocator::default();
-
     let ParserReturn {
         program,
         errors,
         panicked,
-    } = Parser::new(&allocator, &source_text).parse();
+    } = Parser::new(&source_text).parse();
 
     if !errors.is_empty() {
         for error in errors {

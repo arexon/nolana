@@ -9,19 +9,17 @@ ParserReturn {
         },
         source: "'foo_bar123.-$#*()'",
         is_complex: false,
-        body: Vec(
-            [
-                StringLiteral(
-                    StringLiteral {
-                        span: Span {
-                            start: 0,
-                            end: 19,
-                        },
-                        value: "foo_bar123.-$#*()",
+        body: [
+            StringLiteral(
+                StringLiteral {
+                    span: Span {
+                        start: 0,
+                        end: 19,
                     },
-                ),
-            ],
-        ),
+                    value: "foo_bar123.-$#*()",
+                },
+            ),
+        ],
     },
     errors: [],
     panicked: false,

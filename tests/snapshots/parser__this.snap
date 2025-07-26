@@ -9,18 +9,16 @@ ParserReturn {
         },
         source: "this",
         is_complex: false,
-        body: Vec(
-            [
-                This(
-                    This {
-                        span: Span {
-                            start: 0,
-                            end: 4,
-                        },
+        body: [
+            This(
+                This {
+                    span: Span {
+                        start: 0,
+                        end: 4,
                     },
-                ),
-            ],
-        ),
+                },
+            ),
+        ],
     },
     errors: [],
     panicked: false,

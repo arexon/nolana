@@ -2,8 +2,7 @@ macro_rules! test_parser {
     ($name:ident, $source:literal) => {
         #[test]
         fn $name() {
-            let allocator = nolana::allocator::Allocator::default();
-            let ret = nolana::parser::Parser::new(&allocator, $source).parse();
+            let ret = nolana::parser::Parser::new($source).parse();
             insta::with_settings!({ omit_expression => true }, {
                 insta::assert_debug_snapshot!(ret);
             });
