@@ -1,7 +1,7 @@
 use crate::span::Span;
 
 /// Untyped AST Node kind.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum AstKind {
     Program,
     BooleanLiteral,
@@ -31,7 +31,7 @@ pub enum AstKind {
 
 /// Represents the root of a Molang expression AST, containing all the top-level
 /// information.
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Program<'a> {
     pub span: Span,
     pub source: &'a str,
@@ -42,7 +42,7 @@ pub struct Program<'a> {
 }
 
 /// <https://bedrock.dev/docs/stable/Molang#Lexical%20Structure>
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Expression<'a> {
     BooleanLiteral(Box<BooleanLiteral>),
     NumericLiteral(Box<NumericLiteral<'a>>),
@@ -68,14 +68,14 @@ pub enum Expression<'a> {
 }
 
 /// `true` or `false`
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct BooleanLiteral {
     pub span: Span,
     pub value: bool,
 }
 
 /// `1.23` in `v.a = 1.23;`
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct NumericLiteral<'a> {
     pub span: Span,
     pub value: f32,
@@ -85,21 +85,21 @@ pub struct NumericLiteral<'a> {
 /// <https://bedrock.dev/docs/stable/Molang#Strings>
 ///
 /// `'foo bar'` in `v.a = 'foo bar';`
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct StringLiteral<'a> {
     pub span: Span,
     pub value: &'a str,
 }
 
 /// `foo` in `v.foo.bar`
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct IdentifierReference<'a> {
     pub span: Span,
     pub name: &'a str,
 }
 
 /// <https://bedrock.dev/docs/stable/Molang#Variables>
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct VariableExpression<'a> {
     pub span: Span,
     pub lifetime: VariableLifetime,
@@ -118,7 +118,7 @@ pub enum VariableLifetime {
 }
 
 /// <https://bedrock.dev/docs/stable/Molang#Structs>
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum VariableMember<'a> {
     /// `foo.bar` in `v.foo.bar`
     Object {
@@ -133,7 +133,7 @@ pub enum VariableMember<'a> {
     },
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum ParenthesizedExpression<'a> {
     /// `(1 + 1)` in `(1 + 1) * 2`
     Single {
@@ -148,14 +148,14 @@ pub enum ParenthesizedExpression<'a> {
 }
 
 /// `{ v.a = 0; }` in `loop(10, { v.a = 0; })`
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct BlockExpression<'a> {
     pub span: Span,
     pub expressions: Vec<Expression<'a>>,
 }
 
 /// `1 + 1` in `v.a = 1 + 1;`
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct BinaryExpression<'a> {
     pub span: Span,
     pub left: Expression<'a>,
@@ -195,7 +195,7 @@ pub enum BinaryOperator {
 }
 
 /// `-1` in `q.foo(-1)`
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct UnaryExpression<'a> {
     pub span: Span,
     pub operator: UnaryOperator,
@@ -214,7 +214,7 @@ pub enum UnaryOperator {
 /// <https://bedrock.dev/docs/stable/Molang#Conditionals>
 ///
 /// `q.foo ? 0 : 1`
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct TernaryExpression<'a> {
     pub span: Span,
     pub test: Expression<'a>,
@@ -225,7 +225,7 @@ pub struct TernaryExpression<'a> {
 /// <https://bedrock.dev/docs/stable/Molang#Conditionals>
 ///
 /// `q.foo ? 0`
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ConditionalExpression<'a> {
     pub span: Span,
     pub test: Expression<'a>,
@@ -233,7 +233,7 @@ pub struct ConditionalExpression<'a> {
 }
 
 /// `v.a = 0;`
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct AssignmentExpression<'a> {
     pub span: Span,
     pub left: VariableExpression<'a>,
@@ -241,7 +241,7 @@ pub struct AssignmentExpression<'a> {
 }
 
 /// <https://bedrock.dev/docs/stable/Molang#Resource%20Expression>
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ResourceExpression<'a> {
     pub span: Span,
     pub section: ResourceSection,
@@ -262,7 +262,7 @@ pub enum ResourceSection {
 /// <https://bedrock.dev/docs/stable/Molang#Array%20Expressions>
 ///
 /// `array.foo[0]`
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ArrayAccessExpression<'a> {
     pub span: Span,
     pub name: IdentifierReference<'a>,
@@ -272,7 +272,7 @@ pub struct ArrayAccessExpression<'a> {
 /// <https://bedrock.dev/docs/stable/Molang#-%3E%20%20Arrow%20Operator>
 ///
 /// `v.foo->q.bar`
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ArrowAccessExpression<'a> {
     pub span: Span,
     pub left: Expression<'a>,
@@ -283,7 +283,7 @@ pub struct ArrowAccessExpression<'a> {
 /// <https://bedrock.dev/docs/stable/Molang#Math%20Functions>
 ///
 /// `math.random(1, 2)` or `math.random`
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct CallExpression<'a> {
     pub span: Span,
     pub kind: CallKind,
@@ -303,7 +303,7 @@ pub enum CallKind {
 /// <https://bedrock.dev/docs/stable/Molang#loop>
 ///
 /// `loop(10, { v.x = v.x + 1; });`
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct LoopExpression<'a> {
     pub span: Span,
     pub count: Expression<'a>,
@@ -313,7 +313,7 @@ pub struct LoopExpression<'a> {
 /// <https://bedrock.dev/docs/stable/Molang#for_each>
 ///
 /// `for_each(t.foo, q.baz, { v.x = v.x + 1; });`
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ForEachExpression<'a> {
     pub span: Span,
     pub variable: VariableExpression<'a>,
@@ -324,7 +324,7 @@ pub struct ForEachExpression<'a> {
 /// <https://bedrock.dev/docs/stable/Molang#break>
 ///
 /// `break` in `loop(10, { v.x = v.x + 1; (v.x > 20) ? break; });`
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Break {
     pub span: Span,
 }
@@ -332,19 +332,19 @@ pub struct Break {
 /// <https://bedrock.dev/docs/stable/Molang#continue>
 ///
 /// `continue` in `loop(10, { (v.x > 5) ? continue; v.x = v.x + 1; });`
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Continue {
     pub span: Span,
 }
 
 /// `this` in `q.foo(this)`
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct This {
     pub span: Span,
 }
 
 /// `return` in `v.a = 1; return v.a;`
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Return<'a> {
     pub span: Span,
     pub argument: Expression<'a>,
