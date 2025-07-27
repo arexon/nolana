@@ -89,10 +89,10 @@ pub enum Kind {
     Dot,
 
     #[token("?")]
-    Conditional,
+    Question,
 
     #[token("??")]
-    NullCoal,
+    Question2,
 
     #[token(":")]
     Colon,
@@ -183,7 +183,7 @@ impl Kind {
                 | Kind::GtEq
                 | Kind::Pipe2
                 | Kind::Amp2
-                | Kind::NullCoal
+                | Kind::Question2
                 | Kind::Minus
                 | Kind::Plus
                 | Kind::Star
@@ -213,8 +213,8 @@ impl Kind {
             Self::Eq2 | Self::Neq => (8, 9),
             Self::Amp2 => (6, 7),
             Self::Pipe2 => (4, 5),
-            Self::Conditional => (3, 4),
-            Self::NullCoal => (1, 2),
+            Self::Question => (3, 4),
+            Self::Question2 => (1, 2),
             _ => return None,
         })
     }
@@ -244,8 +244,8 @@ impl Kind {
             Kind::Amp2 => "&&",
             Kind::Arrow => "->",
             Kind::Dot => ".",
-            Kind::Conditional => "?",
-            Kind::NullCoal => "??",
+            Kind::Question => "?",
+            Kind::Question2 => "??",
             Kind::Colon => ":",
             Kind::Semi => ";",
             Kind::Comma => ",",
@@ -404,8 +404,8 @@ mod tests {
                 (Ok(Kind::Pipe2), "||"),
                 (Ok(Kind::Amp2), "&&"),
                 (Ok(Kind::Arrow), "->"),
-                (Ok(Kind::Conditional), "?"),
-                (Ok(Kind::NullCoal), "??"),
+                (Ok(Kind::Question), "?"),
+                (Ok(Kind::Question2), "??"),
                 (Ok(Kind::Colon), ":"),
                 (Ok(Kind::Semi), ";"),
                 (Ok(Kind::Comma), ","),

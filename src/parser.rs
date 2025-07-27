@@ -210,7 +210,7 @@ impl<'a> Parser<'a> {
                 kind if kind.is_binary_operator() => {
                     lhs = self.parse_binary_expression(span, lhs, rbp)?;
                 }
-                Kind::Conditional => {
+                Kind::Question => {
                     lhs = self.parse_ternary_or_conditional_expression(span, lhs)?;
                 }
                 _ => break,
@@ -375,7 +375,7 @@ impl<'a> Parser<'a> {
         test_span: Span,
         test: Expression<'a>,
     ) -> Result<Expression<'a>> {
-        self.expect(Kind::Conditional)?;
+        self.expect(Kind::Question)?;
         let consequent = self.parse_expression(0)?;
         if self.eat(Kind::Colon) {
             let alternate = self.parse_expression(0)?;

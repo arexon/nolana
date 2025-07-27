@@ -271,7 +271,7 @@ impl From<Kind> for BinaryOperator {
             Kind::GtEq => Self::GreaterEqualThan,
             Kind::Pipe2 => Self::Or,
             Kind::Amp2 => Self::And,
-            Kind::NullCoal => Self::Coalesce,
+            Kind::Question2 => Self::Coalesce,
             Kind::Minus => Self::Subtraction,
             Kind::Plus => Self::Addition,
             Kind::Star => Self::Multiplication,
