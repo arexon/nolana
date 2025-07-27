@@ -165,9 +165,15 @@ impl Print for AssignmentStatement<'_> {
     fn print(&self, c: &mut Codegen) {
         self.left.print(c);
         c.print_space();
-        c.print_str(self.operator.as_str());
+        self.operator.print(c);
         c.print_space();
         self.right.print(c);
+    }
+}
+
+impl Print for AssignmentOperator {
+    fn print(&self, c: &mut Codegen) {
+        c.print_str(self.as_str());
     }
 }
 
