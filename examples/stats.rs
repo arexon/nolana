@@ -3,7 +3,7 @@ use std::fs;
 use nolana::{
     ast::{CallExpression, CallKind, Program},
     parser::{Parser, ParserReturn},
-    visit::{walk::walk_call_expression, Visit},
+    visit::{walk, Visit},
 };
 
 #[derive(Debug)]
@@ -15,18 +15,17 @@ struct MolangStats {
 impl MolangStats {
     pub fn new(program: &Program) -> Self {
         let mut stats = Self { math_functions: 0, queries: 0 };
-        stats.visit_program(program);
+        walk::walk_program(&mut stats, program);
         stats
     }
 }
 
 impl<'a> Visit<'a> for MolangStats {
-    fn visit_call_expression(&mut self, it: &CallExpression<'a>) {
+    fn enter_call_expression(&mut self, it: &CallExpression<'a>) {
         match it.kind {
             CallKind::Math => self.math_functions += 1,
             CallKind::Query => self.queries += 1,
         }
-        walk_call_expression(self, it);
     }
 }
 

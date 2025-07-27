@@ -1,146 +1,214 @@
 use crate::ast::*;
 
-use walk::*;
-
 /// Syntax tree traversal.
 pub trait Visit<'a>: Sized {
     #[inline]
     #[allow(unused_variables)]
-    fn enter_node(&mut self, kind: AstKind) {}
+    fn enter_program(&mut self, it: &Program<'a>) {}
 
     #[inline]
     #[allow(unused_variables)]
-    fn leave_node(&mut self, kind: AstKind) {}
+    fn exit_program(&mut self, it: &Program<'a>) {}
 
     #[inline]
-    fn visit_program(&mut self, it: &Program<'a>) {
-        walk_program(self, it);
-    }
+    #[allow(unused_variables)]
+    fn enter_expressions(&mut self, it: &[Expression<'a>]) {}
 
     #[inline]
-    fn visit_expressions(&mut self, it: &Vec<Expression<'a>>) {
-        walk_expressions(self, it);
-    }
+    #[allow(unused_variables)]
+    fn exit_expressions(&mut self, it: &[Expression<'a>]) {}
 
     #[inline]
-    fn visit_expression(&mut self, it: &Expression<'a>) {
-        walk_expression(self, it);
-    }
+    #[allow(unused_variables)]
+    fn enter_expression(&mut self, it: &Expression<'a>) {}
 
     #[inline]
-    fn visit_identifier_reference(&mut self, it: &IdentifierReference<'a>) {
-        walk_identifier_reference(self, it)
-    }
+    #[allow(unused_variables)]
+    fn exit_expression(&mut self, it: &Expression<'a>) {}
 
     #[inline]
-    fn visit_boolean_literal(&mut self, it: &BooleanLiteral) {
-        walk_boolean_literal(self, it);
-    }
+    #[allow(unused_variables)]
+    fn enter_identifier_reference(&mut self, it: &IdentifierReference<'a>) {}
 
     #[inline]
-    fn visit_numeric_literal(&mut self, it: &NumericLiteral<'a>) {
-        walk_numeric_literal(self, it);
-    }
+    #[allow(unused_variables)]
+    fn exit_identifier_reference(&mut self, it: &IdentifierReference<'a>) {}
 
     #[inline]
-    fn visit_string_literal(&mut self, it: &StringLiteral<'a>) {
-        walk_string_literal(self, it);
-    }
+    #[allow(unused_variables)]
+    fn enter_boolean_literal(&mut self, it: &BooleanLiteral) {}
 
     #[inline]
-    fn visit_variable_expression(&mut self, it: &VariableExpression<'a>) {
-        walk_variable_expression(self, it);
-    }
+    #[allow(unused_variables)]
+    fn exit_boolean_literal(&mut self, it: &BooleanLiteral) {}
 
     #[inline]
-    fn visit_variable_member(&mut self, it: &VariableMember<'a>) {
-        walk_variable_member(self, it);
-    }
+    #[allow(unused_variables)]
+    fn enter_numeric_literal(&mut self, it: &NumericLiteral<'a>) {}
 
     #[inline]
-    fn visit_parenthesized_expression(&mut self, it: &ParenthesizedExpression<'a>) {
-        walk_parenthesized_expression(self, it);
-    }
+    #[allow(unused_variables)]
+    fn exit_numeric_literal(&mut self, it: &NumericLiteral<'a>) {}
 
     #[inline]
-    fn visit_block_expression(&mut self, it: &BlockExpression<'a>) {
-        walk_block_expression(self, it);
-    }
+    #[allow(unused_variables)]
+    fn enter_string_literal(&mut self, it: &StringLiteral<'a>) {}
 
     #[inline]
-    fn visit_binary_expression(&mut self, it: &BinaryExpression<'a>) {
-        walk_binary_expression(self, it);
-    }
+    #[allow(unused_variables)]
+    fn exit_string_literal(&mut self, it: &StringLiteral<'a>) {}
 
     #[inline]
-    fn visit_unary_expression(&mut self, it: &UnaryExpression<'a>) {
-        walk_unary_expression(self, it);
-    }
+    #[allow(unused_variables)]
+    fn enter_variable_expression(&mut self, it: &VariableExpression<'a>) {}
 
     #[inline]
-    fn visit_ternary_expression(&mut self, it: &TernaryExpression<'a>) {
-        walk_ternary_expression(self, it);
-    }
+    #[allow(unused_variables)]
+    fn exit_variable_expression(&mut self, it: &VariableExpression<'a>) {}
 
     #[inline]
-    fn visit_conditional_expression(&mut self, it: &ConditionalExpression<'a>) {
-        walk_conditional_expression(self, it);
-    }
+    #[allow(unused_variables)]
+    fn enter_variable_member(&mut self, it: &VariableMember<'a>) {}
 
     #[inline]
-    fn visit_assignment_expression(&mut self, it: &AssignmentExpression<'a>) {
-        walk_assignment_expression(self, it);
-    }
+    #[allow(unused_variables)]
+    fn exit_variable_member(&mut self, it: &VariableMember<'a>) {}
 
     #[inline]
-    fn visit_resource_expression(&mut self, it: &ResourceExpression<'a>) {
-        walk_resource_expression(self, it);
-    }
+    #[allow(unused_variables)]
+    fn enter_parenthesized_expression(&mut self, it: &ParenthesizedExpression<'a>) {}
 
     #[inline]
-    fn visit_array_access_expression(&mut self, it: &ArrayAccessExpression<'a>) {
-        walk_array_access_expression(self, it);
-    }
+    #[allow(unused_variables)]
+    fn exit_parenthesized_expression(&mut self, it: &ParenthesizedExpression<'a>) {}
 
     #[inline]
-    fn visit_arrow_access_expression(&mut self, it: &ArrowAccessExpression<'a>) {
-        walk_arrow_access_expression(self, it);
-    }
+    #[allow(unused_variables)]
+    fn enter_block_expression(&mut self, it: &BlockExpression<'a>) {}
 
     #[inline]
-    fn visit_call_expression(&mut self, it: &CallExpression<'a>) {
-        walk_call_expression(self, it);
-    }
+    #[allow(unused_variables)]
+    fn exit_block_expression(&mut self, it: &BlockExpression<'a>) {}
 
     #[inline]
-    fn visit_loop_expression(&mut self, it: &LoopExpression<'a>) {
-        walk_loop_expression(self, it);
-    }
+    #[allow(unused_variables)]
+    fn enter_binary_expression(&mut self, it: &BinaryExpression<'a>) {}
 
     #[inline]
-    fn visit_for_each_expression(&mut self, it: &ForEachExpression<'a>) {
-        walk_for_each_expression(self, it);
-    }
+    #[allow(unused_variables)]
+    fn exit_binary_expression(&mut self, it: &BinaryExpression<'a>) {}
 
     #[inline]
-    fn visit_break(&mut self, it: &Break) {
-        walk_break(self, it);
-    }
+    #[allow(unused_variables)]
+    fn enter_unary_expression(&mut self, it: &UnaryExpression<'a>) {}
 
     #[inline]
-    fn visit_continue(&mut self, it: &Continue) {
-        walk_continue(self, it);
-    }
+    #[allow(unused_variables)]
+    fn exit_unary_expression(&mut self, it: &UnaryExpression<'a>) {}
 
     #[inline]
-    fn visit_this(&mut self, it: &This) {
-        walk_this(self, it);
-    }
+    #[allow(unused_variables)]
+    fn enter_ternary_expression(&mut self, it: &TernaryExpression<'a>) {}
 
     #[inline]
-    fn visit_return(&mut self, it: &Return<'a>) {
-        walk_return(self, it);
-    }
+    #[allow(unused_variables)]
+    fn exit_ternary_expression(&mut self, it: &TernaryExpression<'a>) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn enter_conditional_expression(&mut self, it: &ConditionalExpression<'a>) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn exit_conditional_expression(&mut self, it: &ConditionalExpression<'a>) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn enter_assignment_expression(&mut self, it: &AssignmentExpression<'a>) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn exit_assignment_expression(&mut self, it: &AssignmentExpression<'a>) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn enter_resource_expression(&mut self, it: &ResourceExpression<'a>) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn exit_resource_expression(&mut self, it: &ResourceExpression<'a>) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn enter_array_access_expression(&mut self, it: &ArrayAccessExpression<'a>) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn exit_array_access_expression(&mut self, it: &ArrayAccessExpression<'a>) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn enter_arrow_access_expression(&mut self, it: &ArrowAccessExpression<'a>) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn exit_arrow_access_expression(&mut self, it: &ArrowAccessExpression<'a>) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn enter_call_expression(&mut self, it: &CallExpression<'a>) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn exit_call_expression(&mut self, it: &CallExpression<'a>) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn enter_loop_expression(&mut self, it: &LoopExpression<'a>) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn exit_loop_expression(&mut self, it: &LoopExpression<'a>) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn enter_for_each_expression(&mut self, it: &ForEachExpression<'a>) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn exit_for_each_expression(&mut self, it: &ForEachExpression<'a>) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn enter_break(&mut self, it: &Break) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn exit_break(&mut self, it: &Break) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn enter_continue(&mut self, it: &Continue) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn exit_continue(&mut self, it: &Continue) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn enter_this(&mut self, it: &This) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn exit_this(&mut self, it: &This) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn enter_return(&mut self, it: &Return<'a>) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn exit_return(&mut self, it: &Return<'a>) {}
 }
 
 pub mod walk {
@@ -148,44 +216,47 @@ pub mod walk {
 
     #[inline]
     pub fn walk_program<'a>(visitor: &mut impl Visit<'a>, it: &Program<'a>) {
-        let kind = AstKind::Program;
-        visitor.enter_node(kind);
-        visitor.visit_expressions(&it.body);
-        visitor.leave_node(kind);
+        visitor.enter_program(it);
+        walk_expressions(visitor, &it.body);
+        visitor.exit_program(it);
     }
 
     #[inline]
-    pub fn walk_expressions<'a>(visitor: &mut impl Visit<'a>, it: &Vec<Expression<'a>>) {
+    pub fn walk_expressions<'a>(visitor: &mut impl Visit<'a>, it: &[Expression<'a>]) {
+        visitor.enter_expressions(it);
         for expr in it {
-            visitor.visit_expression(expr);
+            walk_expression(visitor, expr);
         }
+        visitor.exit_expressions(it);
     }
 
     #[inline]
     pub fn walk_expression<'a>(visitor: &mut impl Visit<'a>, it: &Expression<'a>) {
+        visitor.enter_expression(it);
         match it {
-            Expression::BooleanLiteral(it) => visitor.visit_boolean_literal(it),
-            Expression::NumericLiteral(it) => visitor.visit_numeric_literal(it),
-            Expression::StringLiteral(it) => visitor.visit_string_literal(it),
-            Expression::Variable(it) => visitor.visit_variable_expression(it),
-            Expression::Parenthesized(it) => visitor.visit_parenthesized_expression(it),
-            Expression::Block(it) => visitor.visit_block_expression(it),
-            Expression::Binary(it) => visitor.visit_binary_expression(it),
-            Expression::Unary(it) => visitor.visit_unary_expression(it),
-            Expression::Ternary(it) => visitor.visit_ternary_expression(it),
-            Expression::Conditional(it) => visitor.visit_conditional_expression(it),
-            Expression::Assignment(it) => visitor.visit_assignment_expression(it),
-            Expression::Resource(it) => visitor.visit_resource_expression(it),
-            Expression::ArrayAccess(it) => visitor.visit_array_access_expression(it),
-            Expression::ArrowAccess(it) => visitor.visit_arrow_access_expression(it),
-            Expression::Call(it) => visitor.visit_call_expression(it),
-            Expression::Loop(it) => visitor.visit_loop_expression(it),
-            Expression::ForEach(it) => visitor.visit_for_each_expression(it),
-            Expression::Break(it) => visitor.visit_break(it),
-            Expression::Continue(it) => visitor.visit_continue(it),
-            Expression::This(it) => visitor.visit_this(it),
-            Expression::Return(it) => visitor.visit_return(it),
+            Expression::BooleanLiteral(it) => walk_boolean_literal(visitor, it),
+            Expression::NumericLiteral(it) => walk_numeric_literal(visitor, it),
+            Expression::StringLiteral(it) => walk_string_literal(visitor, it),
+            Expression::Variable(it) => walk_variable_expression(visitor, it),
+            Expression::Parenthesized(it) => walk_parenthesized_expression(visitor, it),
+            Expression::Block(it) => walk_block_expression(visitor, it),
+            Expression::Binary(it) => walk_binary_expression(visitor, it),
+            Expression::Unary(it) => walk_unary_expression(visitor, it),
+            Expression::Ternary(it) => walk_ternary_expression(visitor, it),
+            Expression::Conditional(it) => walk_conditional_expression(visitor, it),
+            Expression::Assignment(it) => walk_assignment_expression(visitor, it),
+            Expression::Resource(it) => walk_resource_expression(visitor, it),
+            Expression::ArrayAccess(it) => walk_array_access_expression(visitor, it),
+            Expression::ArrowAccess(it) => walk_arrow_access_expression(visitor, it),
+            Expression::Call(it) => walk_call_expression(visitor, it),
+            Expression::Loop(it) => walk_loop_expression(visitor, it),
+            Expression::ForEach(it) => walk_for_each_expression(visitor, it),
+            Expression::Break(it) => walk_break(visitor, it),
+            Expression::Continue(it) => walk_continue(visitor, it),
+            Expression::This(it) => walk_this(visitor, it),
+            Expression::Return(it) => walk_return(visitor, it),
         }
+        visitor.exit_expression(it);
     }
 
     #[inline]
@@ -194,57 +265,51 @@ pub mod walk {
         visitor: &mut impl Visit<'a>,
         it: &IdentifierReference<'a>,
     ) {
-        let kind = AstKind::IdentifierReference;
-        visitor.enter_node(kind);
-        visitor.leave_node(kind);
+        visitor.enter_identifier_reference(it);
+        visitor.exit_identifier_reference(it);
     }
 
     #[inline]
     #[allow(unused_variables)]
     pub fn walk_boolean_literal<'a>(visitor: &mut impl Visit<'a>, it: &BooleanLiteral) {
-        let kind = AstKind::BooleanLiteral;
-        visitor.enter_node(kind);
-        visitor.leave_node(kind);
+        visitor.enter_boolean_literal(it);
+        visitor.exit_boolean_literal(it);
     }
 
     #[inline]
     #[allow(unused_variables)]
     pub fn walk_numeric_literal<'a>(visitor: &mut impl Visit<'a>, it: &NumericLiteral<'a>) {
-        let kind = AstKind::NumericLiteral;
-        visitor.enter_node(kind);
-        visitor.leave_node(kind);
+        visitor.enter_numeric_literal(it);
+        visitor.exit_numeric_literal(it);
     }
 
     #[inline]
     #[allow(unused_variables)]
     pub fn walk_string_literal<'a>(visitor: &mut impl Visit<'a>, it: &StringLiteral<'a>) {
-        let kind = AstKind::StringLiteral;
-        visitor.enter_node(kind);
-        visitor.leave_node(kind);
+        visitor.enter_string_literal(it);
+        visitor.exit_string_literal(it);
     }
 
     #[inline]
     pub fn walk_variable_expression<'a>(visitor: &mut impl Visit<'a>, it: &VariableExpression<'a>) {
-        let kind = AstKind::VariableExpression;
-        visitor.enter_node(kind);
-        visitor.visit_variable_member(&it.member);
-        visitor.leave_node(kind);
+        visitor.enter_variable_expression(it);
+        walk_variable_member(visitor, &it.member);
+        visitor.exit_variable_expression(it);
     }
 
     #[inline]
     pub fn walk_variable_member<'a>(visitor: &mut impl Visit<'a>, it: &VariableMember<'a>) {
-        let kind = AstKind::VariableMember;
-        visitor.enter_node(kind);
+        visitor.enter_variable_member(it);
         match it {
             VariableMember::Object { object, property, .. } => {
-                visitor.visit_variable_member(object);
-                visitor.visit_identifier_reference(property);
+                walk_variable_member(visitor, object);
+                walk_identifier_reference(visitor, property);
             }
             VariableMember::Property { property, .. } => {
-                visitor.visit_identifier_reference(property);
+                walk_identifier_reference(visitor, property);
             }
         }
-        visitor.leave_node(kind);
+        visitor.exit_variable_member(it);
     }
 
     #[inline]
@@ -252,52 +317,47 @@ pub mod walk {
         visitor: &mut impl Visit<'a>,
         it: &ParenthesizedExpression<'a>,
     ) {
-        let kind = AstKind::ParenthesizedExpression;
-        visitor.enter_node(kind);
+        visitor.enter_parenthesized_expression(it);
         match it {
             ParenthesizedExpression::Single { expression, .. } => {
-                visitor.visit_expression(expression);
+                walk_expression(visitor, expression);
             }
             ParenthesizedExpression::Complex { expressions, .. } => {
-                visitor.visit_expressions(expressions);
+                walk_expressions(visitor, expressions);
             }
         }
-        visitor.leave_node(kind);
+        visitor.exit_parenthesized_expression(it);
     }
 
     #[inline]
     pub fn walk_block_expression<'a>(visitor: &mut impl Visit<'a>, it: &BlockExpression<'a>) {
-        let kind = AstKind::BlockExpression;
-        visitor.enter_node(kind);
-        visitor.visit_expressions(&it.expressions);
-        visitor.leave_node(kind);
+        visitor.enter_block_expression(it);
+        walk_expressions(visitor, &it.expressions);
+        visitor.exit_block_expression(it);
     }
 
     #[inline]
     pub fn walk_binary_expression<'a>(visitor: &mut impl Visit<'a>, it: &BinaryExpression<'a>) {
-        let kind = AstKind::BinaryExpression;
-        visitor.enter_node(kind);
-        visitor.visit_expression(&it.left);
-        visitor.visit_expression(&it.right);
-        visitor.leave_node(kind);
+        visitor.enter_binary_expression(it);
+        walk_expression(visitor, &it.left);
+        walk_expression(visitor, &it.right);
+        visitor.exit_binary_expression(it);
     }
 
     #[inline]
     pub fn walk_unary_expression<'a>(visitor: &mut impl Visit<'a>, it: &UnaryExpression<'a>) {
-        let kind = AstKind::UnaryExpression;
-        visitor.enter_node(kind);
-        visitor.visit_expression(&it.argument);
-        visitor.leave_node(kind);
+        visitor.enter_unary_expression(it);
+        walk_expression(visitor, &it.argument);
+        visitor.exit_unary_expression(it);
     }
 
     #[inline]
     pub fn walk_ternary_expression<'a>(visitor: &mut impl Visit<'a>, it: &TernaryExpression<'a>) {
-        let kind = AstKind::TernaryExpression;
-        visitor.enter_node(kind);
-        visitor.visit_expression(&it.test);
-        visitor.visit_expression(&it.consequent);
-        visitor.visit_expression(&it.alternate);
-        visitor.leave_node(kind);
+        visitor.enter_ternary_expression(it);
+        walk_expression(visitor, &it.test);
+        walk_expression(visitor, &it.consequent);
+        walk_expression(visitor, &it.alternate);
+        visitor.exit_ternary_expression(it);
     }
 
     #[inline]
@@ -305,11 +365,10 @@ pub mod walk {
         visitor: &mut impl Visit<'a>,
         it: &ConditionalExpression<'a>,
     ) {
-        let kind = AstKind::ConditionalExpression;
-        visitor.enter_node(kind);
-        visitor.visit_expression(&it.test);
-        visitor.visit_expression(&it.consequent);
-        visitor.leave_node(kind);
+        visitor.enter_conditional_expression(it);
+        walk_expression(visitor, &it.test);
+        walk_expression(visitor, &it.consequent);
+        visitor.exit_conditional_expression(it);
     }
 
     #[inline]
@@ -317,19 +376,17 @@ pub mod walk {
         visitor: &mut impl Visit<'a>,
         it: &AssignmentExpression<'a>,
     ) {
-        let kind = AstKind::AssignmentExpression;
-        visitor.enter_node(kind);
-        visitor.visit_variable_expression(&it.left);
-        visitor.visit_expression(&it.right);
-        visitor.leave_node(kind);
+        visitor.enter_assignment_expression(it);
+        walk_variable_expression(visitor, &it.left);
+        walk_expression(visitor, &it.right);
+        visitor.exit_assignment_expression(it);
     }
 
     #[inline]
     pub fn walk_resource_expression<'a>(visitor: &mut impl Visit<'a>, it: &ResourceExpression<'a>) {
-        let kind = AstKind::ResourceExpression;
-        visitor.enter_node(kind);
-        visitor.visit_identifier_reference(&it.name);
-        visitor.leave_node(kind);
+        visitor.enter_resource_expression(it);
+        walk_identifier_reference(visitor, &it.name);
+        visitor.exit_resource_expression(it);
     }
 
     #[inline]
@@ -337,11 +394,10 @@ pub mod walk {
         visitor: &mut impl Visit<'a>,
         it: &ArrayAccessExpression<'a>,
     ) {
-        let kind = AstKind::ArrayAccessExpression;
-        visitor.enter_node(kind);
-        visitor.visit_identifier_reference(&it.name);
-        visitor.visit_expression(&it.index);
-        visitor.leave_node(kind);
+        visitor.enter_array_access_expression(it);
+        walk_identifier_reference(visitor, &it.name);
+        walk_expression(visitor, &it.index);
+        visitor.exit_array_access_expression(it);
     }
 
     #[inline]
@@ -349,72 +405,64 @@ pub mod walk {
         visitor: &mut impl Visit<'a>,
         it: &ArrowAccessExpression<'a>,
     ) {
-        let kind = AstKind::ArrowAccessExpression;
-        visitor.enter_node(kind);
-        visitor.visit_expression(&it.left);
-        visitor.visit_expression(&it.right);
-        visitor.leave_node(kind);
+        visitor.enter_arrow_access_expression(it);
+        walk_expression(visitor, &it.left);
+        walk_expression(visitor, &it.right);
+        visitor.exit_arrow_access_expression(it);
     }
 
     #[inline]
     pub fn walk_call_expression<'a>(visitor: &mut impl Visit<'a>, it: &CallExpression<'a>) {
-        let kind = AstKind::CallExpression;
-        visitor.enter_node(kind);
-        visitor.visit_identifier_reference(&it.callee);
+        visitor.enter_call_expression(it);
+        walk_identifier_reference(visitor, &it.callee);
         if let Some(args) = &it.arguments {
-            visitor.visit_expressions(args);
+            walk_expressions(visitor, args);
         }
-        visitor.leave_node(kind);
+        visitor.exit_call_expression(it);
     }
 
     #[inline]
     pub fn walk_loop_expression<'a>(visitor: &mut impl Visit<'a>, it: &LoopExpression<'a>) {
-        let kind = AstKind::LoopExpression;
-        visitor.enter_node(kind);
-        visitor.visit_expression(&it.count);
-        visitor.visit_block_expression(&it.expression);
-        visitor.leave_node(kind);
+        visitor.enter_loop_expression(it);
+        walk_expression(visitor, &it.count);
+        walk_block_expression(visitor, &it.expression);
+        visitor.exit_loop_expression(it);
     }
 
     #[inline]
     pub fn walk_for_each_expression<'a>(visitor: &mut impl Visit<'a>, it: &ForEachExpression<'a>) {
-        let kind = AstKind::ForEachExpression;
-        visitor.enter_node(kind);
-        visitor.visit_variable_expression(&it.variable);
-        visitor.visit_expression(&it.array);
-        visitor.visit_block_expression(&it.expression);
-        visitor.leave_node(kind);
+        visitor.enter_for_each_expression(it);
+        walk_variable_expression(visitor, &it.variable);
+        walk_expression(visitor, &it.array);
+        walk_block_expression(visitor, &it.expression);
+        visitor.exit_for_each_expression(it);
     }
 
     #[inline]
     #[allow(unused_variables)]
     pub fn walk_break<'a>(visitor: &mut impl Visit<'a>, it: &Break) {
-        let kind = AstKind::Break;
-        visitor.enter_node(kind);
-        visitor.leave_node(kind);
+        visitor.enter_break(it);
+        visitor.exit_break(it);
     }
 
     #[inline]
     #[allow(unused_variables)]
     pub fn walk_continue<'a>(visitor: &mut impl Visit<'a>, it: &Continue) {
-        let kind = AstKind::Continue;
-        visitor.enter_node(kind);
-        visitor.leave_node(kind);
+        visitor.enter_continue(it);
+        visitor.exit_continue(it);
     }
 
     #[inline]
     #[allow(unused_variables)]
     pub fn walk_this<'a>(visitor: &mut impl Visit<'a>, it: &This) {
-        let kind = AstKind::This;
-        visitor.enter_node(kind);
-        visitor.leave_node(kind);
+        visitor.enter_this(it);
+        visitor.exit_this(it);
     }
 
     #[inline]
     pub fn walk_return<'a>(visitor: &mut impl Visit<'a>, it: &Return<'a>) {
-        let kind = AstKind::Return;
-        visitor.enter_node(kind);
-        visitor.visit_expression(&it.argument);
-        visitor.leave_node(kind);
+        visitor.enter_return(it);
+        walk_expression(visitor, &it.argument);
+        visitor.exit_return(it);
     }
 }
