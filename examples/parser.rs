@@ -18,5 +18,5 @@ fn main() {
         return;
     }
 
-    println!("AST: {:#?}", program);
+    println!("AST: {program:#?}");
 }

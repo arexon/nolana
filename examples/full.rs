@@ -31,7 +31,7 @@ fn main() {
         return;
     }
 
-    println!("AST: {:#?}", program);
+    println!("AST: {program:#?}");
 
     let output = Codegen::default().with_options(CodegenOptions { minify: true }).build(&program);
 
