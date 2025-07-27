@@ -29,9 +29,7 @@
           (rust-bin.fromRustupToolchainFile ./rust-toolchain.toml)
           cargo-insta
           just
-          gnuplot
-          release-plz
-          github-cli
+          cargo-edit
         ];
       };
     });
