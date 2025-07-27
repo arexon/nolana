@@ -11,7 +11,7 @@ ParserReturn {
         is_complex: false,
         body: [
             Return(
-                Return {
+                ReturnStatement {
                     span: Span {
                         start: 0,
                         end: 10,

@@ -10,21 +10,23 @@ ParserReturn {
         source: "material.bar",
         is_complex: false,
         body: [
-            Resource(
-                ResourceExpression {
-                    span: Span {
-                        start: 0,
-                        end: 12,
-                    },
-                    section: Material,
-                    name: IdentifierReference {
+            Expression(
+                Resource(
+                    ResourceExpression {
                         span: Span {
-                            start: 9,
+                            start: 0,
                             end: 12,
                         },
-                        name: "bar",
+                        section: Material,
+                        name: IdentifierReference {
+                            span: Span {
+                                start: 9,
+                                end: 12,
+                            },
+                            name: "bar",
+                        },
                     },
-                },
+                ),
             ),
         ],
     },

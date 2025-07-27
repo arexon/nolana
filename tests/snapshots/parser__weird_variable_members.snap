@@ -10,157 +10,159 @@ ParserReturn {
         source: "variable.v.temp.t.context.c.query.q.math.a.b.c",
         is_complex: false,
         body: [
-            Variable(
-                VariableExpression {
-                    span: Span {
-                        start: 0,
-                        end: 46,
-                    },
-                    lifetime: Variable,
-                    member: Object {
+            Expression(
+                Variable(
+                    VariableExpression {
                         span: Span {
                             start: 0,
                             end: 46,
                         },
-                        object: Object {
+                        lifetime: Variable,
+                        member: Object {
                             span: Span {
                                 start: 0,
-                                end: 44,
+                                end: 46,
                             },
                             object: Object {
                                 span: Span {
                                     start: 0,
-                                    end: 42,
+                                    end: 44,
                                 },
                                 object: Object {
                                     span: Span {
                                         start: 0,
-                                        end: 40,
+                                        end: 42,
                                     },
                                     object: Object {
                                         span: Span {
                                             start: 0,
-                                            end: 35,
+                                            end: 40,
                                         },
                                         object: Object {
                                             span: Span {
                                                 start: 0,
-                                                end: 33,
+                                                end: 35,
                                             },
                                             object: Object {
                                                 span: Span {
                                                     start: 0,
-                                                    end: 27,
+                                                    end: 33,
                                                 },
                                                 object: Object {
                                                     span: Span {
                                                         start: 0,
-                                                        end: 25,
+                                                        end: 27,
                                                     },
                                                     object: Object {
                                                         span: Span {
                                                             start: 0,
-                                                            end: 17,
+                                                            end: 25,
                                                         },
                                                         object: Object {
                                                             span: Span {
                                                                 start: 0,
-                                                                end: 15,
+                                                                end: 17,
                                                             },
-                                                            object: Property {
+                                                            object: Object {
                                                                 span: Span {
                                                                     start: 0,
-                                                                    end: 10,
+                                                                    end: 15,
+                                                                },
+                                                                object: Property {
+                                                                    span: Span {
+                                                                        start: 0,
+                                                                        end: 10,
+                                                                    },
+                                                                    property: IdentifierReference {
+                                                                        span: Span {
+                                                                            start: 9,
+                                                                            end: 10,
+                                                                        },
+                                                                        name: "v",
+                                                                    },
                                                                 },
                                                                 property: IdentifierReference {
                                                                     span: Span {
-                                                                        start: 9,
-                                                                        end: 10,
+                                                                        start: 11,
+                                                                        end: 15,
                                                                     },
-                                                                    name: "v",
+                                                                    name: "temp",
                                                                 },
                                                             },
                                                             property: IdentifierReference {
                                                                 span: Span {
-                                                                    start: 11,
-                                                                    end: 15,
+                                                                    start: 16,
+                                                                    end: 17,
                                                                 },
-                                                                name: "temp",
+                                                                name: "t",
                                                             },
                                                         },
                                                         property: IdentifierReference {
                                                             span: Span {
-                                                                start: 16,
-                                                                end: 17,
+                                                                start: 18,
+                                                                end: 25,
                                                             },
-                                                            name: "t",
+                                                            name: "context",
                                                         },
                                                     },
                                                     property: IdentifierReference {
                                                         span: Span {
-                                                            start: 18,
-                                                            end: 25,
+                                                            start: 26,
+                                                            end: 27,
                                                         },
-                                                        name: "context",
+                                                        name: "c",
                                                     },
                                                 },
                                                 property: IdentifierReference {
                                                     span: Span {
-                                                        start: 26,
-                                                        end: 27,
+                                                        start: 28,
+                                                        end: 33,
                                                     },
-                                                    name: "c",
+                                                    name: "query",
                                                 },
                                             },
                                             property: IdentifierReference {
                                                 span: Span {
-                                                    start: 28,
-                                                    end: 33,
+                                                    start: 34,
+                                                    end: 35,
                                                 },
-                                                name: "query",
+                                                name: "q",
                                             },
                                         },
                                         property: IdentifierReference {
                                             span: Span {
-                                                start: 34,
-                                                end: 35,
+                                                start: 36,
+                                                end: 40,
                                             },
-                                            name: "q",
+                                            name: "math",
                                         },
                                     },
                                     property: IdentifierReference {
                                         span: Span {
-                                            start: 36,
-                                            end: 40,
+                                            start: 41,
+                                            end: 42,
                                         },
-                                        name: "math",
+                                        name: "a",
                                     },
                                 },
                                 property: IdentifierReference {
                                     span: Span {
-                                        start: 41,
-                                        end: 42,
+                                        start: 43,
+                                        end: 44,
                                     },
-                                    name: "a",
+                                    name: "b",
                                 },
                             },
                             property: IdentifierReference {
                                 span: Span {
-                                    start: 43,
-                                    end: 44,
+                                    start: 45,
+                                    end: 46,
                                 },
-                                name: "b",
+                                name: "c",
                             },
-                        },
-                        property: IdentifierReference {
-                            span: Span {
-                                start: 45,
-                                end: 46,
-                            },
-                            name: "c",
                         },
                     },
-                },
+                ),
             ),
         ],
     },

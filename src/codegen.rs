@@ -82,11 +82,23 @@ pub trait Gen {
 
 impl Gen for Program<'_> {
     fn gen(&self, c: &mut Codegen) {
-        for expr in &self.body {
-            expr.gen(c);
-            if c.is_complex {
-                c.print_semi();
-            }
+        for stmt in &self.body {
+            stmt.gen(c);
+        }
+    }
+}
+
+impl Gen for Statement<'_> {
+    fn gen(&self, c: &mut Codegen) {
+        match self {
+            Statement::Expression(stmt) => stmt.gen(c),
+            Statement::Assignment(stmt) => stmt.gen(c),
+            Statement::Return(stmt) => stmt.gen(c),
+            Statement::Break(stmt) => stmt.gen(c),
+            Statement::Continue(stmt) => stmt.gen(c),
+        }
+        if c.is_complex {
+            c.print_semi();
         }
     }
 }
@@ -104,17 +116,13 @@ impl Gen for Expression<'_> {
             Self::Unary(expr) => expr.gen(c),
             Self::Ternary(expr) => expr.gen(c),
             Self::Conditional(expr) => expr.gen(c),
-            Self::Assignment(expr) => expr.gen(c),
             Self::Resource(expr) => expr.gen(c),
             Self::ArrayAccess(expr) => expr.gen(c),
             Self::ArrowAccess(expr) => expr.gen(c),
             Self::Call(expr) => expr.gen(c),
             Self::Loop(expr) => expr.gen(c),
             Self::ForEach(expr) => expr.gen(c),
-            Self::Break(expr) => expr.gen(c),
-            Self::Continue(expr) => expr.gen(c),
             Self::This(expr) => expr.gen(c),
-            Self::Return(expr) => expr.gen(c),
         }
     }
 }
@@ -125,15 +133,15 @@ impl Gen for IdentifierReference<'_> {
     }
 }
 
-impl Gen for BooleanLiteral {
-    fn gen(&self, c: &mut Codegen) {
-        c.print_str(self.as_str());
-    }
-}
-
 impl Gen for NumericLiteral<'_> {
     fn gen(&self, c: &mut Codegen) {
         c.print_str(self.raw);
+    }
+}
+
+impl Gen for BooleanLiteral {
+    fn gen(&self, c: &mut Codegen) {
+        c.print_str(self.as_str());
     }
 }
 
@@ -184,10 +192,9 @@ impl Gen for ParenthesizedExpression<'_> {
         c.print_char('(');
         match self {
             Self::Single { expression, .. } => expression.gen(c),
-            Self::Complex { expressions, .. } => {
-                for expr in expressions {
-                    expr.gen(c);
-                    c.print_semi();
+            Self::Complex { statements, .. } => {
+                for stmt in statements {
+                    stmt.gen(c);
                 }
             }
         }
@@ -198,9 +205,8 @@ impl Gen for ParenthesizedExpression<'_> {
 impl Gen for BlockExpression<'_> {
     fn gen(&self, c: &mut Codegen) {
         c.print_char('{');
-        for expr in &self.expressions {
-            expr.gen(c);
-            c.print_semi();
+        for stmt in &self.statements {
+            stmt.gen(c);
         }
         c.print_char('}');
     }
@@ -259,7 +265,7 @@ impl Gen for ConditionalExpression<'_> {
     }
 }
 
-impl Gen for AssignmentExpression<'_> {
+impl Gen for AssignmentStatement<'_> {
     fn gen(&self, c: &mut Codegen) {
         self.left.gen(c);
         c.print_space();
@@ -350,27 +356,27 @@ impl Gen for ForEachExpression<'_> {
     }
 }
 
-impl Gen for Break {
+impl Gen for ThisExpression {
     fn gen(&self, c: &mut Codegen) {
-        c.print_str("break");
+        c.print_str("this");
     }
 }
 
-impl Gen for Continue {
-    fn gen(&self, c: &mut Codegen) {
-        c.print_str("continue");
-    }
-}
-
-impl Gen for Return<'_> {
+impl Gen for ReturnStatement<'_> {
     fn gen(&self, c: &mut Codegen) {
         c.print_str("return ");
         self.argument.gen(c);
     }
 }
 
-impl Gen for This {
+impl Gen for BreakStatement {
     fn gen(&self, c: &mut Codegen) {
-        c.print_str("this");
+        c.print_str("break");
+    }
+}
+
+impl Gen for ContinueStatement {
+    fn gen(&self, c: &mut Codegen) {
+        c.print_str("continue");
     }
 }

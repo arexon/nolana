@@ -191,6 +191,18 @@ impl Kind {
         )
     }
 
+    pub fn is_variable(self) -> bool {
+        matches!(self, Kind::Variable | Kind::Temporary | Kind::Context)
+    }
+
+    pub fn is_call(self) -> bool {
+        matches!(self, Kind::Math | Kind::Query)
+    }
+
+    pub fn is_resource(self) -> bool {
+        matches!(self, Kind::Geometry | Kind::Material | Kind::Texture)
+    }
+
     /// <https://bedrock.dev/docs/stable/Molang#Operator%20Precedence>
     pub fn binding_power(self) -> Option<(u8, u8)> {
         Some(match self {

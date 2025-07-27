@@ -9,7 +9,47 @@ pub struct Program<'a> {
     /// Determines whether the expression is complex or simple. If it contains
     /// at least one `;` or `=`, it is considered a complex expression.
     pub is_complex: bool,
-    pub body: Vec<Expression<'a>>,
+    pub body: Vec<Statement<'a>>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum Statement<'a> {
+    Expression(Box<Expression<'a>>),
+    Assignment(Box<AssignmentStatement<'a>>),
+    Return(Box<ReturnStatement<'a>>),
+    Break(Box<BreakStatement>),
+    Continue(Box<ContinueStatement>),
+}
+
+/// `v.a = 0;`
+#[derive(Debug, Clone, PartialEq)]
+pub struct AssignmentStatement<'a> {
+    pub span: Span,
+    pub left: VariableExpression<'a>,
+    pub right: Expression<'a>,
+}
+
+/// `return` in `v.a = 1; return v.a;`
+#[derive(Debug, Clone, PartialEq)]
+pub struct ReturnStatement<'a> {
+    pub span: Span,
+    pub argument: Expression<'a>,
+}
+
+/// <https://bedrock.dev/docs/stable/Molang#break>
+///
+/// `break` in `loop(10, { v.x = v.x + 1; (v.x > 20) ? break; });`
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct BreakStatement {
+    pub span: Span,
+}
+
+/// <https://bedrock.dev/docs/stable/Molang#continue>
+///
+/// `continue` in `loop(10, { (v.x > 5) ? continue; v.x = v.x + 1; });`
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ContinueStatement {
+    pub span: Span,
 }
 
 /// <https://bedrock.dev/docs/stable/Molang#Lexical%20Structure>
@@ -25,17 +65,13 @@ pub enum Expression<'a> {
     Unary(Box<UnaryExpression<'a>>),
     Ternary(Box<TernaryExpression<'a>>),
     Conditional(Box<ConditionalExpression<'a>>),
-    Assignment(Box<AssignmentExpression<'a>>),
     Resource(Box<ResourceExpression<'a>>),
     ArrayAccess(Box<ArrayAccessExpression<'a>>),
     ArrowAccess(Box<ArrowAccessExpression<'a>>),
     Call(Box<CallExpression<'a>>),
     Loop(Box<LoopExpression<'a>>),
     ForEach(Box<ForEachExpression<'a>>),
-    Break(Box<Break>),
-    Continue(Box<Continue>),
-    This(Box<This>),
-    Return(Box<Return<'a>>),
+    This(Box<ThisExpression>),
 }
 
 /// `1.23` in `v.a = 1.23;`
@@ -144,7 +180,7 @@ pub enum ParenthesizedExpression<'a> {
     /// `(1 + 1)` in `(1 + 1) * 2`
     Single { span: Span, expression: Expression<'a> },
     /// `(v.a = 1;)` in `(v.b = 'B'; v.a = 1;);`
-    Complex { span: Span, expressions: Vec<Expression<'a>> },
+    Complex { span: Span, statements: Vec<Statement<'a>> },
 }
 
 impl<'a> ParenthesizedExpression<'a> {
@@ -160,7 +196,7 @@ impl<'a> ParenthesizedExpression<'a> {
 #[derive(Debug, Clone, PartialEq)]
 pub struct BlockExpression<'a> {
     pub span: Span,
-    pub expressions: Vec<Expression<'a>>,
+    pub statements: Vec<Statement<'a>>,
 }
 
 /// `1 + 1` in `v.a = 1 + 1;`
@@ -303,14 +339,6 @@ pub struct ConditionalExpression<'a> {
     pub consequent: Expression<'a>,
 }
 
-/// `v.a = 0;`
-#[derive(Debug, Clone, PartialEq)]
-pub struct AssignmentExpression<'a> {
-    pub span: Span,
-    pub left: VariableExpression<'a>,
-    pub right: Expression<'a>,
-}
-
 /// <https://bedrock.dev/docs/stable/Molang#Resource%20Expression>
 #[derive(Debug, Clone, PartialEq)]
 pub struct ResourceExpression<'a> {
@@ -434,31 +462,8 @@ pub struct ForEachExpression<'a> {
     pub expression: BlockExpression<'a>,
 }
 
-/// <https://bedrock.dev/docs/stable/Molang#break>
-///
-/// `break` in `loop(10, { v.x = v.x + 1; (v.x > 20) ? break; });`
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Break {
-    pub span: Span,
-}
-
-/// <https://bedrock.dev/docs/stable/Molang#continue>
-///
-/// `continue` in `loop(10, { (v.x > 5) ? continue; v.x = v.x + 1; });`
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Continue {
-    pub span: Span,
-}
-
 /// `this` in `q.foo(this)`
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct This {
+pub struct ThisExpression {
     pub span: Span,
-}
-
-/// `return` in `v.a = 1; return v.a;`
-#[derive(Debug, Clone, PartialEq)]
-pub struct Return<'a> {
-    pub span: Span,
-    pub argument: Expression<'a>,
 }

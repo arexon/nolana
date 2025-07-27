@@ -12,11 +12,43 @@ pub trait Visit<'a>: Sized {
 
     #[inline]
     #[allow(unused_variables)]
-    fn enter_expressions(&mut self, it: &[Expression<'a>]) {}
+    fn enter_statement(&mut self, it: &Statement<'a>) {}
 
     #[inline]
     #[allow(unused_variables)]
-    fn exit_expressions(&mut self, it: &[Expression<'a>]) {}
+    fn exit_statement(&mut self, it: &Statement<'a>) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn enter_assignment_statement(&mut self, it: &AssignmentStatement<'a>) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn exit_assignment_statement(&mut self, it: &AssignmentStatement<'a>) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn enter_return_statement(&mut self, it: &ReturnStatement<'a>) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn exit_return_statement(&mut self, it: &ReturnStatement<'a>) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn enter_break_statement(&mut self, it: &BreakStatement) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn exit_break_statement(&mut self, it: &BreakStatement) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn enter_continue_statement(&mut self, it: &ContinueStatement) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn exit_continue_statement(&mut self, it: &ContinueStatement) {}
 
     #[inline]
     #[allow(unused_variables)]
@@ -36,19 +68,19 @@ pub trait Visit<'a>: Sized {
 
     #[inline]
     #[allow(unused_variables)]
-    fn enter_boolean_literal(&mut self, it: &BooleanLiteral) {}
-
-    #[inline]
-    #[allow(unused_variables)]
-    fn exit_boolean_literal(&mut self, it: &BooleanLiteral) {}
-
-    #[inline]
-    #[allow(unused_variables)]
     fn enter_numeric_literal(&mut self, it: &NumericLiteral<'a>) {}
 
     #[inline]
     #[allow(unused_variables)]
     fn exit_numeric_literal(&mut self, it: &NumericLiteral<'a>) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn enter_boolean_literal(&mut self, it: &BooleanLiteral) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn exit_boolean_literal(&mut self, it: &BooleanLiteral) {}
 
     #[inline]
     #[allow(unused_variables)]
@@ -124,14 +156,6 @@ pub trait Visit<'a>: Sized {
 
     #[inline]
     #[allow(unused_variables)]
-    fn enter_assignment_expression(&mut self, it: &AssignmentExpression<'a>) {}
-
-    #[inline]
-    #[allow(unused_variables)]
-    fn exit_assignment_expression(&mut self, it: &AssignmentExpression<'a>) {}
-
-    #[inline]
-    #[allow(unused_variables)]
     fn enter_resource_expression(&mut self, it: &ResourceExpression<'a>) {}
 
     #[inline]
@@ -180,35 +204,11 @@ pub trait Visit<'a>: Sized {
 
     #[inline]
     #[allow(unused_variables)]
-    fn enter_break(&mut self, it: &Break) {}
+    fn enter_this_expression(&mut self, it: &ThisExpression) {}
 
     #[inline]
     #[allow(unused_variables)]
-    fn exit_break(&mut self, it: &Break) {}
-
-    #[inline]
-    #[allow(unused_variables)]
-    fn enter_continue(&mut self, it: &Continue) {}
-
-    #[inline]
-    #[allow(unused_variables)]
-    fn exit_continue(&mut self, it: &Continue) {}
-
-    #[inline]
-    #[allow(unused_variables)]
-    fn enter_this(&mut self, it: &This) {}
-
-    #[inline]
-    #[allow(unused_variables)]
-    fn exit_this(&mut self, it: &This) {}
-
-    #[inline]
-    #[allow(unused_variables)]
-    fn enter_return(&mut self, it: &Return<'a>) {}
-
-    #[inline]
-    #[allow(unused_variables)]
-    fn exit_return(&mut self, it: &Return<'a>) {}
+    fn exit_this_expression(&mut self, it: &ThisExpression) {}
 }
 
 pub mod walk {
@@ -217,25 +217,66 @@ pub mod walk {
     #[inline]
     pub fn walk_program<'a>(visitor: &mut impl Visit<'a>, it: &Program<'a>) {
         visitor.enter_program(it);
-        walk_expressions(visitor, &it.body);
+        walk_statements(visitor, &it.body);
         visitor.exit_program(it);
     }
 
-    #[inline]
-    pub fn walk_expressions<'a>(visitor: &mut impl Visit<'a>, it: &[Expression<'a>]) {
-        visitor.enter_expressions(it);
-        for expr in it {
-            walk_expression(visitor, expr);
+    pub fn walk_statements<'a>(visitor: &mut impl Visit<'a>, it: &[Statement<'a>]) {
+        for stmt in it {
+            walk_statement(visitor, stmt);
         }
-        visitor.exit_expressions(it);
+    }
+
+    pub fn walk_statement<'a>(visitor: &mut impl Visit<'a>, it: &Statement<'a>) {
+        visitor.enter_statement(it);
+        match it {
+            Statement::Expression(it) => walk_expression(visitor, it),
+            Statement::Assignment(it) => walk_assignment_statement(visitor, it),
+            Statement::Return(it) => walk_return_statement(visitor, it),
+            Statement::Break(it) => walk_break_statement(visitor, it),
+            Statement::Continue(it) => walk_continue_statement(visitor, it),
+        }
+        visitor.exit_statement(it);
+    }
+
+    #[inline]
+    pub fn walk_assignment_statement<'a>(
+        visitor: &mut impl Visit<'a>,
+        it: &AssignmentStatement<'a>,
+    ) {
+        visitor.enter_assignment_statement(it);
+        walk_variable_expression(visitor, &it.left);
+        walk_expression(visitor, &it.right);
+        visitor.exit_assignment_statement(it);
+    }
+
+    #[inline]
+    pub fn walk_return_statement<'a>(visitor: &mut impl Visit<'a>, it: &ReturnStatement<'a>) {
+        visitor.enter_return_statement(it);
+        walk_expression(visitor, &it.argument);
+        visitor.exit_return_statement(it);
+    }
+
+    #[inline]
+    #[allow(unused_variables)]
+    pub fn walk_break_statement<'a>(visitor: &mut impl Visit<'a>, it: &BreakStatement) {
+        visitor.enter_break_statement(it);
+        visitor.exit_break_statement(it);
+    }
+
+    #[inline]
+    #[allow(unused_variables)]
+    pub fn walk_continue_statement<'a>(visitor: &mut impl Visit<'a>, it: &ContinueStatement) {
+        visitor.enter_continue_statement(it);
+        visitor.exit_continue_statement(it);
     }
 
     #[inline]
     pub fn walk_expression<'a>(visitor: &mut impl Visit<'a>, it: &Expression<'a>) {
         visitor.enter_expression(it);
         match it {
-            Expression::BooleanLiteral(it) => walk_boolean_literal(visitor, it),
             Expression::NumericLiteral(it) => walk_numeric_literal(visitor, it),
+            Expression::BooleanLiteral(it) => walk_boolean_literal(visitor, it),
             Expression::StringLiteral(it) => walk_string_literal(visitor, it),
             Expression::Variable(it) => walk_variable_expression(visitor, it),
             Expression::Parenthesized(it) => walk_parenthesized_expression(visitor, it),
@@ -244,17 +285,13 @@ pub mod walk {
             Expression::Unary(it) => walk_unary_expression(visitor, it),
             Expression::Ternary(it) => walk_ternary_expression(visitor, it),
             Expression::Conditional(it) => walk_conditional_expression(visitor, it),
-            Expression::Assignment(it) => walk_assignment_expression(visitor, it),
             Expression::Resource(it) => walk_resource_expression(visitor, it),
             Expression::ArrayAccess(it) => walk_array_access_expression(visitor, it),
             Expression::ArrowAccess(it) => walk_arrow_access_expression(visitor, it),
             Expression::Call(it) => walk_call_expression(visitor, it),
             Expression::Loop(it) => walk_loop_expression(visitor, it),
             Expression::ForEach(it) => walk_for_each_expression(visitor, it),
-            Expression::Break(it) => walk_break(visitor, it),
-            Expression::Continue(it) => walk_continue(visitor, it),
-            Expression::This(it) => walk_this(visitor, it),
-            Expression::Return(it) => walk_return(visitor, it),
+            Expression::This(it) => walk_this_expression(visitor, it),
         }
         visitor.exit_expression(it);
     }
@@ -271,16 +308,16 @@ pub mod walk {
 
     #[inline]
     #[allow(unused_variables)]
-    pub fn walk_boolean_literal<'a>(visitor: &mut impl Visit<'a>, it: &BooleanLiteral) {
-        visitor.enter_boolean_literal(it);
-        visitor.exit_boolean_literal(it);
+    pub fn walk_numeric_literal<'a>(visitor: &mut impl Visit<'a>, it: &NumericLiteral<'a>) {
+        visitor.enter_numeric_literal(it);
+        visitor.exit_numeric_literal(it);
     }
 
     #[inline]
     #[allow(unused_variables)]
-    pub fn walk_numeric_literal<'a>(visitor: &mut impl Visit<'a>, it: &NumericLiteral<'a>) {
-        visitor.enter_numeric_literal(it);
-        visitor.exit_numeric_literal(it);
+    pub fn walk_boolean_literal<'a>(visitor: &mut impl Visit<'a>, it: &BooleanLiteral) {
+        visitor.enter_boolean_literal(it);
+        visitor.exit_boolean_literal(it);
     }
 
     #[inline]
@@ -322,8 +359,8 @@ pub mod walk {
             ParenthesizedExpression::Single { expression, .. } => {
                 walk_expression(visitor, expression);
             }
-            ParenthesizedExpression::Complex { expressions, .. } => {
-                walk_expressions(visitor, expressions);
+            ParenthesizedExpression::Complex { statements, .. } => {
+                walk_statements(visitor, statements);
             }
         }
         visitor.exit_parenthesized_expression(it);
@@ -332,7 +369,7 @@ pub mod walk {
     #[inline]
     pub fn walk_block_expression<'a>(visitor: &mut impl Visit<'a>, it: &BlockExpression<'a>) {
         visitor.enter_block_expression(it);
-        walk_expressions(visitor, &it.expressions);
+        walk_statements(visitor, &it.statements);
         visitor.exit_block_expression(it);
     }
 
@@ -372,17 +409,6 @@ pub mod walk {
     }
 
     #[inline]
-    pub fn walk_assignment_expression<'a>(
-        visitor: &mut impl Visit<'a>,
-        it: &AssignmentExpression<'a>,
-    ) {
-        visitor.enter_assignment_expression(it);
-        walk_variable_expression(visitor, &it.left);
-        walk_expression(visitor, &it.right);
-        visitor.exit_assignment_expression(it);
-    }
-
-    #[inline]
     pub fn walk_resource_expression<'a>(visitor: &mut impl Visit<'a>, it: &ResourceExpression<'a>) {
         visitor.enter_resource_expression(it);
         walk_identifier_reference(visitor, &it.name);
@@ -416,7 +442,9 @@ pub mod walk {
         visitor.enter_call_expression(it);
         walk_identifier_reference(visitor, &it.callee);
         if let Some(args) = &it.arguments {
-            walk_expressions(visitor, args);
+            for arg in args {
+                walk_expression(visitor, arg);
+            }
         }
         visitor.exit_call_expression(it);
     }
@@ -440,29 +468,8 @@ pub mod walk {
 
     #[inline]
     #[allow(unused_variables)]
-    pub fn walk_break<'a>(visitor: &mut impl Visit<'a>, it: &Break) {
-        visitor.enter_break(it);
-        visitor.exit_break(it);
-    }
-
-    #[inline]
-    #[allow(unused_variables)]
-    pub fn walk_continue<'a>(visitor: &mut impl Visit<'a>, it: &Continue) {
-        visitor.enter_continue(it);
-        visitor.exit_continue(it);
-    }
-
-    #[inline]
-    #[allow(unused_variables)]
-    pub fn walk_this<'a>(visitor: &mut impl Visit<'a>, it: &This) {
-        visitor.enter_this(it);
-        visitor.exit_this(it);
-    }
-
-    #[inline]
-    pub fn walk_return<'a>(visitor: &mut impl Visit<'a>, it: &Return<'a>) {
-        visitor.enter_return(it);
-        walk_expression(visitor, &it.argument);
-        visitor.exit_return(it);
+    pub fn walk_this_expression<'a>(visitor: &mut impl Visit<'a>, it: &ThisExpression) {
+        visitor.enter_this_expression(it);
+        visitor.exit_this_expression(it);
     }
 }

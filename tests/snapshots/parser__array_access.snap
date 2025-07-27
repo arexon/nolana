@@ -10,37 +10,39 @@ ParserReturn {
         source: "array.foo[q.bar]",
         is_complex: false,
         body: [
-            ArrayAccess(
-                ArrayAccessExpression {
-                    span: Span {
-                        start: 0,
-                        end: 16,
-                    },
-                    name: IdentifierReference {
+            Expression(
+                ArrayAccess(
+                    ArrayAccessExpression {
                         span: Span {
-                            start: 6,
-                            end: 9,
+                            start: 0,
+                            end: 16,
                         },
-                        name: "foo",
-                    },
-                    index: Call(
-                        CallExpression {
+                        name: IdentifierReference {
                             span: Span {
-                                start: 10,
-                                end: 15,
+                                start: 6,
+                                end: 9,
                             },
-                            kind: Query,
-                            callee: IdentifierReference {
+                            name: "foo",
+                        },
+                        index: Call(
+                            CallExpression {
                                 span: Span {
-                                    start: 12,
+                                    start: 10,
                                     end: 15,
                                 },
-                                name: "bar",
+                                kind: Query,
+                                callee: IdentifierReference {
+                                    span: Span {
+                                        start: 12,
+                                        end: 15,
+                                    },
+                                    name: "bar",
+                                },
+                                arguments: None,
                             },
-                            arguments: None,
-                        },
-                    ),
-                },
+                        ),
+                    },
+                ),
             ),
         ],
     },

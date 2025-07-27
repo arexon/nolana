@@ -10,14 +10,16 @@ ParserReturn {
         source: "true",
         is_complex: false,
         body: [
-            BooleanLiteral(
-                BooleanLiteral {
-                    span: Span {
-                        start: 0,
-                        end: 4,
+            Expression(
+                BooleanLiteral(
+                    BooleanLiteral {
+                        span: Span {
+                            start: 0,
+                            end: 4,
+                        },
+                        value: true,
                     },
-                    value: true,
-                },
+                ),
             ),
         ],
     },

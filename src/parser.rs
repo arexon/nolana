@@ -85,24 +85,28 @@ impl<'a> Parser<'a> {
 
     fn parse_program(&mut self) -> Result<Program<'a>> {
         let span = self.start_span();
-        let mut exprs = Vec::new();
+        let mut body = Vec::new();
         while !self.at(Kind::Eof) {
-            if let Some(stmt) = self.parse_expression_delimited_by_semi()? {
-                exprs.push(stmt);
+            if let Some(stmt) = self.parse_statement()? {
+                body.push(stmt);
             }
         }
         Ok(Program {
             span: self.end_span(span),
             source: self.source_code,
             is_complex: self.is_complex,
-            body: exprs,
+            body,
         })
     }
 
-    fn parse_expression_delimited_by_semi(&mut self) -> Result<Option<Expression<'a>>> {
-        let expr = match self.current_kind() {
+    fn parse_statement(&mut self) -> Result<Option<Statement<'a>>> {
+        let stmt = match self.current_kind() {
             Kind::Semi => None, // We skip expressions that start with `;`.
-            _ => Some(self.parse_expression(0)?),
+            v if v.is_variable() => Some(self.parse_assignment_statement_or_expression()?),
+            Kind::Return => Some(Statement::Return(self.parse_return_statement()?.into())),
+            Kind::Break => Some(Statement::Break(self.parse_break_statement()?.into())),
+            Kind::Continue => Some(Statement::Continue(self.parse_continue_statement()?.into())),
+            _ => Some(Statement::Expression(self.parse_expression(0)?.into())),
         };
         if self.eat(Kind::Semi) {
             if !self.is_complex {
@@ -111,17 +115,56 @@ impl<'a> Parser<'a> {
         } else if self.is_complex {
             self.error(errors::semi_required(self.current_token().span()));
         }
-        Ok(expr)
+        Ok(stmt)
+    }
+
+    fn parse_assignment_statement_or_expression(&mut self) -> Result<Statement<'a>> {
+        let span = self.start_span();
+        let left = self.parse_variable_expression()?;
+        Ok(match self.current_kind() {
+            Kind::Eq => {
+                self.bump();
+                if !self.is_complex {
+                    self.is_complex = true;
+                }
+                let right = self.parse_expression(0)?;
+                Statement::Assignment(
+                    AssignmentStatement { span: self.end_span(span), left, right }.into(),
+                )
+            }
+            _ => Statement::Expression(
+                self.parse_expression_rest(0, Expression::Variable(left.into()), span)?.into(),
+            ),
+        })
+    }
+
+    fn parse_return_statement(&mut self) -> Result<ReturnStatement<'a>> {
+        let span = self.start_span();
+        self.expect(Kind::Return)?;
+        let argument = self.parse_expression(0)?;
+        Ok(ReturnStatement { span: self.end_span(span), argument })
+    }
+
+    fn parse_break_statement(&mut self) -> Result<BreakStatement> {
+        let span = self.start_span();
+        self.expect(Kind::Break)?;
+        Ok(BreakStatement { span: self.end_span(span) })
+    }
+
+    fn parse_continue_statement(&mut self) -> Result<ContinueStatement> {
+        let span = self.start_span();
+        self.expect(Kind::Continue)?;
+        Ok(ContinueStatement { span: self.end_span(span) })
     }
 
     fn parse_expression(&mut self, min_bp: u8) -> Result<Expression<'a>> {
         let span = self.start_span();
-        let mut lhs = match self.current_kind() {
+        let lhs = match self.current_kind() {
             Kind::True | Kind::False => self.parse_literal_boolean()?,
             Kind::Number => self.parse_literal_number()?,
             Kind::String => self.parse_literal_string()?,
-            Kind::Temporary | Kind::Variable | Kind::Context => {
-                self.parse_variable_expression_rest()?
+            v if v.is_variable() => {
+                self.parse_variable_expression().map(|expr| Expression::Variable(expr.into()))?
             }
             Kind::LeftParen => self.parse_parenthesized_expression()?,
             Kind::LeftBrace => {
@@ -129,20 +172,25 @@ impl<'a> Parser<'a> {
             }
             Kind::Minus | Kind::Bang => self.parse_unary_expression()?,
             Kind::Query | Kind::Math => self.parse_call_expression()?,
-            Kind::Geometry | Kind::Material | Kind::Texture => self.parse_resource_expression()?,
+            v if v.is_resource() => self.parse_resource_expression()?,
             Kind::Array => self.parse_array_access_expression()?,
             Kind::Loop => self.parse_loop_expression()?,
             Kind::ForEach => self.parse_for_each_expression()?,
-            Kind::Break => self.parse_break_expression()?,
-            Kind::Continue => self.parse_continue_expression()?,
             Kind::This => self.parse_this_expression()?,
-            Kind::Return => self.parse_return_expression()?,
             Kind::UnterminatedString => {
                 return Err(errors::unterminated_string(self.end_span(span)))
             }
             _ => return Err(errors::unexpected_token(self.current_token().span())),
         };
+        self.parse_expression_rest(min_bp, lhs, span)
+    }
 
+    fn parse_expression_rest(
+        &mut self,
+        min_bp: u8,
+        mut lhs: Expression<'a>,
+        span: Span,
+    ) -> Result<Expression<'a>> {
         loop {
             let kind = self.current_kind();
 
@@ -168,8 +216,17 @@ impl<'a> Parser<'a> {
                 _ => break,
             }
         }
-
         Ok(lhs)
+    }
+
+    fn parse_literal_number(&mut self) -> Result<Expression<'a>> {
+        let span = self.start_span();
+        let raw = self.current_src();
+        self.expect(Kind::Number)?;
+        let value = raw.parse::<f32>().map_err(|_| errors::invalid_number(self.end_span(span)))?;
+        Ok(Expression::NumericLiteral(
+            NumericLiteral { span: self.end_span(span), value, raw }.into(),
+        ))
     }
 
     fn parse_literal_boolean(&mut self) -> Result<Expression<'a>> {
@@ -181,16 +238,6 @@ impl<'a> Parser<'a> {
         };
         self.bump();
         Ok(Expression::BooleanLiteral(BooleanLiteral { span: self.end_span(span), value }.into()))
-    }
-
-    fn parse_literal_number(&mut self) -> Result<Expression<'a>> {
-        let span = self.start_span();
-        let raw = self.current_src();
-        self.expect(Kind::Number)?;
-        let value = raw.parse::<f32>().map_err(|_| errors::invalid_number(self.end_span(span)))?;
-        Ok(Expression::NumericLiteral(
-            NumericLiteral { span: self.end_span(span), value, raw }.into(),
-        ))
     }
 
     pub fn parse_literal_string(&mut self) -> Result<Expression<'a>> {
@@ -206,9 +253,7 @@ impl<'a> Parser<'a> {
         let span = self.start_span();
         let name = self.current_src();
         match self.current_kind() {
-            Kind::Context | Kind::Variable | Kind::Temporary | Kind::Math | Kind::Query => {
-                self.bump()
-            }
+            v if v.is_variable() | v.is_call() => self.bump(),
             _ => self.expect(Kind::Identifier)?,
         }
         Ok(IdentifierReference { span: self.end_span(span), name })
@@ -222,30 +267,57 @@ impl<'a> Parser<'a> {
             self.bump();
             return Err(errors::empty_parenthesized_expression(self.end_span(span)));
         }
-        let expr = self.parse_expression(0)?;
-        if self.eat(Kind::Semi) {
-            let mut exprs = Vec::new();
-            exprs.push(expr);
-            loop {
-                if let Some(stmt) = self.parse_expression_delimited_by_semi()? {
-                    exprs.push(stmt);
+        let first_statement = match self.current_kind() {
+            v if v.is_variable() => self.parse_assignment_statement_or_expression()?,
+            Kind::Return => Statement::Return(self.parse_return_statement()?.into()),
+            Kind::Break => Statement::Break(self.parse_break_statement()?.into()),
+            Kind::Continue => Statement::Continue(self.parse_continue_statement()?.into()),
+            _ => Statement::Expression(self.parse_expression(0)?.into()),
+        };
+        if let Statement::Expression(expression) = first_statement {
+            match self.current_kind() {
+                Kind::RightParen => {
+                    self.bump();
+                    Ok(Expression::Parenthesized(
+                        ParenthesizedExpression::Single {
+                            span: self.end_span(span),
+                            expression: *expression,
+                        }
+                        .into(),
+                    ))
                 }
-                if self.at(Kind::RightParen) {
-                    break;
-                }
+                Kind::Semi => self
+                    .parse_parenthesized_expression_rest(Statement::Expression(expression), span),
+                Kind::Eof => Err(errors::expected_token(
+                    Kind::RightParen.to_str(),
+                    self.current_kind().to_str(),
+                    Span::new(self.prev_token_end, self.current_token().start),
+                )),
+                _ => Err(errors::unexpected_token(self.current_token().span())),
             }
-            self.expect(Kind::RightParen)?;
-            Ok(Expression::Parenthesized(
-                ParenthesizedExpression::Complex { span: self.end_span(span), expressions: exprs }
-                    .into(),
-            ))
         } else {
-            self.expect(Kind::RightParen)?;
-            Ok(Expression::Parenthesized(
-                ParenthesizedExpression::Single { span: self.end_span(span), expression: expr }
-                    .into(),
-            ))
+            self.parse_parenthesized_expression_rest(first_statement, span)
         }
+    }
+
+    fn parse_parenthesized_expression_rest(
+        &mut self,
+        first_statement: Statement<'a>,
+        span: Span,
+    ) -> Result<Expression<'a>> {
+        let mut statements = vec![first_statement];
+        loop {
+            if self.at(Kind::RightParen) {
+                break;
+            }
+            if let Some(stmt) = self.parse_statement()? {
+                statements.push(stmt);
+            }
+        }
+        self.expect(Kind::RightParen)?;
+        Ok(Expression::Parenthesized(
+            ParenthesizedExpression::Complex { span: self.end_span(span), statements }.into(),
+        ))
     }
 
     fn parse_block_expression(&mut self) -> Result<BlockExpression<'a>> {
@@ -257,15 +329,21 @@ impl<'a> Parser<'a> {
         }
         let span = self.start_span();
         self.expect(Kind::LeftBrace)?;
-        let mut expressions = Vec::new();
+        let mut statements = Vec::new();
         while !self.at(Kind::RightBrace) {
-            expressions.push(self.parse_expression(0)?);
+            statements.push(match self.current_kind() {
+                v if v.is_variable() => self.parse_assignment_statement_or_expression()?,
+                Kind::Return => Statement::Return(self.parse_return_statement()?.into()),
+                Kind::Break => Statement::Break(self.parse_break_statement()?.into()),
+                Kind::Continue => Statement::Continue(self.parse_continue_statement()?.into()),
+                _ => Statement::Expression(self.parse_expression(0)?.into()),
+            });
             if !self.eat(Kind::Semi) {
                 self.error(errors::semi_required_in_block_expression(self.current_token().span()))
             }
         }
         self.expect(Kind::RightBrace)?;
-        Ok(BlockExpression { span: self.end_span(span), expressions })
+        Ok(BlockExpression { span: self.end_span(span), statements })
     }
 
     fn parse_binary_expression(
@@ -328,22 +406,6 @@ impl<'a> Parser<'a> {
             };
         }
         Ok(VariableExpression { span: self.end_span(span), lifetime, member })
-    }
-
-    fn parse_variable_expression_rest(&mut self) -> Result<Expression<'a>> {
-        let span = self.start_span();
-        let left = self.parse_variable_expression()?;
-        if self.eat(Kind::Eq) {
-            if !self.is_complex {
-                self.is_complex = true;
-            }
-            let right = self.parse_expression(0)?;
-            Ok(Expression::Assignment(
-                AssignmentExpression { span: self.end_span(span), left, right }.into(),
-            ))
-        } else {
-            Ok(Expression::Variable(left.into()))
-        }
     }
 
     fn parse_resource_expression(&mut self) -> Result<Expression<'a>> {
@@ -444,29 +506,10 @@ impl<'a> Parser<'a> {
         ))
     }
 
-    fn parse_break_expression(&mut self) -> Result<Expression<'a>> {
-        let span = self.start_span();
-        self.expect(Kind::Break)?;
-        Ok(Expression::Break(Break { span: self.end_span(span) }.into()))
-    }
-
-    fn parse_continue_expression(&mut self) -> Result<Expression<'a>> {
-        let span = self.start_span();
-        self.expect(Kind::Continue)?;
-        Ok(Expression::Continue(Continue { span: self.end_span(span) }.into()))
-    }
-
     fn parse_this_expression(&mut self) -> Result<Expression<'a>> {
         let span = self.start_span();
         self.expect(Kind::This)?;
-        Ok(Expression::This(This { span: self.end_span(span) }.into()))
-    }
-
-    fn parse_return_expression(&mut self) -> Result<Expression<'a>> {
-        let span = self.start_span();
-        self.expect(Kind::Return)?;
-        let argument = self.parse_expression(0)?;
-        Ok(Expression::Return(Return { span: self.end_span(span), argument }.into()))
+        Ok(Expression::This(ThisExpression { span: self.end_span(span) }.into()))
     }
 
     #[inline]

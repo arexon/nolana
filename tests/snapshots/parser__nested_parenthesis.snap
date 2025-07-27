@@ -10,47 +10,49 @@ ParserReturn {
         source: "((((16))))",
         is_complex: false,
         body: [
-            Parenthesized(
-                Single {
-                    span: Span {
-                        start: 0,
-                        end: 10,
-                    },
-                    expression: Parenthesized(
-                        Single {
-                            span: Span {
-                                start: 1,
-                                end: 9,
-                            },
-                            expression: Parenthesized(
-                                Single {
-                                    span: Span {
-                                        start: 2,
-                                        end: 8,
-                                    },
-                                    expression: Parenthesized(
-                                        Single {
-                                            span: Span {
-                                                start: 3,
-                                                end: 7,
-                                            },
-                                            expression: NumericLiteral(
-                                                NumericLiteral {
-                                                    span: Span {
-                                                        start: 4,
-                                                        end: 6,
-                                                    },
-                                                    value: 16.0,
-                                                    raw: "16",
-                                                },
-                                            ),
-                                        },
-                                    ),
-                                },
-                            ),
+            Expression(
+                Parenthesized(
+                    Single {
+                        span: Span {
+                            start: 0,
+                            end: 10,
                         },
-                    ),
-                },
+                        expression: Parenthesized(
+                            Single {
+                                span: Span {
+                                    start: 1,
+                                    end: 9,
+                                },
+                                expression: Parenthesized(
+                                    Single {
+                                        span: Span {
+                                            start: 2,
+                                            end: 8,
+                                        },
+                                        expression: Parenthesized(
+                                            Single {
+                                                span: Span {
+                                                    start: 3,
+                                                    end: 7,
+                                                },
+                                                expression: NumericLiteral(
+                                                    NumericLiteral {
+                                                        span: Span {
+                                                            start: 4,
+                                                            end: 6,
+                                                        },
+                                                        value: 16.0,
+                                                        raw: "16",
+                                                    },
+                                                ),
+                                            },
+                                        ),
+                                    },
+                                ),
+                            },
+                        ),
+                    },
+                ),
             ),
         ],
     },

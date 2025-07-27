@@ -10,27 +10,29 @@ ParserReturn {
         source: "temp.foo",
         is_complex: false,
         body: [
-            Variable(
-                VariableExpression {
-                    span: Span {
-                        start: 0,
-                        end: 8,
-                    },
-                    lifetime: Temporary,
-                    member: Property {
+            Expression(
+                Variable(
+                    VariableExpression {
                         span: Span {
                             start: 0,
                             end: 8,
                         },
-                        property: IdentifierReference {
+                        lifetime: Temporary,
+                        member: Property {
                             span: Span {
-                                start: 5,
+                                start: 0,
                                 end: 8,
                             },
-                            name: "foo",
+                            property: IdentifierReference {
+                                span: Span {
+                                    start: 5,
+                                    end: 8,
+                                },
+                                name: "foo",
+                            },
                         },
                     },
-                },
+                ),
             ),
         ],
     },

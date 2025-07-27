@@ -11,7 +11,7 @@ ParserReturn {
         is_complex: true,
         body: [
             Assignment(
-                AssignmentExpression {
+                AssignmentStatement {
                     span: Span {
                         start: 0,
                         end: 7,
@@ -48,27 +48,29 @@ ParserReturn {
                     ),
                 },
             ),
-            Variable(
-                VariableExpression {
-                    span: Span {
-                        start: 9,
-                        end: 12,
-                    },
-                    lifetime: Variable,
-                    member: Property {
+            Expression(
+                Variable(
+                    VariableExpression {
                         span: Span {
                             start: 9,
                             end: 12,
                         },
-                        property: IdentifierReference {
+                        lifetime: Variable,
+                        member: Property {
                             span: Span {
-                                start: 11,
+                                start: 9,
                                 end: 12,
                             },
-                            name: "a",
+                            property: IdentifierReference {
+                                span: Span {
+                                    start: 11,
+                                    end: 12,
+                                },
+                                name: "a",
+                            },
                         },
                     },
-                },
+                ),
             ),
         ],
     },

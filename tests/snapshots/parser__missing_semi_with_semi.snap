@@ -10,25 +10,29 @@ ParserReturn {
         source: "0; 0",
         is_complex: true,
         body: [
-            NumericLiteral(
-                NumericLiteral {
-                    span: Span {
-                        start: 0,
-                        end: 1,
+            Expression(
+                NumericLiteral(
+                    NumericLiteral {
+                        span: Span {
+                            start: 0,
+                            end: 1,
+                        },
+                        value: 0.0,
+                        raw: "0",
                     },
-                    value: 0.0,
-                    raw: "0",
-                },
+                ),
             ),
-            NumericLiteral(
-                NumericLiteral {
-                    span: Span {
-                        start: 3,
-                        end: 4,
+            Expression(
+                NumericLiteral(
+                    NumericLiteral {
+                        span: Span {
+                            start: 3,
+                            end: 4,
+                        },
+                        value: 0.0,
+                        raw: "0",
                     },
-                    value: 0.0,
-                    raw: "0",
-                },
+                ),
             ),
         ],
     },

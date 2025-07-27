@@ -37,7 +37,7 @@ impl<'a> Visit<'a> for SemanticChecker {
     }
 
     fn enter_block_expression(&mut self, it: &BlockExpression<'a>) {
-        if it.expressions.is_empty() {
+        if it.statements.is_empty() {
             self.errors.push(errors::empty_block_expression(it.span));
         }
     }
@@ -54,19 +54,19 @@ impl<'a> Visit<'a> for SemanticChecker {
         self.errors.push(errors::illegal_string_operators(it.span));
     }
 
-    fn enter_assignment_expression(&mut self, it: &AssignmentExpression<'a>) {
+    fn enter_assignment_statement(&mut self, it: &AssignmentStatement<'a>) {
         if it.left.lifetime == VariableLifetime::Context {
             self.errors.push(errors::assigning_context(it.span))
         }
     }
 
-    fn enter_break(&mut self, it: &Break) {
+    fn enter_break_statement(&mut self, it: &BreakStatement) {
         if self.loop_depth == 0 {
             self.errors.push(errors::break_outside_loop(it.span));
         }
     }
 
-    fn enter_continue(&mut self, it: &Continue) {
+    fn enter_continue_statement(&mut self, it: &ContinueStatement) {
         if self.loop_depth == 0 {
             self.errors.push(errors::continue_outside_loop(it.span));
         }

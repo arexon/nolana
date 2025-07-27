@@ -10,100 +10,102 @@ ParserReturn {
         source: "loop(10, {v.i = v.i + 1;});",
         is_complex: true,
         body: [
-            Loop(
-                LoopExpression {
-                    span: Span {
-                        start: 0,
-                        end: 26,
-                    },
-                    count: NumericLiteral(
-                        NumericLiteral {
-                            span: Span {
-                                start: 5,
-                                end: 7,
-                            },
-                            value: 10.0,
-                            raw: "10",
-                        },
-                    ),
-                    expression: BlockExpression {
+            Expression(
+                Loop(
+                    LoopExpression {
                         span: Span {
-                            start: 9,
-                            end: 25,
+                            start: 0,
+                            end: 26,
                         },
-                        expressions: [
-                            Assignment(
-                                AssignmentExpression {
-                                    span: Span {
-                                        start: 10,
-                                        end: 23,
-                                    },
-                                    left: VariableExpression {
+                        count: NumericLiteral(
+                            NumericLiteral {
+                                span: Span {
+                                    start: 5,
+                                    end: 7,
+                                },
+                                value: 10.0,
+                                raw: "10",
+                            },
+                        ),
+                        expression: BlockExpression {
+                            span: Span {
+                                start: 9,
+                                end: 25,
+                            },
+                            statements: [
+                                Assignment(
+                                    AssignmentStatement {
                                         span: Span {
                                             start: 10,
-                                            end: 13,
+                                            end: 23,
                                         },
-                                        lifetime: Variable,
-                                        member: Property {
+                                        left: VariableExpression {
                                             span: Span {
                                                 start: 10,
                                                 end: 13,
                                             },
-                                            property: IdentifierReference {
+                                            lifetime: Variable,
+                                            member: Property {
                                                 span: Span {
-                                                    start: 12,
+                                                    start: 10,
                                                     end: 13,
                                                 },
-                                                name: "i",
+                                                property: IdentifierReference {
+                                                    span: Span {
+                                                        start: 12,
+                                                        end: 13,
+                                                    },
+                                                    name: "i",
+                                                },
                                             },
                                         },
-                                    },
-                                    right: Binary(
-                                        BinaryExpression {
-                                            span: Span {
-                                                start: 16,
-                                                end: 23,
-                                            },
-                                            left: Variable(
-                                                VariableExpression {
-                                                    span: Span {
-                                                        start: 16,
-                                                        end: 19,
-                                                    },
-                                                    lifetime: Variable,
-                                                    member: Property {
+                                        right: Binary(
+                                            BinaryExpression {
+                                                span: Span {
+                                                    start: 16,
+                                                    end: 23,
+                                                },
+                                                left: Variable(
+                                                    VariableExpression {
                                                         span: Span {
                                                             start: 16,
                                                             end: 19,
                                                         },
-                                                        property: IdentifierReference {
+                                                        lifetime: Variable,
+                                                        member: Property {
                                                             span: Span {
-                                                                start: 18,
+                                                                start: 16,
                                                                 end: 19,
                                                             },
-                                                            name: "i",
+                                                            property: IdentifierReference {
+                                                                span: Span {
+                                                                    start: 18,
+                                                                    end: 19,
+                                                                },
+                                                                name: "i",
+                                                            },
                                                         },
                                                     },
-                                                },
-                                            ),
-                                            operator: Addition,
-                                            right: NumericLiteral(
-                                                NumericLiteral {
-                                                    span: Span {
-                                                        start: 22,
-                                                        end: 23,
+                                                ),
+                                                operator: Addition,
+                                                right: NumericLiteral(
+                                                    NumericLiteral {
+                                                        span: Span {
+                                                            start: 22,
+                                                            end: 23,
+                                                        },
+                                                        value: 1.0,
+                                                        raw: "1",
                                                     },
-                                                    value: 1.0,
-                                                    raw: "1",
-                                                },
-                                            ),
-                                        },
-                                    ),
-                                },
-                            ),
-                        ],
+                                                ),
+                                            },
+                                        ),
+                                    },
+                                ),
+                            ],
+                        },
                     },
-                },
+                ),
             ),
         ],
     },

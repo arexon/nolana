@@ -10,13 +10,15 @@ ParserReturn {
         source: "this",
         is_complex: false,
         body: [
-            This(
-                This {
-                    span: Span {
-                        start: 0,
-                        end: 4,
+            Expression(
+                This(
+                    ThisExpression {
+                        span: Span {
+                            start: 0,
+                            end: 4,
+                        },
                     },
-                },
+                ),
             ),
         ],
     },

@@ -11,7 +11,7 @@ ParserReturn {
         is_complex: true,
         body: [
             Assignment(
-                AssignmentExpression {
+                AssignmentStatement {
                     span: Span {
                         start: 0,
                         end: 25,
@@ -75,7 +75,7 @@ ParserReturn {
                 },
             ),
             Assignment(
-                AssignmentExpression {
+                AssignmentStatement {
                     span: Span {
                         start: 27,
                         end: 48,
@@ -139,7 +139,7 @@ ParserReturn {
                 },
             ),
             Assignment(
-                AssignmentExpression {
+                AssignmentStatement {
                     span: Span {
                         start: 50,
                         end: 75,

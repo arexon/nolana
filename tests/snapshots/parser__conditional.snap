@@ -10,40 +10,42 @@ ParserReturn {
         source: "q.foo ? 1",
         is_complex: false,
         body: [
-            Conditional(
-                ConditionalExpression {
-                    span: Span {
-                        start: 0,
-                        end: 9,
-                    },
-                    test: Call(
-                        CallExpression {
-                            span: Span {
-                                start: 0,
-                                end: 5,
-                            },
-                            kind: Query,
-                            callee: IdentifierReference {
+            Expression(
+                Conditional(
+                    ConditionalExpression {
+                        span: Span {
+                            start: 0,
+                            end: 9,
+                        },
+                        test: Call(
+                            CallExpression {
                                 span: Span {
-                                    start: 2,
+                                    start: 0,
                                     end: 5,
                                 },
-                                name: "foo",
+                                kind: Query,
+                                callee: IdentifierReference {
+                                    span: Span {
+                                        start: 2,
+                                        end: 5,
+                                    },
+                                    name: "foo",
+                                },
+                                arguments: None,
                             },
-                            arguments: None,
-                        },
-                    ),
-                    consequent: NumericLiteral(
-                        NumericLiteral {
-                            span: Span {
-                                start: 8,
-                                end: 9,
+                        ),
+                        consequent: NumericLiteral(
+                            NumericLiteral {
+                                span: Span {
+                                    start: 8,
+                                    end: 9,
+                                },
+                                value: 1.0,
+                                raw: "1",
                             },
-                            value: 1.0,
-                            raw: "1",
-                        },
-                    ),
-                },
+                        ),
+                    },
+                ),
             ),
         ],
     },

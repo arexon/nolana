@@ -10,14 +10,16 @@ ParserReturn {
         source: "'foo_bar123.-$#*()'",
         is_complex: false,
         body: [
-            StringLiteral(
-                StringLiteral {
-                    span: Span {
-                        start: 0,
-                        end: 19,
+            Expression(
+                StringLiteral(
+                    StringLiteral {
+                        span: Span {
+                            start: 0,
+                            end: 19,
+                        },
+                        value: "foo_bar123.-$#*()",
                     },
-                    value: "foo_bar123.-$#*()",
-                },
+                ),
             ),
         ],
     },
