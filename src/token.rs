@@ -53,16 +53,16 @@ pub enum Kind {
     RightBracket,
 
     #[token("=")]
-    Assign,
-
-    #[token("!")]
-    Not,
-
-    #[token("==")]
     Eq,
 
+    #[token("==")]
+    Eq2,
+
+    #[token("!")]
+    Bang,
+
     #[token("!=")]
-    NotEq,
+    Neq,
 
     #[token("<")]
     Lt,
@@ -77,10 +77,10 @@ pub enum Kind {
     GtEq,
 
     #[token("||")]
-    Or,
+    Pipe2,
 
     #[token("&&")]
-    And,
+    Amp2,
 
     #[token("->")]
     Arrow,
@@ -175,14 +175,14 @@ impl Kind {
     pub fn is_binary_operator(self) -> bool {
         matches!(
             self,
-            Kind::Eq
-                | Kind::NotEq
+            Kind::Eq2
+                | Kind::Neq
                 | Kind::Lt
                 | Kind::Gt
                 | Kind::LtEq
                 | Kind::GtEq
-                | Kind::Or
-                | Kind::And
+                | Kind::Pipe2
+                | Kind::Amp2
                 | Kind::NullCoal
                 | Kind::Minus
                 | Kind::Plus
@@ -194,13 +194,13 @@ impl Kind {
     /// <https://bedrock.dev/docs/stable/Molang#Operator%20Precedence>
     pub fn binding_power(self) -> Option<(u8, u8)> {
         Some(match self {
-            Self::Not => (16, 17),
+            Self::Bang => (16, 17),
             Self::Star | Self::Slash => (14, 15),
             Self::Plus | Self::Minus => (12, 13),
             Self::Lt | Self::Gt | Self::LtEq | Self::GtEq => (10, 11),
-            Self::Eq | Self::NotEq => (8, 9),
-            Self::And => (6, 7),
-            Self::Or => (4, 5),
+            Self::Eq2 | Self::Neq => (8, 9),
+            Self::Amp2 => (6, 7),
+            Self::Pipe2 => (4, 5),
             Self::Conditional => (3, 4),
             Self::NullCoal => (1, 2),
             _ => return None,
@@ -220,16 +220,16 @@ impl Kind {
             Kind::RightBrace => "}",
             Kind::LeftBracket => "[",
             Kind::RightBracket => "]",
-            Kind::Assign => "=",
-            Kind::Not => "!",
-            Kind::Eq => "==",
-            Kind::NotEq => "!=",
+            Kind::Eq => "=",
+            Kind::Bang => "!",
+            Kind::Eq2 => "==",
+            Kind::Neq => "!=",
             Kind::Lt => "<",
             Kind::Gt => ">",
             Kind::LtEq => "<=",
             Kind::GtEq => ">=",
-            Kind::Or => "||",
-            Kind::And => "&&",
+            Kind::Pipe2 => "||",
+            Kind::Amp2 => "&&",
             Kind::Arrow => "->",
             Kind::Dot => ".",
             Kind::Conditional => "?",
@@ -381,16 +381,16 @@ mod tests {
                 (Ok(Kind::RightBrace), "}"),
                 (Ok(Kind::LeftBracket), "["),
                 (Ok(Kind::RightBracket), "]"),
-                (Ok(Kind::Assign), "="),
-                (Ok(Kind::Not), "!"),
-                (Ok(Kind::Eq), "=="),
-                (Ok(Kind::NotEq), "!="),
+                (Ok(Kind::Eq), "="),
+                (Ok(Kind::Bang), "!"),
+                (Ok(Kind::Eq2), "=="),
+                (Ok(Kind::Neq), "!="),
                 (Ok(Kind::Lt), "<"),
                 (Ok(Kind::Gt), ">"),
                 (Ok(Kind::LtEq), "<="),
                 (Ok(Kind::GtEq), ">="),
-                (Ok(Kind::Or), "||"),
-                (Ok(Kind::And), "&&"),
+                (Ok(Kind::Pipe2), "||"),
+                (Ok(Kind::Amp2), "&&"),
                 (Ok(Kind::Arrow), "->"),
                 (Ok(Kind::Conditional), "?"),
                 (Ok(Kind::NullCoal), "??"),

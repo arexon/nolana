@@ -117,7 +117,7 @@ impl<'a> Parser<'a> {
             Kind::LeftBrace => {
                 self.parse_block_expression().map(|expr| Expression::Block(expr.into()))?
             }
-            Kind::Minus | Kind::Not => self.parse_unary_expression()?,
+            Kind::Minus | Kind::Bang => self.parse_unary_expression()?,
             Kind::Query | Kind::Math => self.parse_call_expression()?,
             Kind::Geometry | Kind::Material | Kind::Texture => self.parse_resource_expression()?,
             Kind::Array => self.parse_array_access_expression()?,
@@ -302,7 +302,7 @@ impl<'a> Parser<'a> {
     fn parse_variable_expression_rest(&mut self) -> Result<Expression<'a>> {
         let span = self.start_span();
         let left = self.parse_variable_expression()?;
-        if self.eat(Kind::Assign) {
+        if self.eat(Kind::Eq) {
             if !self.is_complex {
                 self.is_complex = true;
             }
