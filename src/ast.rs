@@ -1,4 +1,4 @@
-use crate::span::Span;
+use crate::{span::Span, token::Kind};
 
 /// Represents the root of a Molang expression AST, containing all the top-level
 /// information.
@@ -15,8 +15,8 @@ pub struct Program<'a> {
 /// <https://bedrock.dev/docs/stable/Molang#Lexical%20Structure>
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expression<'a> {
-    BooleanLiteral(Box<BooleanLiteral>),
     NumericLiteral(Box<NumericLiteral<'a>>),
+    BooleanLiteral(Box<BooleanLiteral>),
     StringLiteral(Box<StringLiteral<'a>>),
     Variable(Box<VariableExpression<'a>>),
     Parenthesized(Box<ParenthesizedExpression<'a>>),
@@ -38,6 +38,14 @@ pub enum Expression<'a> {
     Return(Box<Return<'a>>),
 }
 
+/// `1.23` in `v.a = 1.23;`
+#[derive(Debug, Clone, PartialEq)]
+pub struct NumericLiteral<'a> {
+    pub span: Span,
+    pub value: f32,
+    pub raw: &'a str,
+}
+
 /// `true` or `false`
 #[derive(Debug, Clone, PartialEq)]
 pub struct BooleanLiteral {
@@ -45,12 +53,15 @@ pub struct BooleanLiteral {
     pub value: bool,
 }
 
-/// `1.23` in `v.a = 1.23;`
-#[derive(Debug, Clone, PartialEq)]
-pub struct NumericLiteral<'a> {
-    pub span: Span,
-    pub value: f32,
-    pub raw: &'a str,
+impl BooleanLiteral {
+    /// Returns `"true"` or `"false"` depending on this boolean's value.
+    pub fn as_str(&self) -> &'static str {
+        if self.value {
+            "true"
+        } else {
+            "false"
+        }
+    }
 }
 
 /// <https://bedrock.dev/docs/stable/Molang#Strings>
@@ -88,6 +99,28 @@ pub enum VariableLifetime {
     Context,
 }
 
+impl VariableLifetime {
+    /// String representation of the call kind ("temp", "variable", or "context").
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Temporary => "temp",
+            Self::Variable => "variable",
+            Self::Context => "context",
+        }
+    }
+}
+
+impl From<Kind> for VariableLifetime {
+    fn from(kind: Kind) -> Self {
+        match kind {
+            Kind::Temporary => Self::Temporary,
+            Kind::Variable => Self::Variable,
+            Kind::Context => Self::Context,
+            _ => unreachable!("Variable Lifetime: {kind:?}"),
+        }
+    }
+}
+
 /// <https://bedrock.dev/docs/stable/Molang#Structs>
 #[derive(Debug, Clone, PartialEq)]
 pub enum VariableMember<'a> {
@@ -97,12 +130,30 @@ pub enum VariableMember<'a> {
     Property { span: Span, property: IdentifierReference<'a> },
 }
 
+impl<'a> VariableMember<'a> {
+    pub fn span(&self) -> Span {
+        match self {
+            VariableMember::Object { span, .. } => *span,
+            VariableMember::Property { span, .. } => *span,
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum ParenthesizedExpression<'a> {
     /// `(1 + 1)` in `(1 + 1) * 2`
     Single { span: Span, expression: Expression<'a> },
     /// `(v.a = 1;)` in `(v.b = 'B'; v.a = 1;);`
     Complex { span: Span, expressions: Vec<Expression<'a>> },
+}
+
+impl<'a> ParenthesizedExpression<'a> {
+    pub fn span(&self) -> Span {
+        match self {
+            ParenthesizedExpression::Single { span, .. } => *span,
+            ParenthesizedExpression::Complex { span, .. } => *span,
+        }
+    }
 }
 
 /// `{ v.a = 0; }` in `loop(10, { v.a = 0; })`
@@ -152,6 +203,48 @@ pub enum BinaryOperator {
     Coalesce,
 }
 
+impl BinaryOperator {
+    /// The string representation of this operator as it appears in source code.
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Equality => "==",
+            Self::Inequality => "!=",
+            Self::LessThan => "<",
+            Self::LessEqualThan => "<=",
+            Self::GreaterThan => ">",
+            Self::GreaterEqualThan => ">=",
+            Self::Addition => "+",
+            Self::Subtraction => "-",
+            Self::Multiplication => "*",
+            Self::Division => "/",
+            Self::Or => "||",
+            Self::And => "&&",
+            Self::Coalesce => "??",
+        }
+    }
+}
+
+impl From<Kind> for BinaryOperator {
+    fn from(token: Kind) -> Self {
+        match token {
+            Kind::Eq2 => Self::Equality,
+            Kind::Neq => Self::Inequality,
+            Kind::Lt => Self::LessThan,
+            Kind::Gt => Self::GreaterThan,
+            Kind::LtEq => Self::LessEqualThan,
+            Kind::GtEq => Self::GreaterEqualThan,
+            Kind::Pipe2 => Self::Or,
+            Kind::Amp2 => Self::And,
+            Kind::NullCoal => Self::Coalesce,
+            Kind::Minus => Self::Subtraction,
+            Kind::Plus => Self::Addition,
+            Kind::Star => Self::Multiplication,
+            Kind::Slash => Self::Division,
+            _ => unreachable!("Binary Operator: {token:?}"),
+        }
+    }
+}
+
 /// `-1` in `q.foo(-1)`
 #[derive(Debug, Clone, PartialEq)]
 pub struct UnaryExpression<'a> {
@@ -167,6 +260,26 @@ pub enum UnaryOperator {
     Negate,
     /// `!`
     Not,
+}
+
+impl UnaryOperator {
+    /// The string representation of this operator as it appears in source code.
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Negate => "-",
+            Self::Not => "!",
+        }
+    }
+}
+
+impl From<Kind> for UnaryOperator {
+    fn from(token: Kind) -> Self {
+        match token {
+            Kind::Minus => Self::Negate,
+            Kind::Bang => Self::Not,
+            _ => unreachable!("Unary Operator: {token:?}"),
+        }
+    }
 }
 
 /// <https://bedrock.dev/docs/stable/Molang#Conditionals>
@@ -217,6 +330,28 @@ pub enum ResourceSection {
     Texture,
 }
 
+impl ResourceSection {
+    /// String representation of the resource section ("geometry", "material", or "texture").
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Geometry => "geometry",
+            Self::Material => "material",
+            Self::Texture => "texture",
+        }
+    }
+}
+
+impl From<Kind> for ResourceSection {
+    fn from(kind: Kind) -> Self {
+        match kind {
+            Kind::Geometry => Self::Geometry,
+            Kind::Material => Self::Material,
+            Kind::Texture => Self::Texture,
+            _ => unreachable!("Resource Section: {kind:?}"),
+        }
+    }
+}
+
 /// <https://bedrock.dev/docs/stable/Molang#Array%20Expressions>
 ///
 /// `array.foo[0]`
@@ -249,6 +384,16 @@ pub struct CallExpression<'a> {
     pub arguments: Option<Vec<Expression<'a>>>,
 }
 
+impl CallKind {
+    /// String representation of the call kind ("math" or "query").
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Math => "math",
+            Self::Query => "query",
+        }
+    }
+}
+
 /// The call kind for [`CallExpression`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CallKind {
@@ -256,6 +401,16 @@ pub enum CallKind {
     Math,
     /// `query` in `query.foo`
     Query,
+}
+
+impl From<Kind> for CallKind {
+    fn from(kind: Kind) -> Self {
+        match kind {
+            Kind::Math => Self::Math,
+            Kind::Query => Self::Query,
+            _ => unreachable!("Call Kind: {kind:?}"),
+        }
+    }
 }
 
 /// <https://bedrock.dev/docs/stable/Molang#loop>

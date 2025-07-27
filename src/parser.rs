@@ -71,7 +71,12 @@ impl<'a> Parser<'a> {
             Ok(program) => (program, false),
             Err(error) => {
                 self.error(error);
-                let program = Program::new(Span::default(), self.source_code, false, Vec::new());
+                let program = Program {
+                    span: Span::default(),
+                    source: self.source_code,
+                    is_complex: false,
+                    body: Vec::new(),
+                };
                 (program, true)
             }
         };
@@ -86,7 +91,12 @@ impl<'a> Parser<'a> {
                 exprs.push(stmt);
             }
         }
-        Ok(Program::new(self.end_span(span), self.source_code, self.is_complex, exprs))
+        Ok(Program {
+            span: self.end_span(span),
+            source: self.source_code,
+            is_complex: self.is_complex,
+            body: exprs,
+        })
     }
 
     fn parse_expression_delimited_by_semi(&mut self) -> Result<Option<Expression<'a>>> {
@@ -170,7 +180,7 @@ impl<'a> Parser<'a> {
             kind => unreachable!("Boolean Literal: {kind:?}"),
         };
         self.bump();
-        Ok(Expression::new_boolean_literal(self.end_span(span), value))
+        Ok(Expression::BooleanLiteral(BooleanLiteral { span: self.end_span(span), value }.into()))
     }
 
     fn parse_literal_number(&mut self) -> Result<Expression<'a>> {
@@ -178,7 +188,9 @@ impl<'a> Parser<'a> {
         let raw = self.current_src();
         self.expect(Kind::Number)?;
         let value = raw.parse::<f32>().map_err(|_| errors::invalid_number(self.end_span(span)))?;
-        Ok(Expression::new_numeric_literal(self.end_span(span), value, raw))
+        Ok(Expression::NumericLiteral(
+            NumericLiteral { span: self.end_span(span), value, raw }.into(),
+        ))
     }
 
     pub fn parse_literal_string(&mut self) -> Result<Expression<'a>> {
@@ -186,7 +198,7 @@ impl<'a> Parser<'a> {
         let value = self.current_src();
         let value = &value[1..value.len() - 1];
         self.expect(Kind::String)?;
-        Ok(Expression::new_string_literal(self.end_span(span), value))
+        Ok(Expression::StringLiteral(StringLiteral { span: self.end_span(span), value }.into()))
     }
 
     #[inline(always)] // Hot path
@@ -199,7 +211,7 @@ impl<'a> Parser<'a> {
             }
             _ => self.expect(Kind::Identifier)?,
         }
-        Ok(IdentifierReference::new(self.end_span(span), name))
+        Ok(IdentifierReference { span: self.end_span(span), name })
     }
 
     fn parse_parenthesized_expression(&mut self) -> Result<Expression<'a>> {
@@ -223,10 +235,16 @@ impl<'a> Parser<'a> {
                 }
             }
             self.expect(Kind::RightParen)?;
-            Ok(Expression::new_parenthesized_complex(self.end_span(span), exprs))
+            Ok(Expression::Parenthesized(
+                ParenthesizedExpression::Complex { span: self.end_span(span), expressions: exprs }
+                    .into(),
+            ))
         } else {
             self.expect(Kind::RightParen)?;
-            Ok(Expression::new_parenthesized_single(self.end_span(span), expr))
+            Ok(Expression::Parenthesized(
+                ParenthesizedExpression::Single { span: self.end_span(span), expression: expr }
+                    .into(),
+            ))
         }
     }
 
@@ -239,15 +257,15 @@ impl<'a> Parser<'a> {
         }
         let span = self.start_span();
         self.expect(Kind::LeftBrace)?;
-        let mut exprs = Vec::new();
+        let mut expressions = Vec::new();
         while !self.at(Kind::RightBrace) {
-            exprs.push(self.parse_expression(0)?);
+            expressions.push(self.parse_expression(0)?);
             if !self.eat(Kind::Semi) {
                 self.error(errors::semi_required_in_block_expression(self.current_token().span()))
             }
         }
         self.expect(Kind::RightBrace)?;
-        Ok(BlockExpression::new(self.end_span(span), exprs))
+        Ok(BlockExpression { span: self.end_span(span), expressions })
     }
 
     fn parse_binary_expression(
@@ -259,7 +277,9 @@ impl<'a> Parser<'a> {
         let operator = self.current_kind().into();
         self.bump();
         let right = self.parse_expression(rbp)?;
-        Ok(Expression::new_binary(self.end_span(left_span), left, operator, right))
+        Ok(Expression::Binary(
+            BinaryExpression { span: self.end_span(left_span), left, operator, right }.into(),
+        ))
     }
 
     fn parse_unary_expression(&mut self) -> Result<Expression<'a>> {
@@ -267,7 +287,9 @@ impl<'a> Parser<'a> {
         let operator = self.current_kind().into();
         self.bump();
         let argument = self.parse_expression(0)?;
-        Ok(Expression::new_unary(self.end_span(span), operator, argument))
+        Ok(Expression::Unary(
+            UnaryExpression { span: self.end_span(span), operator, argument }.into(),
+        ))
     }
 
     fn parse_ternary_or_conditional_expression(
@@ -279,9 +301,14 @@ impl<'a> Parser<'a> {
         let consequent = self.parse_expression(0)?;
         if self.eat(Kind::Colon) {
             let alternate = self.parse_expression(0)?;
-            Ok(Expression::new_ternary(self.end_span(test_span), test, consequent, alternate))
+            Ok(Expression::Ternary(
+                TernaryExpression { span: self.end_span(test_span), test, consequent, alternate }
+                    .into(),
+            ))
         } else {
-            Ok(Expression::new_conditional(self.end_span(test_span), test, consequent))
+            Ok(Expression::Conditional(
+                ConditionalExpression { span: self.end_span(test_span), test, consequent }.into(),
+            ))
         }
     }
 
@@ -291,12 +318,16 @@ impl<'a> Parser<'a> {
         self.bump();
         self.expect(Kind::Dot)?;
         let property = self.parse_identifier_reference()?;
-        let mut member = VariableMember::new_property(self.end_span(span), property);
+        let mut member = VariableMember::Property { span: self.end_span(span), property };
         while self.eat(Kind::Dot) {
             let property = self.parse_identifier_reference()?;
-            member = VariableMember::new_object(self.end_span(span), member.into(), property);
+            member = VariableMember::Object {
+                span: self.end_span(span),
+                object: member.into(),
+                property,
+            };
         }
-        Ok(VariableExpression::new(self.end_span(span), lifetime, member))
+        Ok(VariableExpression { span: self.end_span(span), lifetime, member })
     }
 
     fn parse_variable_expression_rest(&mut self) -> Result<Expression<'a>> {
@@ -307,7 +338,9 @@ impl<'a> Parser<'a> {
                 self.is_complex = true;
             }
             let right = self.parse_expression(0)?;
-            Ok(Expression::new_assignment(self.end_span(span), left, right))
+            Ok(Expression::Assignment(
+                AssignmentExpression { span: self.end_span(span), left, right }.into(),
+            ))
         } else {
             Ok(Expression::Variable(left.into()))
         }
@@ -319,7 +352,9 @@ impl<'a> Parser<'a> {
         self.bump();
         self.expect(Kind::Dot)?;
         let name = self.parse_identifier_reference()?;
-        Ok(Expression::new_resource(self.end_span(span), section, name))
+        Ok(Expression::Resource(
+            ResourceExpression { span: self.end_span(span), section, name }.into(),
+        ))
     }
 
     fn parse_array_access_expression(&mut self) -> Result<Expression<'a>> {
@@ -330,7 +365,9 @@ impl<'a> Parser<'a> {
         self.expect(Kind::LeftBracket)?;
         let index = self.parse_expression(0)?;
         self.expect(Kind::RightBracket)?;
-        Ok(Expression::new_array_access(self.end_span(span), name, index))
+        Ok(Expression::ArrayAccess(
+            ArrayAccessExpression { span: self.end_span(span), name, index }.into(),
+        ))
     }
 
     fn parse_arrow_access_expression(
@@ -340,7 +377,9 @@ impl<'a> Parser<'a> {
     ) -> Result<Expression<'a>> {
         self.expect(Kind::Arrow)?;
         let right = self.parse_expression(0)?;
-        Ok(Expression::new_arrow_access(self.end_span(left_span), left, right))
+        Ok(Expression::ArrowAccess(
+            ArrowAccessExpression { span: self.end_span(left_span), left, right }.into(),
+        ))
     }
 
     fn parse_call_expression(&mut self) -> Result<Expression<'a>> {
@@ -371,7 +410,9 @@ impl<'a> Parser<'a> {
         } else {
             None
         };
-        Ok(Expression::new_call(self.end_span(span), kind, callee, arguments))
+        Ok(Expression::Call(
+            CallExpression { span: self.end_span(span), kind, callee, arguments }.into(),
+        ))
     }
 
     fn parse_loop_expression(&mut self) -> Result<Expression<'a>> {
@@ -380,9 +421,9 @@ impl<'a> Parser<'a> {
         self.expect(Kind::LeftParen)?;
         let count = self.parse_expression(0)?;
         self.expect(Kind::Comma)?;
-        let expr = self.parse_block_expression()?;
+        let expression = self.parse_block_expression()?;
         self.expect(Kind::RightParen)?;
-        Ok(Expression::new_loop(self.end_span(span), count, expr))
+        Ok(Expression::Loop(LoopExpression { span: self.end_span(span), count, expression }.into()))
     }
 
     fn parse_for_each_expression(&mut self) -> Result<Expression<'a>> {
@@ -396,34 +437,36 @@ impl<'a> Parser<'a> {
         self.expect(Kind::Comma)?;
         let array = self.parse_expression(0)?;
         self.expect(Kind::Comma)?;
-        let expr = self.parse_block_expression()?;
+        let expression = self.parse_block_expression()?;
         self.expect(Kind::RightParen)?;
-        Ok(Expression::new_for_each(self.end_span(span), variable, array, expr))
+        Ok(Expression::ForEach(
+            ForEachExpression { span: self.end_span(span), variable, array, expression }.into(),
+        ))
     }
 
     fn parse_break_expression(&mut self) -> Result<Expression<'a>> {
         let span = self.start_span();
         self.expect(Kind::Break)?;
-        Ok(Expression::new_break(self.end_span(span)))
+        Ok(Expression::Break(Break { span: self.end_span(span) }.into()))
     }
 
     fn parse_continue_expression(&mut self) -> Result<Expression<'a>> {
         let span = self.start_span();
         self.expect(Kind::Continue)?;
-        Ok(Expression::new_continue(self.end_span(span)))
+        Ok(Expression::Continue(Continue { span: self.end_span(span) }.into()))
     }
 
     fn parse_this_expression(&mut self) -> Result<Expression<'a>> {
         let span = self.start_span();
         self.expect(Kind::This)?;
-        Ok(Expression::new_this(self.end_span(span)))
+        Ok(Expression::This(This { span: self.end_span(span) }.into()))
     }
 
     fn parse_return_expression(&mut self) -> Result<Expression<'a>> {
         let span = self.start_span();
         self.expect(Kind::Return)?;
         let argument = self.parse_expression(0)?;
-        Ok(Expression::new_return(self.end_span(span), argument))
+        Ok(Expression::Return(Return { span: self.end_span(span), argument }.into()))
     }
 
     #[inline]
