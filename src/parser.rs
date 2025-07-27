@@ -75,11 +75,7 @@ impl<'a> Parser<'a> {
                 (program, true)
             }
         };
-        ParserReturn {
-            program,
-            errors: self.errors,
-            panicked,
-        }
+        ParserReturn { program, errors: self.errors, panicked }
     }
 
     fn parse_program(&mut self) -> Result<Program<'a>> {
@@ -90,12 +86,7 @@ impl<'a> Parser<'a> {
                 exprs.push(stmt);
             }
         }
-        Ok(Program::new(
-            self.end_span(span),
-            self.source_code,
-            self.is_complex,
-            exprs,
-        ))
+        Ok(Program::new(self.end_span(span), self.source_code, self.is_complex, exprs))
     }
 
     fn parse_expression_delimited_by_semi(&mut self) -> Result<Option<Expression<'a>>> {
@@ -123,9 +114,9 @@ impl<'a> Parser<'a> {
                 self.parse_variable_expression_rest()?
             }
             Kind::LeftParen => self.parse_parenthesized_expression()?,
-            Kind::LeftBrace => self
-                .parse_block_expression()
-                .map(|expr| Expression::Block(expr.into()))?,
+            Kind::LeftBrace => {
+                self.parse_block_expression().map(|expr| Expression::Block(expr.into()))?
+            }
             Kind::Minus | Kind::Not => self.parse_unary_expression()?,
             Kind::Query | Kind::Math => self.parse_call_expression()?,
             Kind::Geometry | Kind::Material | Kind::Texture => self.parse_resource_expression()?,
@@ -186,14 +177,8 @@ impl<'a> Parser<'a> {
         let span = self.start_span();
         let raw = self.current_src();
         self.expect(Kind::Number)?;
-        let value = raw
-            .parse::<f32>()
-            .map_err(|_| errors::invalid_number(self.end_span(span)))?;
-        Ok(Expression::new_numeric_literal(
-            self.end_span(span),
-            value,
-            raw,
-        ))
+        let value = raw.parse::<f32>().map_err(|_| errors::invalid_number(self.end_span(span)))?;
+        Ok(Expression::new_numeric_literal(self.end_span(span), value, raw))
     }
 
     pub fn parse_literal_string(&mut self) -> Result<Expression<'a>> {
@@ -238,16 +223,10 @@ impl<'a> Parser<'a> {
                 }
             }
             self.expect(Kind::RightParen)?;
-            Ok(Expression::new_parenthesized_complex(
-                self.end_span(span),
-                exprs,
-            ))
+            Ok(Expression::new_parenthesized_complex(self.end_span(span), exprs))
         } else {
             self.expect(Kind::RightParen)?;
-            Ok(Expression::new_parenthesized_single(
-                self.end_span(span),
-                expr,
-            ))
+            Ok(Expression::new_parenthesized_single(self.end_span(span), expr))
         }
     }
 
@@ -264,9 +243,7 @@ impl<'a> Parser<'a> {
         while !self.at(Kind::RightBrace) {
             exprs.push(self.parse_expression(0)?);
             if !self.eat(Kind::Semi) {
-                self.error(errors::semi_required_in_block_expression(
-                    self.current_token().span(),
-                ))
+                self.error(errors::semi_required_in_block_expression(self.current_token().span()))
             }
         }
         self.expect(Kind::RightBrace)?;
@@ -282,12 +259,7 @@ impl<'a> Parser<'a> {
         let operator = self.current_kind().into();
         self.bump();
         let right = self.parse_expression(rbp)?;
-        Ok(Expression::new_binary(
-            self.end_span(left_span),
-            left,
-            operator,
-            right,
-        ))
+        Ok(Expression::new_binary(self.end_span(left_span), left, operator, right))
     }
 
     fn parse_unary_expression(&mut self) -> Result<Expression<'a>> {
@@ -295,11 +267,7 @@ impl<'a> Parser<'a> {
         let operator = self.current_kind().into();
         self.bump();
         let argument = self.parse_expression(0)?;
-        Ok(Expression::new_unary(
-            self.end_span(span),
-            operator,
-            argument,
-        ))
+        Ok(Expression::new_unary(self.end_span(span), operator, argument))
     }
 
     fn parse_ternary_or_conditional_expression(
@@ -311,18 +279,9 @@ impl<'a> Parser<'a> {
         let consequent = self.parse_expression(0)?;
         if self.eat(Kind::Colon) {
             let alternate = self.parse_expression(0)?;
-            Ok(Expression::new_ternary(
-                self.end_span(test_span),
-                test,
-                consequent,
-                alternate,
-            ))
+            Ok(Expression::new_ternary(self.end_span(test_span), test, consequent, alternate))
         } else {
-            Ok(Expression::new_conditional(
-                self.end_span(test_span),
-                test,
-                consequent,
-            ))
+            Ok(Expression::new_conditional(self.end_span(test_span), test, consequent))
         }
     }
 
@@ -337,11 +296,7 @@ impl<'a> Parser<'a> {
             let property = self.parse_identifier_reference()?;
             member = VariableMember::new_object(self.end_span(span), member.into(), property);
         }
-        Ok(VariableExpression::new(
-            self.end_span(span),
-            lifetime,
-            member,
-        ))
+        Ok(VariableExpression::new(self.end_span(span), lifetime, member))
     }
 
     fn parse_variable_expression_rest(&mut self) -> Result<Expression<'a>> {
@@ -375,11 +330,7 @@ impl<'a> Parser<'a> {
         self.expect(Kind::LeftBracket)?;
         let index = self.parse_expression(0)?;
         self.expect(Kind::RightBracket)?;
-        Ok(Expression::new_array_access(
-            self.end_span(span),
-            name,
-            index,
-        ))
+        Ok(Expression::new_array_access(self.end_span(span), name, index))
     }
 
     fn parse_arrow_access_expression(
@@ -389,11 +340,7 @@ impl<'a> Parser<'a> {
     ) -> Result<Expression<'a>> {
         self.expect(Kind::Arrow)?;
         let right = self.parse_expression(0)?;
-        Ok(Expression::new_arrow_access(
-            self.end_span(left_span),
-            left,
-            right,
-        ))
+        Ok(Expression::new_arrow_access(self.end_span(left_span), left, right))
     }
 
     fn parse_call_expression(&mut self) -> Result<Expression<'a>> {
@@ -424,12 +371,7 @@ impl<'a> Parser<'a> {
         } else {
             None
         };
-        Ok(Expression::new_call(
-            self.end_span(span),
-            kind,
-            callee,
-            arguments,
-        ))
+        Ok(Expression::new_call(self.end_span(span), kind, callee, arguments))
     }
 
     fn parse_loop_expression(&mut self) -> Result<Expression<'a>> {
@@ -448,9 +390,7 @@ impl<'a> Parser<'a> {
         self.expect(Kind::ForEach)?;
         self.expect(Kind::LeftParen)?;
         if !(self.at(Kind::Variable) || self.at(Kind::Temporary)) {
-            return Err(errors::for_each_wrong_first_arg(
-                self.current_token().span(),
-            ));
+            return Err(errors::for_each_wrong_first_arg(self.current_token().span()));
         }
         let variable = self.parse_variable_expression()?;
         self.expect(Kind::Comma)?;
@@ -458,12 +398,7 @@ impl<'a> Parser<'a> {
         self.expect(Kind::Comma)?;
         let expr = self.parse_block_expression()?;
         self.expect(Kind::RightParen)?;
-        Ok(Expression::new_for_each(
-            self.end_span(span),
-            variable,
-            array,
-            expr,
-        ))
+        Ok(Expression::new_for_each(self.end_span(span), variable, array, expr))
     }
 
     fn parse_break_expression(&mut self) -> Result<Expression<'a>> {
@@ -526,17 +461,9 @@ impl<'a> Parser<'a> {
     #[inline(always)] // Hot path
     fn bump(&mut self) {
         self.prev_token_end = self.token.end;
-        let kind = self
-            .lexer
-            .next()
-            .unwrap_or(Ok(Kind::Eof))
-            .unwrap_or(Kind::UnterminatedString);
+        let kind = self.lexer.next().unwrap_or(Ok(Kind::Eof)).unwrap_or(Kind::UnterminatedString);
         let span = self.lexer.span();
-        self.token = Token {
-            kind,
-            start: span.start as u32,
-            end: span.end as u32,
-        };
+        self.token = Token { kind, start: span.start as u32, end: span.end as u32 };
     }
 
     #[inline]

@@ -22,10 +22,7 @@ test_parser!(variable_temp, "temp.foo");
 test_parser!(variable_t, "t.foo");
 test_parser!(variable_context, "context.foo");
 test_parser!(variable_c, "c.foo");
-test_parser!(
-    weird_variable_members,
-    "variable.v.temp.t.context.c.query.q.math.a.b.c"
-);
+test_parser!(weird_variable_members, "variable.v.temp.t.context.c.query.q.math.a.b.c");
 
 test_parser!(binary_operation, "1 + 2 * 3");
 test_parser!(parenthesized_binary_operation, "(1 + 1) * (1 + 1)");
@@ -69,10 +66,7 @@ test_parser!(arrow_access, "v.foo->v.bar");
 test_parser!(r#loop, "loop(10, {v.i = v.i + 1;});");
 
 test_parser!(for_each, "for_each(v.a, q.foo, {v.b = v.a + 1;});");
-test_parser!(
-    for_each_wrong_first_arg,
-    "for_each(1, q.foo, {v.b = v.a + 1;});"
-);
+test_parser!(for_each_wrong_first_arg, "for_each(1, q.foo, {v.b = v.a + 1;});");
 
 test_parser!(r#return, "return v.a");
 

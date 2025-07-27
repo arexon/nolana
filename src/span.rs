@@ -39,10 +39,7 @@ impl IndexMut<Span> for str {
 
 impl From<Span> for SourceSpan {
     fn from(span: Span) -> Self {
-        Self::new(
-            SourceOffset::from(span.start as usize),
-            span.size() as usize,
-        )
+        Self::new(SourceOffset::from(span.start as usize), span.size() as usize)
     }
 }
 

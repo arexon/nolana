@@ -121,30 +121,17 @@ pub enum VariableLifetime {
 #[derive(Debug, Clone, PartialEq)]
 pub enum VariableMember<'a> {
     /// `foo.bar` in `v.foo.bar`
-    Object {
-        span: Span,
-        object: Box<VariableMember<'a>>,
-        property: IdentifierReference<'a>,
-    },
+    Object { span: Span, object: Box<VariableMember<'a>>, property: IdentifierReference<'a> },
     /// `foo` in `v.foo`
-    Property {
-        span: Span,
-        property: IdentifierReference<'a>,
-    },
+    Property { span: Span, property: IdentifierReference<'a> },
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ParenthesizedExpression<'a> {
     /// `(1 + 1)` in `(1 + 1) * 2`
-    Single {
-        span: Span,
-        expression: Expression<'a>,
-    },
+    Single { span: Span, expression: Expression<'a> },
     /// `(v.a = 1;)` in `(v.b = 'B'; v.a = 1;);`
-    Complex {
-        span: Span,
-        expressions: Vec<Expression<'a>>,
-    },
+    Complex { span: Span, expressions: Vec<Expression<'a>> },
 }
 
 /// `{ v.a = 0; }` in `loop(10, { v.a = 0; })`

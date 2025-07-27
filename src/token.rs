@@ -274,10 +274,8 @@ mod tests {
     use super::*;
 
     fn assert_lexer(source: &str, expected: &[(Result<Kind, ()>, &str)]) {
-        let tokens: Vec<_> = Kind::lexer(source)
-            .spanned()
-            .map(|(token, span)| (token, &source[span]))
-            .collect();
+        let tokens: Vec<_> =
+            Kind::lexer(source).spanned().map(|(token, span)| (token, &source[span])).collect();
         assert_eq!(tokens, expected);
     }
 
@@ -303,10 +301,7 @@ mod tests {
                 (Ok(Kind::String), "' '"),
             ],
         );
-        assert_lexer(
-            "'unterminated {}",
-            &[(Ok(Kind::UnterminatedString), "'unterminated {}")],
-        );
+        assert_lexer("'unterminated {}", &[(Ok(Kind::UnterminatedString), "'unterminated {}")]);
     }
 
     #[test]

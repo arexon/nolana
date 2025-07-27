@@ -239,9 +239,7 @@ pub mod walk_mut {
         let kind = AstKind::VariableMember;
         visitor.enter_node(kind);
         match it {
-            VariableMember::Object {
-                object, property, ..
-            } => {
+            VariableMember::Object { object, property, .. } => {
                 visitor.visit_variable_member(object);
                 visitor.visit_identifier_reference(property);
             }

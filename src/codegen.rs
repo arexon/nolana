@@ -167,9 +167,7 @@ impl Gen for VariableLifetime {
 impl Gen for VariableMember<'_> {
     fn gen(&self, c: &mut Codegen) {
         match self {
-            Self::Object {
-                object, property, ..
-            } => {
+            Self::Object { object, property, .. } => {
                 object.gen(c);
                 c.print_dot();
                 property.gen(c);

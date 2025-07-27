@@ -14,10 +14,7 @@ struct MolangStats {
 
 impl MolangStats {
     pub fn new(program: &Program) -> Self {
-        let mut stats = Self {
-            math_functions: 0,
-            queries: 0,
-        };
+        let mut stats = Self { math_functions: 0, queries: 0 };
         stats.visit_program(program);
         stats
     }
@@ -36,11 +33,7 @@ impl<'a> Visit<'a> for MolangStats {
 fn main() {
     let source_text = fs::read_to_string("examples/sample.molang").unwrap();
 
-    let ParserReturn {
-        program,
-        errors,
-        panicked,
-    } = Parser::new(&source_text).parse();
+    let ParserReturn { program, errors, panicked } = Parser::new(&source_text).parse();
 
     if !errors.is_empty() {
         for error in errors {

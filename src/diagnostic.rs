@@ -100,10 +100,7 @@ impl MietteDiagnostic for Diagnostic {
     }
 
     fn help<'a>(&'a self) -> Option<Box<dyn fmt::Display + 'a>> {
-        self.help
-            .as_ref()
-            .map(Box::new)
-            .map(|help| help as Box<dyn fmt::Display>)
+        self.help.as_ref().map(Box::new).map(|help| help as Box<dyn fmt::Display>)
     }
 
     fn labels(&self) -> Option<Box<dyn Iterator<Item = LabeledSpan> + '_>> {

@@ -2,12 +2,7 @@ use crate::{ast::*, span::Span, token::Kind};
 
 impl<'a> Program<'a> {
     pub fn new(span: Span, source: &'a str, is_complex: bool, body: Vec<Expression<'a>>) -> Self {
-        Self {
-            span,
-            source,
-            is_complex,
-            body,
-        }
+        Self { span, source, is_complex, body }
     }
 }
 
@@ -194,11 +189,7 @@ impl<'a> IdentifierReference<'a> {
 
 impl<'a> VariableExpression<'a> {
     pub fn new(span: Span, lifetime: VariableLifetime, member: VariableMember<'a>) -> Self {
-        Self {
-            span,
-            lifetime,
-            member,
-        }
+        Self { span, lifetime, member }
     }
 }
 
@@ -230,11 +221,7 @@ impl<'a> VariableMember<'a> {
         object: Box<VariableMember<'a>>,
         property: IdentifierReference<'a>,
     ) -> Self {
-        Self::Object {
-            span,
-            object,
-            property,
-        }
+        Self::Object { span, object, property }
     }
 
     pub fn new_property(span: Span, property: IdentifierReference<'a>) -> Self {
@@ -279,12 +266,7 @@ impl<'a> BinaryExpression<'a> {
         operator: BinaryOperator,
         right: Expression<'a>,
     ) -> Self {
-        Self {
-            span,
-            left,
-            operator,
-            right,
-        }
+        Self { span, left, operator, right }
     }
 }
 
@@ -332,11 +314,7 @@ impl From<Kind> for BinaryOperator {
 
 impl<'a> UnaryExpression<'a> {
     pub fn new(span: Span, operator: UnaryOperator, argument: Expression<'a>) -> Self {
-        Self {
-            span,
-            operator,
-            argument,
-        }
+        Self { span, operator, argument }
     }
 }
 
@@ -367,22 +345,13 @@ impl<'a> TernaryExpression<'a> {
         consequent: Expression<'a>,
         alternate: Expression<'a>,
     ) -> Self {
-        Self {
-            span,
-            test,
-            consequent,
-            alternate,
-        }
+        Self { span, test, consequent, alternate }
     }
 }
 
 impl<'a> ConditionalExpression<'a> {
     pub fn new(span: Span, test: Expression<'a>, consequent: Expression<'a>) -> Self {
-        Self {
-            span,
-            test,
-            consequent,
-        }
+        Self { span, test, consequent }
     }
 }
 
@@ -394,11 +363,7 @@ impl<'a> AssignmentExpression<'a> {
 
 impl<'a> ResourceExpression<'a> {
     pub fn new(span: Span, section: ResourceSection, name: IdentifierReference<'a>) -> Self {
-        Self {
-            span,
-            section,
-            name,
-        }
+        Self { span, section, name }
     }
 }
 
@@ -443,12 +408,7 @@ impl<'a> CallExpression<'a> {
         callee: IdentifierReference<'a>,
         arguments: Option<Vec<Expression<'a>>>,
     ) -> Self {
-        Self {
-            span,
-            kind,
-            callee,
-            arguments,
-        }
+        Self { span, kind, callee, arguments }
     }
 }
 
@@ -474,11 +434,7 @@ impl From<Kind> for CallKind {
 
 impl<'a> LoopExpression<'a> {
     pub fn new(span: Span, count: Expression<'a>, expression: BlockExpression<'a>) -> Self {
-        Self {
-            span,
-            count,
-            expression,
-        }
+        Self { span, count, expression }
     }
 }
 
@@ -489,12 +445,7 @@ impl<'a> ForEachExpression<'a> {
         array: Expression<'a>,
         expression: BlockExpression<'a>,
     ) -> Self {
-        Self {
-            span,
-            variable,
-            array,
-            expression,
-        }
+        Self { span, variable, array, expression }
     }
 }
 
