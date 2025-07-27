@@ -6,9 +6,11 @@ pub use parser::{ParseResult, Parser};
 mod codegen;
 pub use codegen::{Codegen, CodegenOptions};
 
-pub mod diagnostic;
+mod compiler;
+pub use compiler::Compiler;
 
 pub mod ast;
+pub mod diagnostic;
 pub mod semantic;
 pub mod span;
 mod token;

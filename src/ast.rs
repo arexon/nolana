@@ -32,16 +32,51 @@ pub enum Statement<'a> {
 }
 
 /// `v.a = 0;`
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct AssignmentStatement<'a> {
     pub span: Span,
     pub left: VariableExpression<'a>,
+    pub operator: AssignmentOperator,
     pub right: Expression<'a>,
 }
 
 impl<'a> From<AssignmentStatement<'a>> for Statement<'a> {
     fn from(value: AssignmentStatement<'a>) -> Self {
         Self::Assignment(value.into())
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum AssignmentOperator {
+    /// `=`
+    #[default]
+    Assign,
+    /// `+=`
+    Addition,
+    /// `-=`
+    Subtraction,
+    /// `*=`
+    Multiplication,
+    /// `-=`
+    Division,
+    /// `**=`
+    Exponential,
+    /// `%=`
+    Remainder,
+}
+
+impl AssignmentOperator {
+    /// The string representation of this operator as it appears in source code.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Assign => "=",
+            Self::Addition => "+=",
+            Self::Subtraction => "-=",
+            Self::Multiplication => "*=",
+            Self::Division => "/=",
+            Self::Exponential => "**=",
+            Self::Remainder => "%=",
+        }
     }
 }
 
@@ -156,8 +191,14 @@ impl<'a> From<Expression<'a>> for Statement<'a> {
     }
 }
 
+impl Default for Expression<'_> {
+    fn default() -> Self {
+        Self::NumericLiteral(Default::default())
+    }
+}
+
 /// `1.23` in `v.a = 1.23;`
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct NumericLiteral<'a> {
     pub span: Span,
     pub value: f32,
@@ -206,14 +247,14 @@ impl<'a> From<StringLiteral<'a>> for Expression<'a> {
 }
 
 /// `foo` in `v.foo.bar`
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct Identifier<'a> {
     pub span: Span,
     pub name: Cow<'a, str>,
 }
 
 /// <https://bedrock.dev/docs/stable/Molang#Variables>
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct VariableExpression<'a> {
     pub span: Span,
     pub lifetime: VariableLifetime,
@@ -227,9 +268,10 @@ impl<'a> From<VariableExpression<'a>> for Expression<'a> {
 }
 
 /// The variable lifetime associated with [`VariableExpression`].
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Default)]
 pub enum VariableLifetime {
     /// `temp` in `temp.foo`
+    #[default]
     Temporary,
     /// `variable` in `variable.foo`
     Variable,
@@ -275,6 +317,12 @@ pub enum VariableMember<'a> {
     Property { property: Identifier<'a> },
 }
 
+impl Default for VariableMember<'_> {
+    fn default() -> Self {
+        Self::Property { property: Identifier::default() }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct ParenthesizedExpression<'a> {
     pub span: Span,
@@ -309,7 +357,7 @@ impl<'a> From<BlockExpression<'a>> for Expression<'a> {
 }
 
 /// `1 + 1` in `v.a = 1 + 1;`
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct BinaryExpression<'a> {
     pub span: Span,
     pub left: Expression<'a>,
@@ -324,9 +372,10 @@ impl<'a> From<BinaryExpression<'a>> for Expression<'a> {
 }
 
 /// Operators used in [`BinaryExpression`].
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum BinaryOperator {
     /// `==`
+    #[default]
     Equality,
     /// `!=`
     Inequality,
@@ -346,6 +395,10 @@ pub enum BinaryOperator {
     Multiplication,
     /// `/`
     Division,
+    /// `**`
+    Exponential,
+    /// `%`
+    Remainder,
     /// `||`
     Or,
     /// `&&`
@@ -371,6 +424,8 @@ impl BinaryOperator {
             Self::Or => "||",
             Self::And => "&&",
             Self::Coalesce => "??",
+            Self::Exponential => "**",
+            Self::Remainder => "%",
         }
     }
 }
@@ -391,6 +446,8 @@ impl From<Kind> for BinaryOperator {
             Kind::Plus => Self::Addition,
             Kind::Star => Self::Multiplication,
             Kind::Slash => Self::Division,
+            Kind::Star2 => Self::Exponential,
+            Kind::Percent => Self::Remainder,
             _ => unreachable!("Binary Operator: {kind:?}"),
         }
     }
