@@ -289,8 +289,8 @@ impl<'a> Parser<'a> {
                 Kind::Semi => self
                     .parse_parenthesized_expression_rest(Statement::Expression(expression), span),
                 Kind::Eof => Err(errors::expected_token(
-                    Kind::RightParen.to_str(),
-                    self.current_kind().to_str(),
+                    Kind::RightParen.as_str(),
+                    self.current_kind().as_str(),
                     Span::new(self.prev_token_end, self.current_token().start),
                 )),
                 _ => Err(errors::unexpected_token(self.current_token().span())),
@@ -571,7 +571,7 @@ impl<'a> Parser<'a> {
 
     fn expected_token(&self, kind: Kind) -> Diagnostic {
         let curr_token = self.current_token();
-        errors::expected_token(kind.to_str(), curr_token.kind.to_str(), curr_token.span())
+        errors::expected_token(kind.as_str(), curr_token.kind.as_str(), curr_token.span())
     }
 
     fn error(&mut self, error: Diagnostic) {
