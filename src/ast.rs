@@ -1,34 +1,5 @@
 use crate::span::Span;
 
-/// Untyped AST Node kind.
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum AstKind {
-    Program,
-    BooleanLiteral,
-    NumericLiteral,
-    StringLiteral,
-    IdentifierReference,
-    VariableExpression,
-    VariableMember,
-    ParenthesizedExpression,
-    BlockExpression,
-    BinaryExpression,
-    UnaryExpression,
-    TernaryExpression,
-    ConditionalExpression,
-    AssignmentExpression,
-    ResourceExpression,
-    ArrayAccessExpression,
-    ArrowAccessExpression,
-    CallExpression,
-    LoopExpression,
-    ForEachExpression,
-    Break,
-    Continue,
-    This,
-    Return,
-}
-
 /// Represents the root of a Molang expression AST, containing all the top-level
 /// information.
 #[derive(Debug, Clone, PartialEq)]
