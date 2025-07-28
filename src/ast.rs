@@ -528,7 +528,7 @@ impl From<Kind> for UpdateOperator {
         match token {
             Kind::Plus2 => Self::Increment,
             Kind::Minus2 => Self::Decrement,
-            _ => unreachable!("Unary Operator: {token:?}"),
+            _ => unreachable!("Update Operator: {token:?}"),
         }
     }
 }
