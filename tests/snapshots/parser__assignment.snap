@@ -5,41 +5,32 @@ expression: out
 ParseResult {
     program: Program {
         span: Span {
-            start: 0,
-            end: 76,
+            start: 9,
+            end: 178,
         },
-        source: "v.cow.location.x = 204.31; v.cow.location.y = 87; v.cow.location.z = 48.933;",
+        source: "\n        v.cow.a = 204.31;\n        v.cow.b += 87;\n        v.cow.c -= 48.933;\n        v.cow.c *= 3233.23;\n        v.cow.c /= 1290;\n        v.cow.c **= 32.2;\n        v.cow.c %= 32;\n    ",
         body: Complex(
             [
                 Assignment(
                     AssignmentStatement {
                         span: Span {
-                            start: 0,
+                            start: 9,
                             end: 25,
                         },
                         left: VariableExpression {
                             span: Span {
-                                start: 0,
+                                start: 9,
                                 end: 16,
                             },
                             lifetime: Variable,
                             member: Object {
-                                object: Object {
-                                    object: Property {
-                                        property: Identifier {
-                                            span: Span {
-                                                start: 2,
-                                                end: 5,
-                                            },
-                                            name: "cow",
-                                        },
-                                    },
+                                object: Property {
                                     property: Identifier {
                                         span: Span {
-                                            start: 6,
+                                            start: 11,
                                             end: 14,
                                         },
-                                        name: "location",
+                                        name: "cow",
                                     },
                                 },
                                 property: Identifier {
@@ -47,7 +38,7 @@ ParseResult {
                                         start: 15,
                                         end: 16,
                                     },
-                                    name: "x",
+                                    name: "a",
                                 },
                             },
                         },
@@ -67,44 +58,35 @@ ParseResult {
                 Assignment(
                     AssignmentStatement {
                         span: Span {
-                            start: 27,
+                            start: 35,
                             end: 48,
                         },
                         left: VariableExpression {
                             span: Span {
-                                start: 27,
-                                end: 43,
+                                start: 35,
+                                end: 42,
                             },
                             lifetime: Variable,
                             member: Object {
-                                object: Object {
-                                    object: Property {
-                                        property: Identifier {
-                                            span: Span {
-                                                start: 29,
-                                                end: 32,
-                                            },
-                                            name: "cow",
-                                        },
-                                    },
+                                object: Property {
                                     property: Identifier {
                                         span: Span {
-                                            start: 33,
-                                            end: 41,
+                                            start: 37,
+                                            end: 40,
                                         },
-                                        name: "location",
+                                        name: "cow",
                                     },
                                 },
                                 property: Identifier {
                                     span: Span {
-                                        start: 42,
-                                        end: 43,
+                                        start: 41,
+                                        end: 42,
                                     },
-                                    name: "y",
+                                    name: "b",
                                 },
                             },
                         },
-                        operator: Assign,
+                        operator: Addition,
                         right: NumericLiteral(
                             NumericLiteral {
                                 span: Span {
@@ -120,44 +102,35 @@ ParseResult {
                 Assignment(
                     AssignmentStatement {
                         span: Span {
-                            start: 50,
+                            start: 58,
                             end: 75,
                         },
                         left: VariableExpression {
                             span: Span {
-                                start: 50,
-                                end: 66,
+                                start: 58,
+                                end: 65,
                             },
                             lifetime: Variable,
                             member: Object {
-                                object: Object {
-                                    object: Property {
-                                        property: Identifier {
-                                            span: Span {
-                                                start: 52,
-                                                end: 55,
-                                            },
-                                            name: "cow",
-                                        },
-                                    },
+                                object: Property {
                                     property: Identifier {
                                         span: Span {
-                                            start: 56,
-                                            end: 64,
+                                            start: 60,
+                                            end: 63,
                                         },
-                                        name: "location",
+                                        name: "cow",
                                     },
                                 },
                                 property: Identifier {
                                     span: Span {
-                                        start: 65,
-                                        end: 66,
+                                        start: 64,
+                                        end: 65,
                                     },
-                                    name: "z",
+                                    name: "c",
                                 },
                             },
                         },
-                        operator: Assign,
+                        operator: Subtraction,
                         right: NumericLiteral(
                             NumericLiteral {
                                 span: Span {
@@ -166,6 +139,182 @@ ParseResult {
                                 },
                                 value: 48.933,
                                 raw: "48.933",
+                            },
+                        ),
+                    },
+                ),
+                Assignment(
+                    AssignmentStatement {
+                        span: Span {
+                            start: 85,
+                            end: 103,
+                        },
+                        left: VariableExpression {
+                            span: Span {
+                                start: 85,
+                                end: 92,
+                            },
+                            lifetime: Variable,
+                            member: Object {
+                                object: Property {
+                                    property: Identifier {
+                                        span: Span {
+                                            start: 87,
+                                            end: 90,
+                                        },
+                                        name: "cow",
+                                    },
+                                },
+                                property: Identifier {
+                                    span: Span {
+                                        start: 91,
+                                        end: 92,
+                                    },
+                                    name: "c",
+                                },
+                            },
+                        },
+                        operator: Multiplication,
+                        right: NumericLiteral(
+                            NumericLiteral {
+                                span: Span {
+                                    start: 96,
+                                    end: 103,
+                                },
+                                value: 3233.23,
+                                raw: "3233.23",
+                            },
+                        ),
+                    },
+                ),
+                Assignment(
+                    AssignmentStatement {
+                        span: Span {
+                            start: 113,
+                            end: 128,
+                        },
+                        left: VariableExpression {
+                            span: Span {
+                                start: 113,
+                                end: 120,
+                            },
+                            lifetime: Variable,
+                            member: Object {
+                                object: Property {
+                                    property: Identifier {
+                                        span: Span {
+                                            start: 115,
+                                            end: 118,
+                                        },
+                                        name: "cow",
+                                    },
+                                },
+                                property: Identifier {
+                                    span: Span {
+                                        start: 119,
+                                        end: 120,
+                                    },
+                                    name: "c",
+                                },
+                            },
+                        },
+                        operator: Division,
+                        right: NumericLiteral(
+                            NumericLiteral {
+                                span: Span {
+                                    start: 124,
+                                    end: 128,
+                                },
+                                value: 1290.0,
+                                raw: "1290",
+                            },
+                        ),
+                    },
+                ),
+                Assignment(
+                    AssignmentStatement {
+                        span: Span {
+                            start: 138,
+                            end: 154,
+                        },
+                        left: VariableExpression {
+                            span: Span {
+                                start: 138,
+                                end: 145,
+                            },
+                            lifetime: Variable,
+                            member: Object {
+                                object: Property {
+                                    property: Identifier {
+                                        span: Span {
+                                            start: 140,
+                                            end: 143,
+                                        },
+                                        name: "cow",
+                                    },
+                                },
+                                property: Identifier {
+                                    span: Span {
+                                        start: 144,
+                                        end: 145,
+                                    },
+                                    name: "c",
+                                },
+                            },
+                        },
+                        operator: Exponential,
+                        right: NumericLiteral(
+                            NumericLiteral {
+                                span: Span {
+                                    start: 150,
+                                    end: 154,
+                                },
+                                value: 32.2,
+                                raw: "32.2",
+                            },
+                        ),
+                    },
+                ),
+                Assignment(
+                    AssignmentStatement {
+                        span: Span {
+                            start: 164,
+                            end: 177,
+                        },
+                        left: VariableExpression {
+                            span: Span {
+                                start: 164,
+                                end: 171,
+                            },
+                            lifetime: Variable,
+                            member: Object {
+                                object: Property {
+                                    property: Identifier {
+                                        span: Span {
+                                            start: 166,
+                                            end: 169,
+                                        },
+                                        name: "cow",
+                                    },
+                                },
+                                property: Identifier {
+                                    span: Span {
+                                        start: 170,
+                                        end: 171,
+                                    },
+                                    name: "c",
+                                },
+                            },
+                        },
+                        operator: Remainder,
+                        right: NumericLiteral(
+                            NumericLiteral {
+                                span: Span {
+                                    start: 175,
+                                    end: 177,
+                                },
+                                value: 32.0,
+                                raw: "32",
                             },
                         ),
                     },

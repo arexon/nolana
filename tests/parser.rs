@@ -91,6 +91,12 @@ fn parenthesized_binary_operation_alt() {
 }
 
 #[test]
+fn update_operation() {
+    let out = parse("v.foo++ - 1; (v.bar-- / 2) * 2;");
+    assert_snapshot!(out)
+}
+
+#[test]
 fn negate_operation() {
     let out = parse("-(1 + 1)");
     assert_snapshot!(out)
@@ -128,7 +134,17 @@ fn conditional() {
 
 #[test]
 fn assignment() {
-    let out = parse("v.cow.location.x = 204.31; v.cow.location.y = 87; v.cow.location.z = 48.933;");
+    let out = parse(
+        "
+        v.cow.a = 204.31;
+        v.cow.b += 87;
+        v.cow.c -= 48.933;
+        v.cow.c *= 3233.23;
+        v.cow.c /= 1290;
+        v.cow.c **= 32.2;
+        v.cow.c %= 32;
+    ",
+    );
     assert_snapshot!(out)
 }
 
@@ -141,7 +157,6 @@ fn complex_expression() {
 #[test]
 fn complex_parenthesized_expression() {
     let out = parse("(v.a = 1; v.b = 2;);");
-
     assert_snapshot!(out);
 }
 
@@ -274,6 +289,18 @@ fn missing_semi_with_semi() {
 #[test]
 fn missing_semi_with_assignment() {
     let out = parse("v.a = 0; v.a");
+    assert_snapshot!(out);
+}
+
+#[test]
+fn illegal_update_operation_with_query() {
+    let out = parse("q.random()++");
+    assert_snapshot!(out);
+}
+
+#[test]
+fn illegal_update_operation_with_context() {
+    let out = parse("context.foo++");
     assert_snapshot!(out);
 }
 
