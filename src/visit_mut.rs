@@ -12,6 +12,14 @@ pub trait VisitMut<'a>: Sized {
 
     #[inline]
     #[allow(unused_variables)]
+    fn enter_statements(&mut self, it: &mut Vec<Statement<'a>>) {}
+
+    #[inline]
+    #[allow(unused_variables)]
+    fn exit_statements(&mut self, it: &mut Vec<Statement<'a>>) {}
+
+    #[inline]
+    #[allow(unused_variables)]
     fn enter_statement(&mut self, it: &mut Statement<'a>) {}
 
     #[inline]
@@ -223,9 +231,11 @@ pub mod walk_mut {
 
     #[inline]
     pub fn walk_statements<'a>(visitor: &mut impl VisitMut<'a>, it: &mut Vec<Statement<'a>>) {
-        for stmt in it {
+        visitor.enter_statements(it);
+        for stmt in it.iter_mut() {
             walk_statement(visitor, stmt);
         }
+        visitor.exit_statements(it);
     }
 
     #[inline]
