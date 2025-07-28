@@ -448,7 +448,7 @@ impl From<Kind> for CallKind {
 pub struct LoopExpression<'a> {
     pub span: Span,
     pub count: Expression<'a>,
-    pub expression: BlockExpression<'a>,
+    pub block: BlockExpression<'a>,
 }
 
 /// <https://bedrock.dev/docs/stable/Molang#for_each>
@@ -459,7 +459,7 @@ pub struct ForEachExpression<'a> {
     pub span: Span,
     pub variable: VariableExpression<'a>,
     pub array: Expression<'a>,
-    pub expression: BlockExpression<'a>,
+    pub block: BlockExpression<'a>,
 }
 
 /// `this` in `q.foo(this)`

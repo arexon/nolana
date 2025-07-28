@@ -479,7 +479,7 @@ pub mod walk_mut {
     pub fn walk_loop_expression<'a>(visitor: &mut impl VisitMut<'a>, it: &mut LoopExpression<'a>) {
         visitor.enter_loop_expression(it);
         walk_expression(visitor, &mut it.count);
-        walk_block_expression(visitor, &mut it.expression);
+        walk_block_expression(visitor, &mut it.block);
         visitor.exit_loop_expression(it);
     }
 
@@ -491,7 +491,7 @@ pub mod walk_mut {
         visitor.enter_for_each_expression(it);
         walk_variable_expression(visitor, &mut it.variable);
         walk_expression(visitor, &mut it.array);
-        walk_block_expression(visitor, &mut it.expression);
+        walk_block_expression(visitor, &mut it.block);
         visitor.exit_for_each_expression(it);
     }
 

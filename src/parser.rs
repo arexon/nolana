@@ -483,9 +483,9 @@ impl<'a> Parser<'a> {
         self.expect(Kind::LeftParen)?;
         let count = self.parse_expression(0)?;
         self.expect(Kind::Comma)?;
-        let expression = self.parse_block_expression()?;
+        let block = self.parse_block_expression()?;
         self.expect(Kind::RightParen)?;
-        Ok(Expression::Loop(LoopExpression { span: self.end_span(span), count, expression }.into()))
+        Ok(Expression::Loop(LoopExpression { span: self.end_span(span), count, block }.into()))
     }
 
     fn parse_for_each_expression(&mut self) -> Result<Expression<'a>> {
@@ -499,10 +499,10 @@ impl<'a> Parser<'a> {
         self.expect(Kind::Comma)?;
         let array = self.parse_expression(0)?;
         self.expect(Kind::Comma)?;
-        let expression = self.parse_block_expression()?;
+        let block = self.parse_block_expression()?;
         self.expect(Kind::RightParen)?;
         Ok(Expression::ForEach(
-            ForEachExpression { span: self.end_span(span), variable, array, expression }.into(),
+            ForEachExpression { span: self.end_span(span), variable, array, block }.into(),
         ))
     }
 
