@@ -27,7 +27,7 @@ ParserReturn {
                                 raw: "10",
                             },
                         ),
-                        expression: BlockExpression {
+                        block: BlockExpression {
                             span: Span {
                                 start: 9,
                                 end: 25,

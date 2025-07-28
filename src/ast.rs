@@ -136,12 +136,19 @@ pub enum VariableLifetime {
 }
 
 impl VariableLifetime {
-    /// String representation of the call kind ("temp", "variable", or "context").
-    pub fn as_str(&self) -> &'static str {
+    pub fn as_str_long(&self) -> &'static str {
         match self {
             Self::Temporary => "temp",
             Self::Variable => "variable",
             Self::Context => "context",
+        }
+    }
+
+    pub fn as_str_short(&self) -> &'static str {
+        match self {
+            Self::Temporary => "t",
+            Self::Variable => "v",
+            Self::Context => "c",
         }
     }
 }
@@ -412,16 +419,6 @@ pub struct CallExpression<'a> {
     pub arguments: Option<Vec<Expression<'a>>>,
 }
 
-impl CallKind {
-    /// String representation of the call kind ("math" or "query").
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            Self::Math => "math",
-            Self::Query => "query",
-        }
-    }
-}
-
 /// The call kind for [`CallExpression`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CallKind {
@@ -429,6 +426,22 @@ pub enum CallKind {
     Math,
     /// `query` in `query.foo`
     Query,
+}
+
+impl CallKind {
+    pub fn as_str_long(&self) -> &'static str {
+        match self {
+            Self::Math => "math",
+            Self::Query => "query",
+        }
+    }
+
+    pub fn as_str_short(&self) -> &'static str {
+        match self {
+            Self::Math => "math",
+            Self::Query => "q",
+        }
+    }
 }
 
 impl From<Kind> for CallKind {

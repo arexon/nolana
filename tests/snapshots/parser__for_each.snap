@@ -54,7 +54,7 @@ ParserReturn {
                                 arguments: None,
                             },
                         ),
-                        expression: BlockExpression {
+                        block: BlockExpression {
                             span: Span {
                                 start: 21,
                                 end: 37,

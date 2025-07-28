@@ -1,15 +1,23 @@
+use std::iter;
+
 use crate::ast::*;
 
-#[derive(Default)]
 pub struct CodegenOptions {
     pub minify: bool,
 }
 
+impl Default for CodegenOptions {
+    fn default() -> Self {
+        Self { minify: true }
+    }
+}
+
 #[derive(Default)]
 pub struct Codegen {
+    options: CodegenOptions,
     code: String,
     is_complex: bool,
-    options: CodegenOptions,
+    indent: usize,
 }
 
 impl Codegen {
@@ -26,6 +34,23 @@ impl Codegen {
     }
 
     #[inline]
+    fn indent(&mut self) {
+        self.indent += 1;
+    }
+
+    #[inline]
+    fn dedent(&mut self) {
+        self.indent -= 1;
+    }
+
+    #[inline]
+    fn print_indent(&mut self) {
+        if !self.options.minify {
+            self.code.extend(iter::repeat_n("    ", self.indent))
+        }
+    }
+
+    #[inline]
     fn print_str(&mut self, s: &str) {
         self.code.push_str(s);
     }
@@ -36,11 +61,17 @@ impl Codegen {
     }
 
     #[inline]
-    fn print_space(&mut self) {
-        if self.options.minify {
-            return;
+    fn print_newline(&mut self) {
+        if !self.options.minify {
+            self.code.push('\n');
         }
-        self.code.push(' ');
+    }
+
+    #[inline]
+    fn print_space(&mut self) {
+        if !self.options.minify {
+            self.code.push(' ');
+        }
     }
 
     #[inline]
@@ -63,7 +94,6 @@ impl Codegen {
         self.code.push(';');
     }
 
-    #[inline]
     fn print_list<T: Gen>(&mut self, items: &[T]) {
         for (index, item) in items.iter().enumerate() {
             if index != 0 {
@@ -72,6 +102,23 @@ impl Codegen {
             }
             item.gen(self);
         }
+    }
+
+    #[inline]
+    fn print_wrapped(&mut self, open: char, close: char, f: impl FnOnce(&mut Self)) {
+        self.print_char(open);
+        f(self);
+        self.print_char(close);
+    }
+
+    fn print_scope(&mut self, open: char, close: char, f: impl FnOnce(&mut Self)) {
+        self.print_wrapped(open, close, |c| {
+            c.print_newline();
+            c.indent();
+            f(c);
+            c.dedent();
+            c.print_indent();
+        });
     }
 }
 
@@ -90,6 +137,7 @@ impl Gen for Program<'_> {
 
 impl Gen for Statement<'_> {
     fn gen(&self, c: &mut Codegen) {
+        c.print_indent();
         match self {
             Statement::Expression(stmt) => stmt.gen(c),
             Statement::Assignment(stmt) => stmt.gen(c),
@@ -99,7 +147,37 @@ impl Gen for Statement<'_> {
         }
         if c.is_complex {
             c.print_semi();
+            c.print_newline();
         }
+    }
+}
+
+impl Gen for AssignmentStatement<'_> {
+    fn gen(&self, c: &mut Codegen) {
+        self.left.gen(c);
+        c.print_space();
+        c.print_char('=');
+        c.print_space();
+        self.right.gen(c);
+    }
+}
+
+impl Gen for ReturnStatement<'_> {
+    fn gen(&self, c: &mut Codegen) {
+        c.print_str("return ");
+        self.argument.gen(c);
+    }
+}
+
+impl Gen for BreakStatement {
+    fn gen(&self, c: &mut Codegen) {
+        c.print_str("break");
+    }
+}
+
+impl Gen for ContinueStatement {
+    fn gen(&self, c: &mut Codegen) {
+        c.print_str("continue");
     }
 }
 
@@ -147,9 +225,7 @@ impl Gen for BooleanLiteral {
 
 impl Gen for StringLiteral<'_> {
     fn gen(&self, c: &mut Codegen) {
-        c.print_char('\'');
-        c.print_str(self.value);
-        c.print_char('\'');
+        c.print_wrapped('\'', '\'', |c| c.print_str(self.value));
     }
 }
 
@@ -163,12 +239,7 @@ impl Gen for VariableExpression<'_> {
 
 impl Gen for VariableLifetime {
     fn gen(&self, c: &mut Codegen) {
-        let lifetime = self.as_str();
-        if c.options.minify {
-            c.print_char(lifetime.chars().nth(0).unwrap());
-        } else {
-            c.print_str(lifetime);
-        }
+        c.print_str(if c.options.minify { self.as_str_short() } else { self.as_str_long() });
     }
 }
 
@@ -189,26 +260,28 @@ impl Gen for VariableMember<'_> {
 
 impl Gen for ParenthesizedExpression<'_> {
     fn gen(&self, c: &mut Codegen) {
-        c.print_char('(');
         match self {
-            Self::Single { expression, .. } => expression.gen(c),
+            Self::Single { expression, .. } => {
+                c.print_wrapped('(', ')', |c| expression.gen(c));
+            }
             Self::Complex { statements, .. } => {
-                for stmt in statements {
-                    stmt.gen(c);
-                }
+                c.print_scope('(', ')', |c| {
+                    for stmt in statements {
+                        stmt.gen(c);
+                    }
+                });
             }
         }
-        c.print_char(')');
     }
 }
 
 impl Gen for BlockExpression<'_> {
     fn gen(&self, c: &mut Codegen) {
-        c.print_char('{');
-        for stmt in &self.statements {
-            stmt.gen(c);
-        }
-        c.print_char('}');
+        c.print_scope('{', '}', |c| {
+            for stmt in &self.statements {
+                stmt.gen(c);
+            }
+        });
     }
 }
 
@@ -265,16 +338,6 @@ impl Gen for ConditionalExpression<'_> {
     }
 }
 
-impl Gen for AssignmentStatement<'_> {
-    fn gen(&self, c: &mut Codegen) {
-        self.left.gen(c);
-        c.print_space();
-        c.print_char('=');
-        c.print_space();
-        self.right.gen(c);
-    }
-}
-
 impl Gen for ResourceExpression<'_> {
     fn gen(&self, c: &mut Codegen) {
         c.print_str(self.section.as_str());
@@ -285,7 +348,8 @@ impl Gen for ResourceExpression<'_> {
 
 impl Gen for ArrayAccessExpression<'_> {
     fn gen(&self, c: &mut Codegen) {
-        c.print_str("array.");
+        c.print_str("array");
+        c.print_dot();
         self.name.gen(c);
         c.print_char('[');
         self.index.gen(c);
@@ -307,76 +371,46 @@ impl Gen for CallExpression<'_> {
         c.print_dot();
         self.callee.gen(c);
         if let Some(args) = &self.arguments {
-            c.print_char('(');
-            c.print_list(args);
-            c.print_char(')');
+            c.print_wrapped('(', ')', |c| c.print_list(args));
         }
     }
 }
 
 impl Gen for CallKind {
     fn gen(&self, c: &mut Codegen) {
-        if let Self::Query = self {
-            let kind = self.as_str();
-            if c.options.minify {
-                c.print_char(kind.chars().nth(0).unwrap());
-            } else {
-                c.print_str(kind);
-            }
-        } else {
-            c.print_str(self.as_str());
-        }
+        c.print_str(if c.options.minify { self.as_str_short() } else { self.as_str_long() });
     }
 }
 
 impl Gen for LoopExpression<'_> {
     fn gen(&self, c: &mut Codegen) {
         c.print_str("loop");
-        c.print_char('(');
-        self.count.gen(c);
-        c.print_comma();
-        c.print_space();
-        self.expression.gen(c);
-        c.print_char(')');
+        c.print_scope('(', ')', |c| {
+            self.count.gen(c);
+            c.print_comma();
+            c.print_space();
+            self.block.gen(c);
+        });
     }
 }
 
 impl Gen for ForEachExpression<'_> {
     fn gen(&self, c: &mut Codegen) {
         c.print_str("for_each");
-        c.print_char('(');
-        self.variable.gen(c);
-        c.print_comma();
-        c.print_space();
-        self.array.gen(c);
-        c.print_comma();
-        c.print_space();
-        self.expression.gen(c);
-        c.print_char(')');
+        c.print_scope('(', ')', |c| {
+            self.variable.gen(c);
+            c.print_comma();
+            c.print_space();
+            self.array.gen(c);
+            c.print_comma();
+            c.print_space();
+            self.block.gen(c);
+        });
     }
 }
 
 impl Gen for ThisExpression {
     fn gen(&self, c: &mut Codegen) {
         c.print_str("this");
-    }
-}
-
-impl Gen for ReturnStatement<'_> {
-    fn gen(&self, c: &mut Codegen) {
-        c.print_str("return ");
-        self.argument.gen(c);
-    }
-}
-
-impl Gen for BreakStatement {
-    fn gen(&self, c: &mut Codegen) {
-        c.print_str("break");
-    }
-}
-
-impl Gen for ContinueStatement {
-    fn gen(&self, c: &mut Codegen) {
-        c.print_str("continue");
     }
 }
