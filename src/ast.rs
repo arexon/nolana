@@ -63,6 +63,10 @@ pub enum AssignmentOperator {
     Exponential,
     /// `%=`
     Remainder,
+    /// `<<=`
+    ShiftLeft,
+    /// `>>=`
+    ShiftRight,
 }
 
 impl AssignmentOperator {
@@ -76,6 +80,12 @@ impl AssignmentOperator {
             Self::Division => "/=",
             Self::Exponential => "**=",
             Self::Remainder => "%=",
+            Self::ShiftLeft => "<<=",
+            Self::ShiftRight => ">>=",
+        }
+    }
+}
+
 impl From<Kind> for AssignmentOperator {
     fn from(kind: Kind) -> Self {
         match kind {
@@ -86,6 +96,8 @@ impl From<Kind> for AssignmentOperator {
             Kind::SlashEq => Self::Division,
             Kind::Star2Eq => Self::Exponential,
             Kind::PercentEq => Self::Remainder,
+            Kind::ShiftLeftEq => Self::ShiftLeft,
+            Kind::ShiftRightEq => Self::ShiftRight,
             _ => unreachable!("Assignment Operator: {kind:?}"),
         }
     }
@@ -417,6 +429,10 @@ pub enum BinaryOperator {
     And,
     /// `??`
     Coalesce,
+    /// `<<`
+    ShiftLeft,
+    /// `>>`
+    ShiftRight,
 }
 
 impl BinaryOperator {
@@ -438,6 +454,8 @@ impl BinaryOperator {
             Self::Coalesce => "??",
             Self::Exponential => "**",
             Self::Remainder => "%",
+            Self::ShiftLeft => "<<",
+            Self::ShiftRight => ">>",
         }
     }
 }
@@ -460,6 +478,8 @@ impl From<Kind> for BinaryOperator {
             Kind::Slash => Self::Division,
             Kind::Star2 => Self::Exponential,
             Kind::Percent => Self::Remainder,
+            Kind::ShiftLeft => Self::ShiftLeft,
+            Kind::ShiftRight => Self::ShiftRight,
             _ => unreachable!("Binary Operator: {kind:?}"),
         }
     }
