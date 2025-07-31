@@ -29,11 +29,23 @@ pub struct AssignmentStatement<'a> {
     pub right: Expression<'a>,
 }
 
+impl<'a> From<AssignmentStatement<'a>> for Statement<'a> {
+    fn from(value: AssignmentStatement<'a>) -> Self {
+        Self::Assignment(value.into())
+    }
+}
+
 /// `return` in `v.a = 1; return v.a;`
 #[derive(Debug, Clone, PartialEq)]
 pub struct ReturnStatement<'a> {
     pub span: Span,
     pub argument: Expression<'a>,
+}
+
+impl<'a> From<ReturnStatement<'a>> for Statement<'a> {
+    fn from(value: ReturnStatement<'a>) -> Self {
+        Self::Return(value.into())
+    }
 }
 
 /// <https://bedrock.dev/docs/stable/Molang#break>
@@ -44,12 +56,24 @@ pub struct BreakStatement {
     pub span: Span,
 }
 
+impl From<BreakStatement> for Statement<'_> {
+    fn from(value: BreakStatement) -> Self {
+        Self::Break(value.into())
+    }
+}
+
 /// <https://bedrock.dev/docs/stable/Molang#continue>
 ///
 /// `continue` in `loop(10, { (v.x > 5) ? continue; v.x = v.x + 1; });`
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct ContinueStatement {
     pub span: Span,
+}
+
+impl From<ContinueStatement> for Statement<'_> {
+    fn from(value: ContinueStatement) -> Self {
+        Self::Continue(value.into())
+    }
 }
 
 /// <https://bedrock.dev/docs/stable/Molang#Lexical%20Structure>
@@ -74,6 +98,12 @@ pub enum Expression<'a> {
     This(Box<ThisExpression>),
 }
 
+impl<'a> From<Expression<'a>> for Statement<'a> {
+    fn from(value: Expression<'a>) -> Self {
+        Self::Expression(value.into())
+    }
+}
+
 /// `1.23` in `v.a = 1.23;`
 #[derive(Debug, Clone, PartialEq)]
 pub struct NumericLiteral<'a> {
@@ -82,11 +112,23 @@ pub struct NumericLiteral<'a> {
     pub raw: &'a str,
 }
 
+impl<'a> From<NumericLiteral<'a>> for Expression<'a> {
+    fn from(value: NumericLiteral<'a>) -> Self {
+        Self::NumericLiteral(value.into())
+    }
+}
+
 /// `true` or `false`
 #[derive(Debug, Clone, PartialEq)]
 pub struct BooleanLiteral {
     pub span: Span,
     pub value: bool,
+}
+
+impl From<BooleanLiteral> for Expression<'_> {
+    fn from(value: BooleanLiteral) -> Self {
+        Self::BooleanLiteral(value.into())
+    }
 }
 
 impl BooleanLiteral {
@@ -109,6 +151,12 @@ pub struct StringLiteral<'a> {
     pub value: &'a str,
 }
 
+impl<'a> From<StringLiteral<'a>> for Expression<'a> {
+    fn from(value: StringLiteral<'a>) -> Self {
+        Self::StringLiteral(value.into())
+    }
+}
+
 /// `foo` in `v.foo.bar`
 #[derive(Debug, Clone, PartialEq)]
 pub struct IdentifierReference<'a> {
@@ -122,6 +170,12 @@ pub struct VariableExpression<'a> {
     pub span: Span,
     pub lifetime: VariableLifetime,
     pub member: VariableMember<'a>,
+}
+
+impl<'a> From<VariableExpression<'a>> for Expression<'a> {
+    fn from(value: VariableExpression<'a>) -> Self {
+        Self::Variable(value.into())
+    }
 }
 
 /// The variable lifetime associated with [`VariableExpression`].
@@ -190,6 +244,12 @@ pub enum ParenthesizedExpression<'a> {
     Complex { span: Span, statements: Vec<Statement<'a>> },
 }
 
+impl<'a> From<ParenthesizedExpression<'a>> for Expression<'a> {
+    fn from(value: ParenthesizedExpression<'a>) -> Self {
+        Self::Parenthesized(value.into())
+    }
+}
+
 impl<'a> ParenthesizedExpression<'a> {
     pub fn span(&self) -> Span {
         match self {
@@ -206,6 +266,12 @@ pub struct BlockExpression<'a> {
     pub statements: Vec<Statement<'a>>,
 }
 
+impl<'a> From<BlockExpression<'a>> for Expression<'a> {
+    fn from(value: BlockExpression<'a>) -> Self {
+        Self::Block(value.into())
+    }
+}
+
 /// `1 + 1` in `v.a = 1 + 1;`
 #[derive(Debug, Clone, PartialEq)]
 pub struct BinaryExpression<'a> {
@@ -213,6 +279,12 @@ pub struct BinaryExpression<'a> {
     pub left: Expression<'a>,
     pub operator: BinaryOperator,
     pub right: Expression<'a>,
+}
+
+impl<'a> From<BinaryExpression<'a>> for Expression<'a> {
+    fn from(value: BinaryExpression<'a>) -> Self {
+        Self::Binary(value.into())
+    }
 }
 
 /// Operators used in [`BinaryExpression`].
@@ -296,6 +368,12 @@ pub struct UnaryExpression<'a> {
     pub argument: Expression<'a>,
 }
 
+impl<'a> From<UnaryExpression<'a>> for Expression<'a> {
+    fn from(value: UnaryExpression<'a>) -> Self {
+        Self::Unary(value.into())
+    }
+}
+
 /// Operators used in [`UnaryExpression`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum UnaryOperator {
@@ -336,6 +414,12 @@ pub struct TernaryExpression<'a> {
     pub alternate: Expression<'a>,
 }
 
+impl<'a> From<TernaryExpression<'a>> for Expression<'a> {
+    fn from(value: TernaryExpression<'a>) -> Self {
+        Self::Ternary(value.into())
+    }
+}
+
 /// <https://bedrock.dev/docs/stable/Molang#Conditionals>
 ///
 /// `q.foo ? 0`
@@ -346,12 +430,24 @@ pub struct ConditionalExpression<'a> {
     pub consequent: Expression<'a>,
 }
 
+impl<'a> From<ConditionalExpression<'a>> for Expression<'a> {
+    fn from(value: ConditionalExpression<'a>) -> Self {
+        Self::Conditional(value.into())
+    }
+}
+
 /// <https://bedrock.dev/docs/stable/Molang#Resource%20Expression>
 #[derive(Debug, Clone, PartialEq)]
 pub struct ResourceExpression<'a> {
     pub span: Span,
     pub section: ResourceSection,
     pub name: IdentifierReference<'a>,
+}
+
+impl<'a> From<ResourceExpression<'a>> for Expression<'a> {
+    fn from(value: ResourceExpression<'a>) -> Self {
+        Self::Resource(value.into())
+    }
 }
 
 /// The resource section in [`ResourceExpression`].
@@ -397,6 +493,12 @@ pub struct ArrayAccessExpression<'a> {
     pub index: Expression<'a>,
 }
 
+impl<'a> From<ArrayAccessExpression<'a>> for Expression<'a> {
+    fn from(value: ArrayAccessExpression<'a>) -> Self {
+        Self::ArrayAccess(value.into())
+    }
+}
+
 /// <https://bedrock.dev/docs/stable/Molang#-%3E%20%20Arrow%20Operator>
 ///
 /// `v.foo->q.bar`
@@ -405,6 +507,12 @@ pub struct ArrowAccessExpression<'a> {
     pub span: Span,
     pub left: Expression<'a>,
     pub right: Expression<'a>,
+}
+
+impl<'a> From<ArrowAccessExpression<'a>> for Expression<'a> {
+    fn from(value: ArrowAccessExpression<'a>) -> Self {
+        Self::ArrowAccess(value.into())
+    }
 }
 
 /// <https://bedrock.dev/docs/stable/Molang#Lexical%20Structure>
@@ -417,6 +525,12 @@ pub struct CallExpression<'a> {
     pub kind: CallKind,
     pub callee: IdentifierReference<'a>,
     pub arguments: Option<Vec<Expression<'a>>>,
+}
+
+impl<'a> From<CallExpression<'a>> for Expression<'a> {
+    fn from(value: CallExpression<'a>) -> Self {
+        Self::Call(value.into())
+    }
 }
 
 /// The call kind for [`CallExpression`].
@@ -464,6 +578,12 @@ pub struct LoopExpression<'a> {
     pub block: BlockExpression<'a>,
 }
 
+impl<'a> From<LoopExpression<'a>> for Expression<'a> {
+    fn from(value: LoopExpression<'a>) -> Self {
+        Self::Loop(value.into())
+    }
+}
+
 /// <https://bedrock.dev/docs/stable/Molang#for_each>
 ///
 /// `for_each(t.foo, q.baz, { v.x = v.x + 1; });`
@@ -475,8 +595,20 @@ pub struct ForEachExpression<'a> {
     pub block: BlockExpression<'a>,
 }
 
+impl<'a> From<ForEachExpression<'a>> for Expression<'a> {
+    fn from(value: ForEachExpression<'a>) -> Self {
+        Self::ForEach(value.into())
+    }
+}
+
 /// `this` in `q.foo(this)`
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct ThisExpression {
     pub span: Span,
+}
+
+impl From<ThisExpression> for Expression<'_> {
+    fn from(value: ThisExpression) -> Self {
+        Self::This(value.into())
+    }
 }
