@@ -1,0 +1,6 @@
+---
+source: tests/codegen.rs
+assertion_line: 19
+expression: out
+---
+'foo_bar123.-$#*()'

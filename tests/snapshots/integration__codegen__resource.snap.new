@@ -1,0 +1,6 @@
+---
+source: tests/codegen.rs
+assertion_line: 84
+expression: out
+---
+geometry.foo;material.foo;texture.foo;

@@ -1,0 +1,6 @@
+---
+source: tests/parser.rs
+assertion_line: 52
+expression: out
+---
+ParserReturn { program: Program { span: Span { start: 0, end: 5 }, source: "t.foo", is_complex: false, body: [Expression(Variable(VariableExpression { span: Span { start: 0, end: 5 }, lifetime: Temporary, member: Property { span: Span { start: 0, end: 5 }, property: IdentifierReference { span: Span { start: 2, end: 5 }, name: "foo" } } }))] }, errors: [], panicked: false }
