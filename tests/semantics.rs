@@ -1,9 +1,9 @@
 use nolana::diagnostic::Diagnostic;
 
 fn test_semantics_helper(source: &str) -> String {
-    let ret = nolana::parser::Parser::new(source).parse();
+    let mut ret = nolana::parser::Parser::new(source).parse();
     // Return the errors in a debug formatted string
-    format!("{:?}", nolana::semantic::SemanticChecker::default().check(&ret.program))
+    format!("{:?}", nolana::semantic::SemanticChecker::default().check(&mut ret.program))
 }
 
 #[test]
