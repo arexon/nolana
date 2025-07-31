@@ -2,8 +2,8 @@ macro_rules! test_semantics {
     ($name:ident, $source:literal) => {
         #[test]
         fn $name() {
-            let ret = nolana::parser::Parser::new($source).parse();
-            let errors = nolana::semantic::SemanticChecker::default().check(&ret.program);
+            let mut ret = nolana::parser::Parser::new($source).parse();
+            let errors = nolana::semantic::SemanticChecker::default().check(&mut ret.program);
             insta::with_settings!({ omit_expression => true }, {
                 insta::assert_debug_snapshot!(errors);
             });

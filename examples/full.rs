@@ -9,7 +9,7 @@ use nolana::{
 fn main() {
     let source_text = fs::read_to_string("examples/sample.molang").unwrap();
 
-    let ParserReturn { program, errors, panicked } = Parser::new(&source_text).parse();
+    let ParserReturn { mut program, errors, panicked } = Parser::new(&source_text).parse();
 
     if !errors.is_empty() {
         for error in errors {
@@ -22,7 +22,7 @@ fn main() {
         return;
     }
 
-    let errors = SemanticChecker::default().check(&program);
+    let errors = SemanticChecker::default().check(&mut program);
     if !errors.is_empty() {
         for error in errors {
             let error = error.with_source_code(source_text.clone());
