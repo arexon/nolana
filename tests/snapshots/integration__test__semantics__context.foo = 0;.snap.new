@@ -1,0 +1,29 @@
+---
+source: tests/integration.rs
+assertion_line: 372
+---
+[
+    Diagnostic {
+        inner: DiagnosticInner {
+            message: "`context.` variables are read-only",
+            labels: Some(
+                [
+                    LabeledSpan {
+                        label: None,
+                        span: SourceSpan {
+                            offset: SourceOffset(
+                                0,
+                            ),
+                            length: 15,
+                        },
+                        primary: false,
+                    },
+                ],
+            ),
+            help: Some(
+                "Try assigning to `variable.` or `temp.` instead",
+            ),
+            severity: Error,
+        },
+    },
+]
