@@ -340,8 +340,8 @@ impl BinaryOperator {
 }
 
 impl From<Kind> for BinaryOperator {
-    fn from(token: Kind) -> Self {
-        match token {
+    fn from(kind: Kind) -> Self {
+        match kind {
             Kind::Eq2 => Self::Equality,
             Kind::Neq => Self::Inequality,
             Kind::Lt => Self::LessThan,
@@ -355,7 +355,7 @@ impl From<Kind> for BinaryOperator {
             Kind::Plus => Self::Addition,
             Kind::Star => Self::Multiplication,
             Kind::Slash => Self::Division,
-            _ => unreachable!("Binary Operator: {token:?}"),
+            _ => unreachable!("Binary Operator: {kind:?}"),
         }
     }
 }
@@ -394,11 +394,11 @@ impl UnaryOperator {
 }
 
 impl From<Kind> for UnaryOperator {
-    fn from(token: Kind) -> Self {
-        match token {
+    fn from(kind: Kind) -> Self {
+        match kind {
             Kind::Minus => Self::Negate,
             Kind::Bang => Self::Not,
-            _ => unreachable!("Unary Operator: {token:?}"),
+            _ => unreachable!("Unary Operator: {kind:?}"),
         }
     }
 }

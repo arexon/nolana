@@ -159,7 +159,7 @@ impl<'a> Parser<'a> {
 
     fn parse_expression(&mut self, min_bp: u8) -> Result<Expression<'a>> {
         let span = self.start_span();
-        let lhs = match self.current_kind() {
+        let left = match self.current_kind() {
             Kind::True | Kind::False => self.parse_literal_boolean()?,
             Kind::Number => self.parse_literal_number()?,
             Kind::String => self.parse_literal_string()?,
@@ -170,7 +170,7 @@ impl<'a> Parser<'a> {
             Kind::LeftBrace => {
                 self.parse_block_expression().map(|expr| Expression::Block(expr.into()))?
             }
-            Kind::Minus | Kind::Bang => self.parse_unary_expression()?,
+            v if v.is_unary_operator() => self.parse_unary_expression()?,
             Kind::Query | Kind::Math => self.parse_call_expression()?,
             v if v.is_resource() => self.parse_resource_expression()?,
             Kind::Array => self.parse_array_access_expression()?,
@@ -182,20 +182,20 @@ impl<'a> Parser<'a> {
             }
             _ => return Err(errors::unexpected_token(self.current_token().span())),
         };
-        self.parse_expression_rest(min_bp, lhs, span)
+        self.parse_expression_rest(min_bp, left, span)
     }
 
     fn parse_expression_rest(
         &mut self,
         min_bp: u8,
-        mut lhs: Expression<'a>,
+        mut left: Expression<'a>,
         span: Span,
     ) -> Result<Expression<'a>> {
         loop {
             let kind = self.current_kind();
 
             if kind == Kind::Arrow {
-                lhs = self.parse_arrow_access_expression(span, lhs)?;
+                left = self.parse_arrow_access_expression(span, left)?;
                 break;
             }
 
@@ -208,15 +208,15 @@ impl<'a> Parser<'a> {
 
             match self.current_kind() {
                 kind if kind.is_binary_operator() => {
-                    lhs = self.parse_binary_expression(span, lhs, rbp)?;
+                    left = self.parse_binary_expression(span, left, rbp)?;
                 }
                 Kind::Question => {
-                    lhs = self.parse_ternary_or_conditional_expression(span, lhs)?;
+                    left = self.parse_ternary_or_conditional_expression(span, left)?;
                 }
                 _ => break,
             }
         }
-        Ok(lhs)
+        Ok(left)
     }
 
     fn parse_literal_number(&mut self) -> Result<Expression<'a>> {
