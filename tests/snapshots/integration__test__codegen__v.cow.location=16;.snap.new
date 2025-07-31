@@ -1,0 +1,6 @@
+---
+source: tests/integration.rs
+assertion_line: 43
+expression: compare_str
+---
+v.cow.location=16;

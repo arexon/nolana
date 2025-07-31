@@ -1,0 +1,5 @@
+---
+source: tests/integration.rs
+assertion_line: 372
+---
+[]

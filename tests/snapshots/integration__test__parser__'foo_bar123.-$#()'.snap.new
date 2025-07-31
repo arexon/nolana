@@ -1,0 +1,29 @@
+---
+source: tests/integration.rs
+assertion_line: 151
+---
+ParserReturn {
+    program: Program {
+        span: Span {
+            start: 0,
+            end: 19,
+        },
+        source: "'foo_bar123.-$#*()'",
+        is_complex: false,
+        body: [
+            Expression(
+                StringLiteral(
+                    StringLiteral {
+                        span: Span {
+                            start: 0,
+                            end: 19,
+                        },
+                        value: "foo_bar123.-$#*()",
+                    },
+                ),
+            ),
+        ],
+    },
+    errors: [],
+    panicked: false,
+}
