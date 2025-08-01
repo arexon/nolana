@@ -1,6 +1,0 @@
----
-source: tests/parser.rs
-assertion_line: 188
-expression: out
----
-ParserReturn { program: Program { span: Span { start: 0, end: 12 }, source: "material.bar", is_complex: false, body: [Expression(Resource(ResourceExpression { span: Span { start: 0, end: 12 }, section: Material, name: IdentifierReference { span: Span { start: 9, end: 12 }, name: "bar" } }))] }, errors: [], panicked: false }

@@ -1,6 +1,0 @@
----
-source: tests/codegen.rs
-assertion_line: 33
-expression: out
----
-v.v.temp.t.context.c.query.q.math.a.b.c

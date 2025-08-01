@@ -1,6 +1,0 @@
----
-source: tests/codegen.rs
-assertion_line: 102
-expression: out
----
-loop(10,{v.i=v.i+1;});

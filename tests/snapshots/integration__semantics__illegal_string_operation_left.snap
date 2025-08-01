@@ -1,0 +1,5 @@
+---
+source: tests/semantics.rs
+expression: out
+---
+[Diagnostic { inner: DiagnosticInner { message: "Strings only support `==` and `!=` operators", labels: Some([LabeledSpan { label: None, span: SourceSpan { offset: SourceOffset(0), length: 10 }, primary: false }]), help: None, severity: Error } }]

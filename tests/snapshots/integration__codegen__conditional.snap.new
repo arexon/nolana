@@ -1,6 +1,0 @@
----
-source: tests/codegen.rs
-assertion_line: 48
-expression: out
----
-q.foo?1

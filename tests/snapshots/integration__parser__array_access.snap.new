@@ -1,6 +1,0 @@
----
-source: tests/parser.rs
-assertion_line: 201
-expression: out
----
-ParserReturn { program: Program { span: Span { start: 0, end: 16 }, source: "array.foo[q.bar]", is_complex: false, body: [Expression(ArrayAccess(ArrayAccessExpression { span: Span { start: 0, end: 16 }, name: IdentifierReference { span: Span { start: 6, end: 9 }, name: "foo" }, index: Call(CallExpression { span: Span { start: 10, end: 15 }, kind: Query, callee: IdentifierReference { span: Span { start: 12, end: 15 }, name: "bar" }, arguments: None }) }))] }, errors: [], panicked: false }

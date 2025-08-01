@@ -1,0 +1,5 @@
+---
+source: tests/parser.rs
+expression: out
+---
+ParserReturn { program: Program { span: Span { start: 0, end: 12 }, source: "v.a = 0; v.a", is_complex: true, body: [Assignment(AssignmentStatement { span: Span { start: 0, end: 7 }, left: VariableExpression { span: Span { start: 0, end: 3 }, lifetime: Variable, member: Property { span: Span { start: 0, end: 3 }, property: IdentifierReference { span: Span { start: 2, end: 3 }, name: "a" } } }, right: NumericLiteral(NumericLiteral { span: Span { start: 6, end: 7 }, value: 0.0, raw: "0" }) }), Expression(Variable(VariableExpression { span: Span { start: 9, end: 12 }, lifetime: Variable, member: Property { span: Span { start: 9, end: 12 }, property: IdentifierReference { span: Span { start: 11, end: 12 }, name: "a" } } }))] }, errors: [Diagnostic { inner: DiagnosticInner { message: "Semicolons are required for complex Molang expressions (contain `=` or `;`)", labels: Some([LabeledSpan { label: None, span: SourceSpan { offset: SourceOffset(12), length: 0 }, primary: false }]), help: Some("Try inserting a semicolon here"), severity: Error } }], panicked: false }

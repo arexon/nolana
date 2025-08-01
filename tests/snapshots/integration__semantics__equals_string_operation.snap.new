@@ -1,6 +1,0 @@
----
-source: tests/semantics.rs
-assertion_line: 53
-expression: out
----
-[]

@@ -1,6 +1,0 @@
----
-source: tests/parser.rs
-assertion_line: 254
-expression: out
----
-ParserReturn { program: Program { span: Span { start: 0, end: 4 }, source: "this", is_complex: false, body: [Expression(This(ThisExpression { span: Span { start: 0, end: 4 } }))] }, errors: [], panicked: false }
