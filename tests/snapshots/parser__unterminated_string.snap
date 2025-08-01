@@ -9,8 +9,7 @@ ParserReturn {
             end: 0,
         },
         source: "'hello wor-",
-        is_complex: false,
-        body: [],
+        body: Empty,
     },
     errors: [
         Diagnostic {

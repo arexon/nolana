@@ -6,10 +6,15 @@ use crate::{span::Span, token::Kind};
 pub struct Program<'a> {
     pub span: Span,
     pub source: &'a str,
-    /// Determines whether the expression is complex or simple. If it contains
-    /// at least one `;` or `=`, it is considered a complex expression.
-    pub is_complex: bool,
-    pub body: Vec<Statement<'a>>,
+    pub body: ProgramBody<'a>,
+}
+
+/// A program is considered complex if it contains any statement.
+#[derive(Debug, Clone, PartialEq)]
+pub enum ProgramBody<'a> {
+    Simple(Expression<'a>),
+    Complex(Vec<Statement<'a>>),
+    Empty,
 }
 
 #[derive(Debug, Clone, PartialEq)]

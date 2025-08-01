@@ -9,39 +9,40 @@ ParserReturn {
             end: 10,
         },
         source: "return v.a",
-        is_complex: false,
-        body: [
-            Return(
-                ReturnStatement {
-                    span: Span {
-                        start: 0,
-                        end: 10,
-                    },
-                    argument: Variable(
-                        VariableExpression {
-                            span: Span {
-                                start: 7,
-                                end: 10,
-                            },
-                            lifetime: Variable,
-                            member: Property {
+        body: Complex(
+            [
+                Return(
+                    ReturnStatement {
+                        span: Span {
+                            start: 0,
+                            end: 10,
+                        },
+                        argument: Variable(
+                            VariableExpression {
                                 span: Span {
                                     start: 7,
                                     end: 10,
                                 },
-                                property: IdentifierReference {
+                                lifetime: Variable,
+                                member: Property {
                                     span: Span {
-                                        start: 9,
+                                        start: 7,
                                         end: 10,
                                     },
-                                    name: "a",
+                                    property: IdentifierReference {
+                                        span: Span {
+                                            start: 9,
+                                            end: 10,
+                                        },
+                                        name: "a",
+                                    },
                                 },
                             },
-                        },
-                    ),
-                },
-            ),
-        ],
+                        ),
+                    },
+                ),
+            ],
+        ),
     },
     errors: [],
     panicked: false,

@@ -9,17 +9,18 @@ ParserReturn {
             end: 8,
         },
         source: "continue",
-        is_complex: false,
-        body: [
-            Continue(
-                ContinueStatement {
-                    span: Span {
-                        start: 0,
-                        end: 8,
+        body: Complex(
+            [
+                Continue(
+                    ContinueStatement {
+                        span: Span {
+                            start: 0,
+                            end: 8,
+                        },
                     },
-                },
-            ),
-        ],
+                ),
+            ],
+        ),
     },
     errors: [],
     panicked: false,

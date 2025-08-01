@@ -9,33 +9,30 @@ ParserReturn {
             end: 11,
         },
         source: "context.foo",
-        is_complex: false,
-        body: [
-            Expression(
-                Variable(
-                    VariableExpression {
+        body: Simple(
+            Variable(
+                VariableExpression {
+                    span: Span {
+                        start: 0,
+                        end: 11,
+                    },
+                    lifetime: Context,
+                    member: Property {
                         span: Span {
                             start: 0,
                             end: 11,
                         },
-                        lifetime: Context,
-                        member: Property {
+                        property: IdentifierReference {
                             span: Span {
-                                start: 0,
+                                start: 8,
                                 end: 11,
                             },
-                            property: IdentifierReference {
-                                span: Span {
-                                    start: 8,
-                                    end: 11,
-                                },
-                                name: "foo",
-                            },
+                            name: "foo",
                         },
                     },
-                ),
+                },
             ),
-        ],
+        ),
     },
     errors: [],
     panicked: false,

@@ -9,43 +9,40 @@ ParserReturn {
             end: 16,
         },
         source: "array.foo[q.bar]",
-        is_complex: false,
-        body: [
-            Expression(
-                ArrayAccess(
-                    ArrayAccessExpression {
+        body: Simple(
+            ArrayAccess(
+                ArrayAccessExpression {
+                    span: Span {
+                        start: 0,
+                        end: 16,
+                    },
+                    name: IdentifierReference {
                         span: Span {
-                            start: 0,
-                            end: 16,
+                            start: 6,
+                            end: 9,
                         },
-                        name: IdentifierReference {
+                        name: "foo",
+                    },
+                    index: Call(
+                        CallExpression {
                             span: Span {
-                                start: 6,
-                                end: 9,
+                                start: 10,
+                                end: 15,
                             },
-                            name: "foo",
-                        },
-                        index: Call(
-                            CallExpression {
+                            kind: Query,
+                            callee: IdentifierReference {
                                 span: Span {
-                                    start: 10,
+                                    start: 12,
                                     end: 15,
                                 },
-                                kind: Query,
-                                callee: IdentifierReference {
-                                    span: Span {
-                                        start: 12,
-                                        end: 15,
-                                    },
-                                    name: "bar",
-                                },
-                                arguments: None,
+                                name: "bar",
                             },
-                        ),
-                    },
-                ),
+                            arguments: None,
+                        },
+                    ),
+                },
             ),
-        ],
+        ),
     },
     errors: [],
     panicked: false,

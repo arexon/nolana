@@ -172,7 +172,11 @@ pub trait Traverse<'a>: Sized {
 
 fn walk_program<'a>(traverser: &mut impl Traverse<'a>, it: &mut Program<'a>) {
     traverser.enter_program(it);
-    walk_statements(traverser, &mut it.body);
+    match &mut it.body {
+        ProgramBody::Simple(expr) => walk_expression(traverser, expr),
+        ProgramBody::Complex(stmts) => walk_statements(traverser, stmts),
+        ProgramBody::Empty => (),
+    }
     traverser.exit_program(it);
 }
 
