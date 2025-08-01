@@ -9,8 +9,7 @@ ParserReturn {
             end: 0,
         },
         source: "for_each(1, q.foo, {v.b = v.a + 1;});",
-        is_complex: false,
-        body: [],
+        body: Empty,
     },
     errors: [
         Diagnostic {

@@ -41,10 +41,6 @@ pub struct Parser<'a> {
     source_code: &'a str,
     token: Token,
     prev_token_end: u32,
-    /// An expression is considered a [`complex expression`] if there is at
-    /// least one `=` or `;`.
-    ///
-    /// [`complex expression`]: https://bedrock.dev/docs/stable/Molang#Simple%20vs%20Complex%20Expressions
     is_complex: bool,
     errors: Vec<Diagnostic>,
 }
@@ -74,8 +70,7 @@ impl<'a> Parser<'a> {
                 let program = Program {
                     span: Span::default(),
                     source: self.source_code,
-                    is_complex: false,
-                    body: Vec::new(),
+                    body: ProgramBody::Empty,
                 };
                 (program, true)
             }
@@ -85,23 +80,30 @@ impl<'a> Parser<'a> {
 
     fn parse_program(&mut self) -> Result<Program<'a>> {
         let span = self.start_span();
-        let mut body = Vec::new();
+        let mut body = ProgramBody::Empty;
         while !self.at(Kind::Eof) {
-            if let Some(stmt) = self.parse_statement()? {
-                body.push(stmt);
+            let Some(stmt) = self.parse_statement()? else { continue };
+            match &mut body {
+                ProgramBody::Complex(stmts) => stmts.push(stmt),
+                ProgramBody::Empty => {
+                    body = match stmt {
+                        Statement::Expression(expr) if !self.is_complex && self.at(Kind::Eof) => {
+                            ProgramBody::Simple(*expr)
+                        }
+                        stmt => ProgramBody::Complex(vec![stmt]),
+                    };
+                }
+                // Simple is only set when it's the end of the program, so this
+                // is not possible to reach.
+                ProgramBody::Simple(_) => unreachable!(),
             }
         }
-        Ok(Program {
-            span: self.end_span(span),
-            source: self.source_code,
-            is_complex: self.is_complex,
-            body,
-        })
+        Ok(Program { span: self.end_span(span), source: self.source_code, body })
     }
 
     fn parse_statement(&mut self) -> Result<Option<Statement<'a>>> {
         let stmt = match self.current_kind() {
-            Kind::Semi => None, // We skip expressions that start with `;`.
+            Kind::Semi => None, // We skip statements that start with `;`.
             v if v.is_variable() => Some(self.parse_assignment_statement_or_expression()?),
             Kind::Return => Some(Statement::Return(self.parse_return_statement()?.into())),
             Kind::Break => Some(Statement::Break(self.parse_break_statement()?.into())),
@@ -178,7 +180,7 @@ impl<'a> Parser<'a> {
             Kind::ForEach => self.parse_for_each_expression()?,
             Kind::This => self.parse_this_expression()?,
             Kind::UnterminatedString => {
-                return Err(errors::unterminated_string(self.end_span(span)))
+                return Err(errors::unterminated_string(self.end_span(span)));
             }
             _ => return Err(errors::unexpected_token(self.current_token().span())),
         };

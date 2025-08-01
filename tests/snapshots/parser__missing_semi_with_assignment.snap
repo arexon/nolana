@@ -9,71 +9,72 @@ ParserReturn {
             end: 12,
         },
         source: "v.a = 0; v.a",
-        is_complex: true,
-        body: [
-            Assignment(
-                AssignmentStatement {
-                    span: Span {
-                        start: 0,
-                        end: 7,
-                    },
-                    left: VariableExpression {
+        body: Complex(
+            [
+                Assignment(
+                    AssignmentStatement {
                         span: Span {
                             start: 0,
-                            end: 3,
+                            end: 7,
                         },
-                        lifetime: Variable,
-                        member: Property {
+                        left: VariableExpression {
                             span: Span {
                                 start: 0,
                                 end: 3,
                             },
-                            property: IdentifierReference {
+                            lifetime: Variable,
+                            member: Property {
                                 span: Span {
-                                    start: 2,
+                                    start: 0,
                                     end: 3,
                                 },
-                                name: "a",
+                                property: IdentifierReference {
+                                    span: Span {
+                                        start: 2,
+                                        end: 3,
+                                    },
+                                    name: "a",
+                                },
                             },
                         },
+                        right: NumericLiteral(
+                            NumericLiteral {
+                                span: Span {
+                                    start: 6,
+                                    end: 7,
+                                },
+                                value: 0.0,
+                                raw: "0",
+                            },
+                        ),
                     },
-                    right: NumericLiteral(
-                        NumericLiteral {
-                            span: Span {
-                                start: 6,
-                                end: 7,
-                            },
-                            value: 0.0,
-                            raw: "0",
-                        },
-                    ),
-                },
-            ),
-            Expression(
-                Variable(
-                    VariableExpression {
-                        span: Span {
-                            start: 9,
-                            end: 12,
-                        },
-                        lifetime: Variable,
-                        member: Property {
+                ),
+                Expression(
+                    Variable(
+                        VariableExpression {
                             span: Span {
                                 start: 9,
                                 end: 12,
                             },
-                            property: IdentifierReference {
+                            lifetime: Variable,
+                            member: Property {
                                 span: Span {
-                                    start: 11,
+                                    start: 9,
                                     end: 12,
                                 },
-                                name: "a",
+                                property: IdentifierReference {
+                                    span: Span {
+                                        start: 11,
+                                        end: 12,
+                                    },
+                                    name: "a",
+                                },
                             },
                         },
-                    },
+                    ),
                 ),
-            ),
-        ],
+            ],
+        ),
     },
     errors: [
         Diagnostic {

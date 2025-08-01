@@ -23,7 +23,7 @@ pub struct Codegen {
 impl Codegen {
     pub fn build(mut self, program: &Program) -> String {
         self.code.reserve(program.source.len());
-        self.is_complex = program.is_complex;
+        self.is_complex = matches!(program.body, ProgramBody::Complex(_));
         program.gen(&mut self);
         self.code
     }
@@ -129,8 +129,14 @@ pub trait Gen {
 
 impl Gen for Program<'_> {
     fn gen(&self, c: &mut Codegen) {
-        for stmt in &self.body {
-            stmt.gen(c);
+        match &self.body {
+            ProgramBody::Simple(expr) => expr.gen(c),
+            ProgramBody::Complex(stmts) => {
+                for stmt in stmts {
+                    stmt.gen(c);
+                }
+            }
+            ProgramBody::Empty => (),
         }
     }
 }

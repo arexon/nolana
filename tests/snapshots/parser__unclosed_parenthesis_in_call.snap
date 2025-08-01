@@ -9,8 +9,7 @@ ParserReturn {
             end: 0,
         },
         source: "q.a(1",
-        is_complex: false,
-        body: [],
+        body: Empty,
     },
     errors: [
         Diagnostic {
