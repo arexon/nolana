@@ -4,7 +4,6 @@ use nolana::{
     codegen::Codegen
 };
 
-#[cfg(test)]
 fn codegen_test_helper(source: &str) -> String {
     let ret = Parser::new(source).parse();
     let out = Codegen::default().build(&ret.program);

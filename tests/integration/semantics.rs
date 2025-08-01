@@ -4,7 +4,6 @@ use nolana::{
     nolana::semantic::SemanticChecker   
 };
 
-#[cfg(test)]
 fn test_semantics_helper(source: &str) -> String {
     let ret = Parser::new(source).parse();
     // Return the errors in a debug formatted string
