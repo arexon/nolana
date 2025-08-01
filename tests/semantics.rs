@@ -1,29 +1,80 @@
-macro_rules! test_semantics {
-    ($name:ident, $source:literal) => {
-        #[test]
-        fn $name() {
-            let mut ret = nolana::parser::Parser::new($source).parse();
-            let errors = nolana::semantic::SemanticChecker::default().check(&mut ret.program);
-            insta::with_settings!({ omit_expression => true }, {
-                insta::assert_debug_snapshot!(errors);
-            });
-        }
-    };
+use insta::assert_snapshot;
+use nolana::{parser::Parser, semantic::SemanticChecker};
+
+fn test_semantics_helper(source: &str) -> String {
+    let mut ret = Parser::new(source).parse();
+    // Return the errors in a debug formatted string
+    format!("{:#?}", SemanticChecker::default().check(&mut ret.program))
 }
 
-test_semantics!(empty_block_expression, "{}");
-test_semantics!(filled_block_expression, "{1;};");
+#[test]
+fn empty_block_expression() {
+    let out = test_semantics_helper("{}");
+    assert_snapshot!(out)
+}
 
-test_semantics!(illegal_string_operation_both, "'foo' + 'bar'");
-test_semantics!(illegal_string_operation_left, "'foo' == 1");
-test_semantics!(illegal_string_operation_right, "1 + 'bar'");
-test_semantics!(unequals_string_operation, "'bar' != 'bar'");
-test_semantics!(equals_string_operation, "'bar' == 'bar'");
+#[test]
+fn filled_block_expression() {
+    let out = test_semantics_helper("{1;};");
+    assert_snapshot!(out)
+}
 
-test_semantics!(assigning_context, "context.foo = 0;");
+#[test]
+fn illegal_string_operation_both() {
+    let out = test_semantics_helper("'foo' + 'bar'");
+    assert_snapshot!(out)
+}
 
-test_semantics!(break_outside_loop, "break;");
-test_semantics!(break_inside_loop, "loop(1, {break;});");
+#[test]
+fn illegal_string_operation_left() {
+    let out = test_semantics_helper("'foo' == 1");
+    assert_snapshot!(out)
+}
 
-test_semantics!(continue_outside_loop, "continue;");
-test_semantics!(continue_inside_loop, "loop(1, {continue;});");
+#[test]
+fn illegal_string_operation_right() {
+    let out = test_semantics_helper("1 + 'bar'");
+    assert_snapshot!(out)
+}
+
+#[test]
+fn unequals_string_operation() {
+    let out = test_semantics_helper("'bar' != 'bar'");
+    assert_snapshot!(out)
+}
+
+#[test]
+fn equals_string_operation() {
+    let out = test_semantics_helper("'bar' == 'bar'");
+    assert_snapshot!(out)
+}
+
+#[test]
+fn assigning_context() {
+    let out = test_semantics_helper("context.foo = 0;");
+    assert_snapshot!(out)
+}
+
+#[test]
+fn break_outside_loop() {
+    let out = test_semantics_helper("break;");
+    assert_snapshot!(out)
+}
+
+#[test]
+fn break_inside_loop() {
+    let out = test_semantics_helper("loop(1, {break;});");
+    assert_snapshot!(out)
+}
+
+#[test]
+fn continue_outside_loop() {
+    let out = test_semantics_helper("continue;");
+    assert_snapshot!(out)
+}
+
+#[test]
+fn continue_inside_loop() {
+    let out = test_semantics_helper("loop(1, {continue;});");
+    assert_snapshot!(out)
+}
