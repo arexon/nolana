@@ -19,7 +19,8 @@ fmt:
 
 # Run all the tests with cargo-insta
 test:
-    cargo insta test --review
+    cargo test
+    cargo insta test --test tests --review
 
 # Lint the whole project
 lint:

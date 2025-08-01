@@ -1,13 +1,10 @@
 use insta::assert_snapshot;
-use nolana::{
-    nolana::parser::Parser,
-    nolana::semantic::SemanticChecker   
-};
+use nolana::{parser::Parser, semantic::SemanticChecker};
 
 fn test_semantics_helper(source: &str) -> String {
-    let ret = Parser::new(source).parse();
+    let mut ret = Parser::new(source).parse();
     // Return the errors in a debug formatted string
-    format!("{:?}", SemanticChecker::default().check(&ret.program))
+    format!("{:#?}", SemanticChecker::default().check(&mut ret.program))
 }
 
 #[test]

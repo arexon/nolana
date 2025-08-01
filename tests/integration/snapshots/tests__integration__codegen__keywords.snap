@@ -1,0 +1,5 @@
+---
+source: tests/integration/codegen.rs
+expression: out
+---
+return v.a;break;continue;this;

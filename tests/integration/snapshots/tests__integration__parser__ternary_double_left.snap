@@ -1,0 +1,124 @@
+---
+source: tests/integration/parser.rs
+expression: out
+---
+ParserReturn {
+    program: Program {
+        span: Span {
+            start: 0,
+            end: 31,
+        },
+        source: "q.foo ? v.bar == 13 ? 1 : 2 : 3",
+        is_complex: false,
+        body: [
+            Expression(
+                Ternary(
+                    TernaryExpression {
+                        span: Span {
+                            start: 0,
+                            end: 31,
+                        },
+                        test: Call(
+                            CallExpression {
+                                span: Span {
+                                    start: 0,
+                                    end: 5,
+                                },
+                                kind: Query,
+                                callee: IdentifierReference {
+                                    span: Span {
+                                        start: 2,
+                                        end: 5,
+                                    },
+                                    name: "foo",
+                                },
+                                arguments: None,
+                            },
+                        ),
+                        consequent: Ternary(
+                            TernaryExpression {
+                                span: Span {
+                                    start: 8,
+                                    end: 27,
+                                },
+                                test: Binary(
+                                    BinaryExpression {
+                                        span: Span {
+                                            start: 8,
+                                            end: 19,
+                                        },
+                                        left: Variable(
+                                            VariableExpression {
+                                                span: Span {
+                                                    start: 8,
+                                                    end: 13,
+                                                },
+                                                lifetime: Variable,
+                                                member: Property {
+                                                    span: Span {
+                                                        start: 8,
+                                                        end: 13,
+                                                    },
+                                                    property: IdentifierReference {
+                                                        span: Span {
+                                                            start: 10,
+                                                            end: 13,
+                                                        },
+                                                        name: "bar",
+                                                    },
+                                                },
+                                            },
+                                        ),
+                                        operator: Equality,
+                                        right: NumericLiteral(
+                                            NumericLiteral {
+                                                span: Span {
+                                                    start: 17,
+                                                    end: 19,
+                                                },
+                                                value: 13.0,
+                                                raw: "13",
+                                            },
+                                        ),
+                                    },
+                                ),
+                                consequent: NumericLiteral(
+                                    NumericLiteral {
+                                        span: Span {
+                                            start: 22,
+                                            end: 23,
+                                        },
+                                        value: 1.0,
+                                        raw: "1",
+                                    },
+                                ),
+                                alternate: NumericLiteral(
+                                    NumericLiteral {
+                                        span: Span {
+                                            start: 26,
+                                            end: 27,
+                                        },
+                                        value: 2.0,
+                                        raw: "2",
+                                    },
+                                ),
+                            },
+                        ),
+                        alternate: NumericLiteral(
+                            NumericLiteral {
+                                span: Span {
+                                    start: 30,
+                                    end: 31,
+                                },
+                                value: 3.0,
+                                raw: "3",
+                            },
+                        ),
+                    },
+                ),
+            ),
+        ],
+    },
+    errors: [],
+    panicked: false,
+}

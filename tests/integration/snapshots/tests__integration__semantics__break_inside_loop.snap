@@ -1,0 +1,5 @@
+---
+source: tests/integration/semantics.rs
+expression: out
+---
+[]

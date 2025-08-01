@@ -1,0 +1,5 @@
+---
+source: tests/integration/codegen.rs
+expression: out
+---
+q.foo?1:0
