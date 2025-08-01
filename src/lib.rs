@@ -7,5 +7,4 @@ pub mod parser;
 pub mod semantic;
 pub mod span;
 mod token;
-pub mod visit;
-pub mod visit_mut;
+pub mod traverse;

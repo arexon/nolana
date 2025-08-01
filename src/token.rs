@@ -191,6 +191,10 @@ impl Kind {
         )
     }
 
+    pub fn is_unary_operator(self) -> bool {
+        matches!(self, Kind::Minus | Kind::Bang)
+    }
+
     pub fn is_variable(self) -> bool {
         matches!(self, Kind::Variable | Kind::Temporary | Kind::Context)
     }

@@ -1,7 +1,7 @@
 use crate::{
     ast::*,
     diagnostic::{errors, Diagnostic},
-    visit::{walk, Visit},
+    traverse::{traverse, Traverse},
 };
 
 /// Traverses an AST and checks the Molang program for any semantic errors.
@@ -13,36 +13,36 @@ pub struct SemanticChecker {
 }
 
 impl SemanticChecker {
-    pub fn check(mut self, program: &Program) -> Vec<Diagnostic> {
-        walk::walk_program(&mut self, program);
+    pub fn check(mut self, program: &mut Program) -> Vec<Diagnostic> {
+        traverse(&mut self, program);
         self.errors
     }
 }
 
-impl<'a> Visit<'a> for SemanticChecker {
-    fn enter_loop_expression(&mut self, _: &LoopExpression<'a>) {
+impl<'a> Traverse<'a> for SemanticChecker {
+    fn enter_loop_expression(&mut self, _: &mut LoopExpression<'a>) {
         self.loop_depth += 1;
     }
 
-    fn exit_loop_expression(&mut self, _: &LoopExpression<'a>) {
+    fn exit_loop_expression(&mut self, _: &mut LoopExpression<'a>) {
         self.loop_depth -= 1;
     }
 
-    fn enter_for_each_expression(&mut self, _: &ForEachExpression<'a>) {
+    fn enter_for_each_expression(&mut self, _: &mut ForEachExpression<'a>) {
         self.loop_depth += 1;
     }
 
-    fn exit_for_each_expression(&mut self, _: &ForEachExpression<'a>) {
+    fn exit_for_each_expression(&mut self, _: &mut ForEachExpression<'a>) {
         self.loop_depth -= 1;
     }
 
-    fn enter_block_expression(&mut self, it: &BlockExpression<'a>) {
+    fn enter_block_expression(&mut self, it: &mut BlockExpression<'a>) {
         if it.statements.is_empty() {
             self.errors.push(errors::empty_block_expression(it.span));
         }
     }
 
-    fn enter_binary_expression(&mut self, it: &BinaryExpression<'a>) {
+    fn enter_binary_expression(&mut self, it: &mut BinaryExpression<'a>) {
         use BinaryOperator::*;
         use Expression::*;
         match (&it.left, it.operator, &it.right) {
@@ -54,19 +54,19 @@ impl<'a> Visit<'a> for SemanticChecker {
         self.errors.push(errors::illegal_string_operators(it.span));
     }
 
-    fn enter_assignment_statement(&mut self, it: &AssignmentStatement<'a>) {
+    fn enter_assignment_statement(&mut self, it: &mut AssignmentStatement<'a>) {
         if it.left.lifetime == VariableLifetime::Context {
             self.errors.push(errors::assigning_context(it.span))
         }
     }
 
-    fn enter_break_statement(&mut self, it: &BreakStatement) {
+    fn enter_break_statement(&mut self, it: &mut BreakStatement) {
         if self.loop_depth == 0 {
             self.errors.push(errors::break_outside_loop(it.span));
         }
     }
 
-    fn enter_continue_statement(&mut self, it: &ContinueStatement) {
+    fn enter_continue_statement(&mut self, it: &mut ContinueStatement) {
         if self.loop_depth == 0 {
             self.errors.push(errors::continue_outside_loop(it.span));
         }
