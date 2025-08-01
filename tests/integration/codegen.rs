@@ -1,3 +1,4 @@
+<<<<<<< HEAD:tests/integration/codegen.rs
 use insta::assert_snapshot;
 use nolana::{
     parser::Parser,
@@ -11,6 +12,16 @@ fn codegen_test_helper(source: &str) -> String {
     assert!(ret.errors.is_empty());
     assert!(!ret.panicked);
     out
+=======
+use nolana::{codegen::Codegen, parser::Parser};
+use insta::assert_snapshot;
+
+fn codegen_test_helper(source: &str) -> String {
+    let result = Parser::new(source).parse();
+    assert!(result.errors.is_empty());
+    assert!(!result.panicked);
+    Codegen::default().build(&result.program)
+>>>>>>> 33d3b17df1c203f65d5d668af6a0e49f62eace40:tests/codegen.rs
 }
 
 #[test]

@@ -1,9 +1,18 @@
+<<<<<<< HEAD:tests/integration/parser.rs
 use insta::assert_snapshot;
 use nolana::parser::Parser;
 
 #[cfg(test)]
 fn test_parser_helper(source: &str) -> String {
     format!("{:?}", Parser::new(source).parse())
+=======
+use nolana::parser::Parser;
+use insta::assert_snapshot;
+
+fn test_parser_helper(source: &str) -> String {
+    let result = Parser::new(source).parse();
+    format!("{result:?}")
+>>>>>>> 33d3b17df1c203f65d5d668af6a0e49f62eace40:tests/parser.rs
 }
 
 #[test]
