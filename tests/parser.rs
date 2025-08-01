@@ -1,10 +1,9 @@
+use nolana::parser::Parser;
+use insta::assert_snapshot;
+
 fn test_parser_helper(source: &str) -> String {
-    // This debug format is being used here to remove the need for
-    // insta::assert_debug_snapshot! and the need to fill in the filename,
-    // as the function name should give the filename for the snapshot
-    // this makes it follow the same filename layout as the rest of
-    // snapshots in snapshots directory
-    format!("{:?}", nolana::parser::Parser::new(source).parse())
+    let result = Parser::new(source).parse();
+    format!("{result:?}")
 }
 
 #[test]
