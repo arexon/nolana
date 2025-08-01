@@ -19,9 +19,8 @@ fmt:
 
 # Run all the tests with cargo-insta
 test:
-    cargo test
-    cargo insta test --test tests --review
-
+    cargo insta test --review
+    
 # Lint the whole project
 lint:
     cargo clippy -- --deny warnings

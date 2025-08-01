@@ -1,5 +1,0 @@
----
-source: tests/integration/codegen.rs
-expression: out
----
-{v.a=0;};

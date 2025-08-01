@@ -1,5 +1,0 @@
----
-source: tests/parser.rs
-expression: out
----
-ParserReturn { program: Program { span: Span { start: 0, end: 0 }, source: "()", is_complex: false, body: [] }, errors: [Diagnostic { inner: DiagnosticInner { message: "Empty parenthesized expression", labels: Some([LabeledSpan { label: None, span: SourceSpan { offset: SourceOffset(1), length: 1 }, primary: false }]), help: None, severity: Error } }], panicked: true }

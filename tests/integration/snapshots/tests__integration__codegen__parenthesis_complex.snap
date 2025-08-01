@@ -1,5 +1,0 @@
----
-source: tests/integration/codegen.rs
-expression: out
----
-(1;2;(3;(4;5;);););

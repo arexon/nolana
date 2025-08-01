@@ -1,5 +1,0 @@
----
-source: tests/integration/codegen.rs
-expression: out
----
-loop(10,{v.i=v.i+1;});

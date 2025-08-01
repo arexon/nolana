@@ -1,0 +1,26 @@
+---
+source: tests/parser.rs
+expression: out
+---
+ParserReturn {
+    program: Program {
+        span: Span {
+            start: 0,
+            end: 5,
+        },
+        source: "break",
+        is_complex: false,
+        body: [
+            Break(
+                BreakStatement {
+                    span: Span {
+                        start: 0,
+                        end: 5,
+                    },
+                },
+            ),
+        ],
+    },
+    errors: [],
+    panicked: false,
+}

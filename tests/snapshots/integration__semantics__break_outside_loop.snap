@@ -1,5 +1,0 @@
----
-source: tests/semantics.rs
-expression: out
----
-[Diagnostic { inner: DiagnosticInner { message: "`break` is only supported inside `loop` and `for_each` expressions", labels: Some([LabeledSpan { label: None, span: SourceSpan { offset: SourceOffset(0), length: 5 }, primary: false }]), help: None, severity: Error } }]
