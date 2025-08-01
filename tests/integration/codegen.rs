@@ -1,4 +1,3 @@
-<<<<<<< HEAD:tests/integration/codegen.rs
 use insta::assert_snapshot;
 use nolana::{
     parser::Parser,
@@ -12,16 +11,6 @@ fn codegen_test_helper(source: &str) -> String {
     assert!(ret.errors.is_empty());
     assert!(!ret.panicked);
     out
-=======
-use nolana::{codegen::Codegen, parser::Parser};
-use insta::assert_snapshot;
-
-fn codegen_test_helper(source: &str) -> String {
-    let result = Parser::new(source).parse();
-    assert!(result.errors.is_empty());
-    assert!(!result.panicked);
-    Codegen::default().build(&result.program)
->>>>>>> 33d3b17df1c203f65d5d668af6a0e49f62eace40:tests/codegen.rs
 }
 
 #[test]
@@ -33,21 +22,18 @@ fn boolean() {
 #[test]
 fn string() {
     let out = codegen_test_helper("'foo_bar123.-$#*()'");
-
     assert_snapshot!(out);
 }
 
 #[test]
 fn variable() {
     let out = codegen_test_helper("variable.foo; v.foo; temp.foo; t.foo; context.foo; c.foo;");
-
     assert_snapshot!(out);
 }
 
 #[test]
 fn weird_variable_members() {
     let out = codegen_test_helper("variable.v.temp.t.context.c.query.q.math.a.b.c");
-
     assert_snapshot!(out);
 }
 
@@ -56,7 +42,6 @@ fn binary_and_unary_operations() {
     let out = codegen_test_helper(
         "1 == (((2 != 3) < 4 <= 5 > 6) >= -7 + 8 - 9 * 10 / 11 || 12) && !(13 ?? 14)",
     );
-
     assert_snapshot!(out)
 }
 

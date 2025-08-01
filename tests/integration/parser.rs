@@ -1,18 +1,9 @@
-<<<<<<< HEAD:tests/integration/parser.rs
 use insta::assert_snapshot;
 use nolana::parser::Parser;
 
 #[cfg(test)]
 fn test_parser_helper(source: &str) -> String {
     format!("{:?}", Parser::new(source).parse())
-=======
-use nolana::parser::Parser;
-use insta::assert_snapshot;
-
-fn test_parser_helper(source: &str) -> String {
-    let result = Parser::new(source).parse();
-    format!("{result:?}")
->>>>>>> 33d3b17df1c203f65d5d668af6a0e49f62eace40:tests/parser.rs
 }
 
 #[test]
@@ -44,31 +35,37 @@ fn variable_variable() {
     let out = test_parser_helper("variable.foo");
     assert_snapshot!(out)
 }
+
 #[test]
 fn variable_v() {
     let out = test_parser_helper("v.foo");
     assert_snapshot!(out)
 }
+
 #[test]
 fn variable_temp() {
     let out = test_parser_helper("temp.foo");
     assert_snapshot!(out)
 }
+
 #[test]
 fn variable_t() {
     let out = test_parser_helper("t.foo");
     assert_snapshot!(out)
 }
+
 #[test]
 fn variable_context() {
     let out = test_parser_helper("context.foo");
     assert_snapshot!(out)
 }
+
 #[test]
 fn variable_c() {
     let out = test_parser_helper("c.foo");
     assert_snapshot!(out);
 }
+
 #[test]
 fn weird_variable_members() {
     let out = test_parser_helper("variable.v.temp.t.context.c.query.q.math.a.b.c");
@@ -80,11 +77,13 @@ fn binary_operation() {
     let out = test_parser_helper("1 + 2 * 3");
     assert_snapshot!(out)
 }
+
 #[test]
 fn parenthesized_binary_operation() {
     let out = test_parser_helper("(1 + 1) * (1 + 1)");
     assert_snapshot!(out)
 }
+
 #[test]
 fn parenthesized_binary_operation_alt() {
     let out = test_parser_helper("((2 * 3) + 1) / 2");
@@ -96,6 +95,7 @@ fn negate_operation() {
     let out = test_parser_helper("-(1 + 1)");
     assert_snapshot!(out)
 }
+
 #[test]
 fn not_operation() {
     let out = test_parser_helper("!(1 && 0)");
@@ -113,6 +113,7 @@ fn ternary_double_left() {
     let out = test_parser_helper("q.foo ? v.bar == 13 ? 1 : 2 : 3");
     assert_snapshot!(out)
 }
+
 #[test]
 fn ternary_double_right() {
     let out = test_parser_helper("q.foo ? 1 : v.bar == 13 ? 2 : 3");
@@ -145,114 +146,106 @@ fn complex_parenthesized_expression() {
 
     assert_snapshot!(out);
 }
+
 #[test]
 fn empty_parenthesized_expression() {
     let out = test_parser_helper("()");
     assert_snapshot!(out);
 }
+
 #[test]
 fn nested_parenthesis() {
     let out = test_parser_helper("((((16))))");
-
     assert_snapshot!(out);
 }
 
 #[test]
 fn block() {
     let out = test_parser_helper("{1;};");
-
     assert_snapshot!(out);
 }
 
 #[test]
 fn block_undelimited() {
     let out = test_parser_helper("{1}");
-
     assert_snapshot!(out);
 }
 
 #[test]
 fn unclosed_parenthesis_in_call() {
     let out = test_parser_helper("q.a(1");
-
     assert_snapshot!(out);
 }
+
 #[test]
 fn unclosed_parenthesis_in_parenthesized_expression() {
     let out = test_parser_helper("(1+1");
-
     assert_snapshot!(out);
 }
 
 #[test]
 fn resource_geometry() {
     let out = test_parser_helper("geometry.foo");
-
     assert_snapshot!(out);
 }
+
 #[test]
 fn resource_material() {
     let out = test_parser_helper("material.bar");
     assert_snapshot!(out);
 }
+
 #[test]
 fn resource_texture() {
     let out = test_parser_helper("texture.baz");
-
     assert_snapshot!(out);
 }
 
 #[test]
 fn array_access() {
     let out = test_parser_helper("array.foo[q.bar]");
-
     assert_snapshot!(out);
 }
 
 #[test]
 fn arrow_access() {
     let out = test_parser_helper("v.foo->v.bar");
-
     assert_snapshot!(out);
 }
 
 #[test]
 fn r#loop() {
     let out = test_parser_helper("loop(10, {v.i = v.i + 1;});");
-
     assert_snapshot!(out);
 }
 
 #[test]
 fn for_each() {
     let out = test_parser_helper("for_each(v.a, q.foo, {v.b = v.a + 1;});");
+    assert_snapshot!(out);
 }
 
 #[test]
 fn for_each_wrong_first_arg() {
     let out = test_parser_helper("for_each(1, q.foo, {v.b = v.a + 1;});");
-
     assert_snapshot!(out);
 }
 
 #[test]
 fn r#return() {
     let out = test_parser_helper("return v.a");
-
     assert_snapshot!(out);
 }
 
 #[test]
 fn r#break() {
     let out = test_parser_helper("break");
-
     assert_snapshot!(out);
 }
 
 #[test]
 fn r#continue() {
     let out = test_parser_helper("continue");
-
     assert_snapshot!(out);
 }
 
@@ -265,13 +258,12 @@ fn this() {
 #[test]
 fn missing_semi_with_semi() {
     let out = test_parser_helper("0; 0");
-
     assert_snapshot!(out);
 }
+
 #[test]
 fn missing_semi_with_assignment() {
     let out = test_parser_helper("v.a = 0; v.a");
-
     assert_snapshot!(out);
 }
 
@@ -286,6 +278,5 @@ fn semisemisemisemi() {
     ;;;;;;; ;;;;;;; ;;      ;; ;;
     ",
     );
-
     assert_snapshot!(out);
 }
