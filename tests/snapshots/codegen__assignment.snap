@@ -1,0 +1,5 @@
+---
+source: tests/codegen.rs
+expression: out
+---
+v.cow.location=16;

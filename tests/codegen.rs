@@ -1,74 +1,114 @@
-macro_rules! test_codegen {
-    ($name:ident, $source:literal, @$result:literal $(,)?) => {
-        #[test]
-        fn $name() {
-            let ret = nolana::parser::Parser::new($source).parse();
-            let out = nolana::codegen::Codegen::default().build(&ret.program);
-            assert!(ret.errors.is_empty());
-            assert!(!ret.panicked);
-            insta::assert_snapshot!(out, @$result);
-        }
-    };
+use insta::assert_snapshot;
+use nolana::{codegen::Codegen, parser::Parser};
+
+fn codegen_test_helper(source: &str) -> String {
+    let ret = Parser::new(source).parse();
+    let out = Codegen::default().build(&ret.program);
+    assert!(ret.errors.is_empty());
+    assert!(!ret.panicked);
+    out
 }
 
-test_codegen!(boolean, "false; true;", @"false;true;");
-test_codegen!(string, "'foo_bar123.-$#*()'", @"'foo_bar123.-$#*()'");
-test_codegen!(
-    variable,
-    "variable.foo; v.foo; temp.foo; t.foo; context.foo; c.foo;",
-    @"v.foo;v.foo;t.foo;t.foo;c.foo;c.foo;",
-);
-test_codegen!(
-    weird_variable_members,
-    "variable.v.temp.t.context.c.query.q.math.a.b.c",
-    @"v.v.temp.t.context.c.query.q.math.a.b.c",
-);
+#[test]
+fn boolean() {
+    let out = codegen_test_helper("false; true;");
+    assert_snapshot!(out);
+}
 
-test_codegen!(
-    binary_and_unary_operations,
-    "1 == (((2 != 3) < 4 <= 5 > 6) >= -7 + 8 - 9 * 10 / 11 || 12) && !(13 ?? 14)",
-    @"1==(((2!=3)<4<=5>6)>=-7+8-9*10/11||12)&&!(13??14)",
-);
+#[test]
+fn string() {
+    let out = codegen_test_helper("'foo_bar123.-$#*()'");
+    assert_snapshot!(out);
+}
 
-test_codegen!(conditional, "q.foo ? 1", @"q.foo?1");
+#[test]
+fn variable() {
+    let out = codegen_test_helper("variable.foo; v.foo; temp.foo; t.foo; context.foo; c.foo;");
+    assert_snapshot!(out);
+}
 
-test_codegen!(ternary, "q.foo ? 1 : 0", @"q.foo?1:0");
+#[test]
+fn weird_variable_members() {
+    let out = codegen_test_helper("variable.v.temp.t.context.c.query.q.math.a.b.c");
+    assert_snapshot!(out);
+}
 
-test_codegen!(
-    assignment,
-    "v.cow.location = 16;",
-    @"v.cow.location=16;",
-);
+#[test]
+fn binary_and_unary_operations() {
+    let out = codegen_test_helper(
+        "1 == (((2 != 3) < 4 <= 5 > 6) >= -7 + 8 - 9 * 10 / 11 || 12) && !(13 ?? 14)",
+    );
+    assert_snapshot!(out)
+}
 
-test_codegen!(parenthesis_single, "((((16))))", @"((((16))))");
-test_codegen!(parenthesis_complex, "(1; 2; (3; (4; 5;);););", @"(1;2;(3;(4;5;);););");
+#[test]
+fn conditional() {
+    let out = codegen_test_helper("q.foo ? 1");
+    assert_snapshot!(out)
+}
 
-test_codegen!(block, "{v.a = 0;};", @"{v.a=0;};");
+#[test]
+fn ternary() {
+    let out = codegen_test_helper("q.foo ? 1 : 0");
+    assert_snapshot!(out)
+}
 
-test_codegen!(
-    resource,
-    "geometry.foo; material.foo; texture.foo;",
-    @"geometry.foo;material.foo;texture.foo;",
-);
+#[test]
+fn assignment() {
+    let out = codegen_test_helper("v.cow.location = 16;");
+    assert_snapshot!(out)
+}
 
-test_codegen!(array_access, "array.foo[q.bar]", @"array.foo[q.bar]");
+#[test]
+fn parenthesis_single() {
+    let out = codegen_test_helper("((((16))))");
+    assert_snapshot!(out)
+}
 
-test_codegen!(arrow_access, "v.foo->v.bar", @"v.foo->v.bar");
+#[test]
+fn parenthesis_complex() {
+    let out = codegen_test_helper("(1; 2; (3; (4; 5;);););");
+    assert_snapshot!(out)
+}
 
-test_codegen!(
-    r#loop,
-    "loop(10, {v.i = v.i + 1;});",
-    @"loop(10,{v.i=v.i+1;});",
-);
+#[test]
+fn block() {
+    let out = codegen_test_helper("{v.a = 0;};");
+    assert_snapshot!(out)
+}
 
-test_codegen!(
-    for_each,
-    "for_each(v.a, q.foo, {v.b = v.a + 1;});",
-    @"for_each(v.a,q.foo,{v.b=v.a+1;});",
-);
+#[test]
+fn resource() {
+    let out = codegen_test_helper("geometry.foo; material.foo; texture.foo;");
+    assert_snapshot!(out)
+}
 
-test_codegen!(
-    keywords,
-    "return v.a; break; continue; this;",
-    @"return v.a;break;continue;this;",
-);
+#[test]
+fn array_access() {
+    let out = codegen_test_helper("array.foo[q.bar]");
+    assert_snapshot!(out)
+}
+
+#[test]
+fn arrow_access() {
+    let out = codegen_test_helper("v.foo->v.bar");
+    assert_snapshot!(out)
+}
+
+#[test]
+fn r#loop() {
+    let out = codegen_test_helper("loop(10, {v.i = v.i + 1;});");
+    assert_snapshot!(out)
+}
+
+#[test]
+fn for_each() {
+    let out = codegen_test_helper("for_each(v.a, q.foo, {v.b = v.a + 1;});");
+    assert_snapshot!(out)
+}
+
+#[test]
+fn keywords() {
+    let out = codegen_test_helper("return v.a; break; continue; this;");
+    assert_snapshot!(out)
+}

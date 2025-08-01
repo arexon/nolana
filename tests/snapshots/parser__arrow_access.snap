@@ -1,5 +1,6 @@
 ---
 source: tests/parser.rs
+expression: out
 ---
 ParserReturn {
     program: Program {

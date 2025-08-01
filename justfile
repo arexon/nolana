@@ -20,7 +20,7 @@ fmt:
 # Run all the tests with cargo-insta
 test:
     cargo insta test --review
-
+    
 # Lint the whole project
 lint:
     cargo clippy -- --deny warnings
