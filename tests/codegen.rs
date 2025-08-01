@@ -1,9 +1,11 @@
+use nolana::{codegen::Codegen, parser::Parser};
+use insta::assert_snapshot;
+
 fn codegen_test_helper(source: &str) -> String {
-    let ret = nolana::parser::Parser::new(source).parse();
-    let out = nolana::codegen::Codegen::default().build(&ret.program);
-    assert!(ret.errors.is_empty());
-    assert!(!ret.panicked);
-    out
+    let result = Parser::new(source).parse();
+    assert!(result.errors.is_empty());
+    assert!(!result.panicked);
+    Codegen::default().build(&result.program)
 }
 
 #[test]
