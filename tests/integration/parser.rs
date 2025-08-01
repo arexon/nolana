@@ -1,7 +1,6 @@
 use insta::assert_snapshot;
 use nolana::parser::Parser;
 
-#[cfg(test)]
 fn test_parser_helper(source: &str) -> String {
     format!("{:?}", Parser::new(source).parse())
 }
