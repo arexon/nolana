@@ -21,6 +21,8 @@ pub enum ProgramBody<'a> {
 pub enum Statement<'a> {
     Expression(Box<Expression<'a>>),
     Assignment(Box<AssignmentStatement<'a>>),
+    Loop(Box<LoopStatement<'a>>),
+    ForEach(Box<ForEachStatement<'a>>),
     Return(Box<ReturnStatement<'a>>),
     Break(Box<BreakStatement>),
     Continue(Box<ContinueStatement>),
@@ -37,6 +39,39 @@ pub struct AssignmentStatement<'a> {
 impl<'a> From<AssignmentStatement<'a>> for Statement<'a> {
     fn from(value: AssignmentStatement<'a>) -> Self {
         Self::Assignment(value.into())
+    }
+}
+
+/// <https://bedrock.dev/docs/stable/Molang#loop>
+///
+/// `loop(10, { v.x = v.x + 1; });`
+#[derive(Debug, Clone, PartialEq)]
+pub struct LoopStatement<'a> {
+    pub span: Span,
+    pub count: Expression<'a>,
+    pub block: BlockExpression<'a>,
+}
+
+impl<'a> From<LoopStatement<'a>> for Statement<'a> {
+    fn from(value: LoopStatement<'a>) -> Self {
+        Self::Loop(value.into())
+    }
+}
+
+/// <https://bedrock.dev/docs/stable/Molang#for_each>
+///
+/// `for_each(t.foo, q.baz, { v.x = v.x + 1; });`
+#[derive(Debug, Clone, PartialEq)]
+pub struct ForEachStatement<'a> {
+    pub span: Span,
+    pub variable: VariableExpression<'a>,
+    pub array: Expression<'a>,
+    pub block: BlockExpression<'a>,
+}
+
+impl<'a> From<ForEachStatement<'a>> for Statement<'a> {
+    fn from(value: ForEachStatement<'a>) -> Self {
+        Self::ForEach(value.into())
     }
 }
 
@@ -98,8 +133,6 @@ pub enum Expression<'a> {
     ArrayAccess(Box<ArrayAccessExpression<'a>>),
     ArrowAccess(Box<ArrowAccessExpression<'a>>),
     Call(Box<CallExpression<'a>>),
-    Loop(Box<LoopExpression<'a>>),
-    ForEach(Box<ForEachExpression<'a>>),
     This(Box<ThisExpression>),
 }
 
@@ -570,39 +603,6 @@ impl From<Kind> for CallKind {
             Kind::Query => Self::Query,
             _ => unreachable!("Call Kind: {kind:?}"),
         }
-    }
-}
-
-/// <https://bedrock.dev/docs/stable/Molang#loop>
-///
-/// `loop(10, { v.x = v.x + 1; });`
-#[derive(Debug, Clone, PartialEq)]
-pub struct LoopExpression<'a> {
-    pub span: Span,
-    pub count: Expression<'a>,
-    pub block: BlockExpression<'a>,
-}
-
-impl<'a> From<LoopExpression<'a>> for Expression<'a> {
-    fn from(value: LoopExpression<'a>) -> Self {
-        Self::Loop(value.into())
-    }
-}
-
-/// <https://bedrock.dev/docs/stable/Molang#for_each>
-///
-/// `for_each(t.foo, q.baz, { v.x = v.x + 1; });`
-#[derive(Debug, Clone, PartialEq)]
-pub struct ForEachExpression<'a> {
-    pub span: Span,
-    pub variable: VariableExpression<'a>,
-    pub array: Expression<'a>,
-    pub block: BlockExpression<'a>,
-}
-
-impl<'a> From<ForEachExpression<'a>> for Expression<'a> {
-    fn from(value: ForEachExpression<'a>) -> Self {
-        Self::ForEach(value.into())
     }
 }
 

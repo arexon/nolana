@@ -11,129 +11,127 @@ ParserReturn {
         source: "for_each(v.a, q.foo, {v.b = v.a + 1;});",
         body: Complex(
             [
-                Expression(
-                    ForEach(
-                        ForEachExpression {
+                ForEach(
+                    ForEachStatement {
+                        span: Span {
+                            start: 0,
+                            end: 38,
+                        },
+                        variable: VariableExpression {
                             span: Span {
-                                start: 0,
-                                end: 38,
+                                start: 9,
+                                end: 12,
                             },
-                            variable: VariableExpression {
+                            lifetime: Variable,
+                            member: Property {
                                 span: Span {
                                     start: 9,
                                     end: 12,
                                 },
-                                lifetime: Variable,
-                                member: Property {
+                                property: IdentifierReference {
                                     span: Span {
-                                        start: 9,
+                                        start: 11,
                                         end: 12,
                                     },
-                                    property: IdentifierReference {
-                                        span: Span {
-                                            start: 11,
-                                            end: 12,
-                                        },
-                                        name: "a",
-                                    },
+                                    name: "a",
                                 },
                             },
-                            array: Call(
-                                CallExpression {
+                        },
+                        array: Call(
+                            CallExpression {
+                                span: Span {
+                                    start: 14,
+                                    end: 19,
+                                },
+                                kind: Query,
+                                callee: IdentifierReference {
                                     span: Span {
-                                        start: 14,
+                                        start: 16,
                                         end: 19,
                                     },
-                                    kind: Query,
-                                    callee: IdentifierReference {
+                                    name: "foo",
+                                },
+                                arguments: None,
+                            },
+                        ),
+                        block: BlockExpression {
+                            span: Span {
+                                start: 21,
+                                end: 37,
+                            },
+                            statements: [
+                                Assignment(
+                                    AssignmentStatement {
                                         span: Span {
-                                            start: 16,
-                                            end: 19,
+                                            start: 22,
+                                            end: 35,
                                         },
-                                        name: "foo",
-                                    },
-                                    arguments: None,
-                                },
-                            ),
-                            block: BlockExpression {
-                                span: Span {
-                                    start: 21,
-                                    end: 37,
-                                },
-                                statements: [
-                                    Assignment(
-                                        AssignmentStatement {
+                                        left: VariableExpression {
                                             span: Span {
                                                 start: 22,
-                                                end: 35,
+                                                end: 25,
                                             },
-                                            left: VariableExpression {
+                                            lifetime: Variable,
+                                            member: Property {
                                                 span: Span {
                                                     start: 22,
                                                     end: 25,
                                                 },
-                                                lifetime: Variable,
-                                                member: Property {
+                                                property: IdentifierReference {
                                                     span: Span {
-                                                        start: 22,
+                                                        start: 24,
                                                         end: 25,
                                                     },
-                                                    property: IdentifierReference {
-                                                        span: Span {
-                                                            start: 24,
-                                                            end: 25,
-                                                        },
-                                                        name: "b",
-                                                    },
+                                                    name: "b",
                                                 },
                                             },
-                                            right: Binary(
-                                                BinaryExpression {
-                                                    span: Span {
-                                                        start: 28,
-                                                        end: 35,
-                                                    },
-                                                    left: Variable(
-                                                        VariableExpression {
+                                        },
+                                        right: Binary(
+                                            BinaryExpression {
+                                                span: Span {
+                                                    start: 28,
+                                                    end: 35,
+                                                },
+                                                left: Variable(
+                                                    VariableExpression {
+                                                        span: Span {
+                                                            start: 28,
+                                                            end: 31,
+                                                        },
+                                                        lifetime: Variable,
+                                                        member: Property {
                                                             span: Span {
                                                                 start: 28,
                                                                 end: 31,
                                                             },
-                                                            lifetime: Variable,
-                                                            member: Property {
+                                                            property: IdentifierReference {
                                                                 span: Span {
-                                                                    start: 28,
+                                                                    start: 30,
                                                                     end: 31,
                                                                 },
-                                                                property: IdentifierReference {
-                                                                    span: Span {
-                                                                        start: 30,
-                                                                        end: 31,
-                                                                    },
-                                                                    name: "a",
-                                                                },
+                                                                name: "a",
                                                             },
                                                         },
-                                                    ),
-                                                    operator: Addition,
-                                                    right: NumericLiteral(
-                                                        NumericLiteral {
-                                                            span: Span {
-                                                                start: 34,
-                                                                end: 35,
-                                                            },
-                                                            value: 1.0,
-                                                            raw: "1",
+                                                    },
+                                                ),
+                                                operator: Addition,
+                                                right: NumericLiteral(
+                                                    NumericLiteral {
+                                                        span: Span {
+                                                            start: 34,
+                                                            end: 35,
                                                         },
-                                                    ),
-                                                },
-                                            ),
-                                        },
-                                    ),
-                                ],
-                            },
+                                                        value: 1.0,
+                                                        raw: "1",
+                                                    },
+                                                ),
+                                            },
+                                        ),
+                                    },
+                                ),
+                            ],
                         },
-                    ),
+                    },
                 ),
             ],
         ),
