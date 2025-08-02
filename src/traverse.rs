@@ -316,11 +316,11 @@ fn walk_parenthesized_expression<'a>(
     it: &mut ParenthesizedExpression<'a>,
 ) {
     traverser.enter_parenthesized_expression(it);
-    match it {
-        ParenthesizedExpression::Single { expression, .. } => {
+    match &mut it.body {
+        ParenthesizedBody::Single(expression) => {
             walk_expression(traverser, expression);
         }
-        ParenthesizedExpression::Complex { statements, .. } => {
+        ParenthesizedBody::Multiple(statements) => {
             walk_statements(traverser, statements);
         }
     }

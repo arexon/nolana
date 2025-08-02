@@ -275,11 +275,9 @@ impl<'a> VariableMember<'a> {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum ParenthesizedExpression<'a> {
-    /// `(1 + 1)` in `(1 + 1) * 2`
-    Single { span: Span, expression: Expression<'a> },
-    /// `(v.a = 1;)` in `(v.b = 'B'; v.a = 1;);`
-    Complex { span: Span, statements: Vec<Statement<'a>> },
+pub struct ParenthesizedExpression<'a> {
+    pub span: Span,
+    pub body: ParenthesizedBody<'a>,
 }
 
 impl<'a> From<ParenthesizedExpression<'a>> for Expression<'a> {
@@ -288,13 +286,12 @@ impl<'a> From<ParenthesizedExpression<'a>> for Expression<'a> {
     }
 }
 
-impl<'a> ParenthesizedExpression<'a> {
-    pub fn span(&self) -> Span {
-        match self {
-            ParenthesizedExpression::Single { span, .. } => *span,
-            ParenthesizedExpression::Complex { span, .. } => *span,
-        }
-    }
+#[derive(Debug, Clone, PartialEq)]
+pub enum ParenthesizedBody<'a> {
+    /// `(1 + 1)` in `(1 + 1) * 2`
+    Single(Expression<'a>),
+    /// `(v.a = 1;)` in `(v.b = 'B'; v.a = 1;);`
+    Multiple(Vec<Statement<'a>>),
 }
 
 /// `{ v.a = 0; }` in `loop(10, { v.a = 0; })`

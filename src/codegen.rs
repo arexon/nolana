@@ -293,11 +293,17 @@ impl Gen for VariableMember<'_> {
 
 impl Gen for ParenthesizedExpression<'_> {
     fn gen(&self, c: &mut Codegen) {
+        self.body.gen(c);
+    }
+}
+
+impl Gen for ParenthesizedBody<'_> {
+    fn gen(&self, c: &mut Codegen) {
         match self {
-            Self::Single { expression, .. } => {
+            Self::Single(expression) => {
                 c.print_wrapped('(', ')', |c| expression.gen(c));
             }
-            Self::Complex { statements, .. } => {
+            Self::Multiple(statements) => {
                 c.print_scope('(', ')', |c| {
                     for stmt in statements {
                         stmt.gen(c);

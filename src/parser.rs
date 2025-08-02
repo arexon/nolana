@@ -300,9 +300,9 @@ impl<'a> Parser<'a> {
             match self.current_kind() {
                 Kind::RightParen => {
                     self.bump();
-                    Ok(ParenthesizedExpression::Single {
+                    Ok(ParenthesizedExpression {
                         span: self.end_span(span),
-                        expression: *expression,
+                        body: ParenthesizedBody::Single(*expression),
                     }
                     .into())
                 }
@@ -335,7 +335,11 @@ impl<'a> Parser<'a> {
             }
         }
         self.expect(Kind::RightParen)?;
-        Ok(ParenthesizedExpression::Complex { span: self.end_span(span), statements }.into())
+        Ok(ParenthesizedExpression {
+            span: self.end_span(span),
+            body: ParenthesizedBody::Multiple(statements),
+        }
+        .into())
     }
 
     fn parse_block_expression(&mut self) -> Result<BlockExpression<'a>> {
