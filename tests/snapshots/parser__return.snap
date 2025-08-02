@@ -25,10 +25,6 @@ ParseResult {
                                 },
                                 lifetime: Variable,
                                 member: Property {
-                                    span: Span {
-                                        start: 7,
-                                        end: 10,
-                                    },
                                     property: IdentifierReference {
                                         span: Span {
                                             start: 9,

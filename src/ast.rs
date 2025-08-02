@@ -260,18 +260,9 @@ impl From<Kind> for VariableLifetime {
 #[derive(Debug, Clone, PartialEq)]
 pub enum VariableMember<'a> {
     /// `foo.bar` in `v.foo.bar`
-    Object { span: Span, object: Box<VariableMember<'a>>, property: IdentifierReference<'a> },
+    Object { object: Box<VariableMember<'a>>, property: IdentifierReference<'a> },
     /// `foo` in `v.foo`
-    Property { span: Span, property: IdentifierReference<'a> },
-}
-
-impl<'a> VariableMember<'a> {
-    pub fn span(&self) -> Span {
-        match self {
-            VariableMember::Object { span, .. } => *span,
-            VariableMember::Property { span, .. } => *span,
-        }
-    }
+    Property { property: IdentifierReference<'a> },
 }
 
 #[derive(Debug, Clone, PartialEq)]
