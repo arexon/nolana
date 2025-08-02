@@ -107,10 +107,10 @@ impl<'a> Parser<'a> {
             v if v.is_variable() => Some(self.parse_assignment_statement_or_expression()?),
             Kind::Loop => Some(self.parse_loop_statement()?),
             Kind::ForEach => Some(self.parse_for_each_statement()?),
-            Kind::Return => Some(Statement::Return(self.parse_return_statement()?.into())),
-            Kind::Break => Some(Statement::Break(self.parse_break_statement()?.into())),
-            Kind::Continue => Some(Statement::Continue(self.parse_continue_statement()?.into())),
-            _ => Some(Statement::Expression(self.parse_expression(0)?.into())),
+            Kind::Return => Some(self.parse_return_statement()?.into()),
+            Kind::Break => Some(self.parse_break_statement()?.into()),
+            Kind::Continue => Some(self.parse_continue_statement()?.into()),
+            _ => Some(self.parse_expression(0)?.into()),
         };
         if self.eat(Kind::Semi) {
             if !self.is_complex {
@@ -132,13 +132,9 @@ impl<'a> Parser<'a> {
                     self.is_complex = true;
                 }
                 let right = self.parse_expression(0)?;
-                Statement::Assignment(
-                    AssignmentStatement { span: self.end_span(span), left, right }.into(),
-                )
+                AssignmentStatement { span: self.end_span(span), left, right }.into()
             }
-            _ => Statement::Expression(
-                self.parse_expression_rest(0, Expression::Variable(left.into()), span)?.into(),
-            ),
+            _ => self.parse_expression_rest(0, Expression::Variable(left.into()), span)?.into(),
         })
     }
 
@@ -150,7 +146,7 @@ impl<'a> Parser<'a> {
         self.expect(Kind::Comma)?;
         let block = self.parse_block_expression()?;
         self.expect(Kind::RightParen)?;
-        Ok(Statement::Loop(LoopStatement { span: self.end_span(span), count, block }.into()))
+        Ok(LoopStatement { span: self.end_span(span), count, block }.into())
     }
 
     fn parse_for_each_statement(&mut self) -> Result<Statement<'a>> {
@@ -166,9 +162,7 @@ impl<'a> Parser<'a> {
         self.expect(Kind::Comma)?;
         let block = self.parse_block_expression()?;
         self.expect(Kind::RightParen)?;
-        Ok(Statement::ForEach(
-            ForEachStatement { span: self.end_span(span), variable, array, block }.into(),
-        ))
+        Ok(ForEachStatement { span: self.end_span(span), variable, array, block }.into())
     }
 
     fn parse_return_statement(&mut self) -> Result<ReturnStatement<'a>> {
@@ -196,13 +190,9 @@ impl<'a> Parser<'a> {
             Kind::True | Kind::False => self.parse_literal_boolean()?,
             Kind::Number => self.parse_literal_number()?,
             Kind::String => self.parse_literal_string()?,
-            v if v.is_variable() => {
-                self.parse_variable_expression().map(|expr| Expression::Variable(expr.into()))?
-            }
+            v if v.is_variable() => self.parse_variable_expression().map(Into::into)?,
             Kind::LeftParen => self.parse_parenthesized_expression()?,
-            Kind::LeftBrace => {
-                self.parse_block_expression().map(|expr| Expression::Block(expr.into()))?
-            }
+            Kind::LeftBrace => self.parse_block_expression().map(Into::into)?,
             v if v.is_unary_operator() => self.parse_unary_expression()?,
             Kind::Query | Kind::Math => self.parse_call_expression()?,
             v if v.is_resource() => self.parse_resource_expression()?,
@@ -258,9 +248,7 @@ impl<'a> Parser<'a> {
         let raw = self.current_src();
         self.expect(Kind::Number)?;
         let value = raw.parse::<f32>().map_err(|_| errors::invalid_number(self.end_span(span)))?;
-        Ok(Expression::NumericLiteral(
-            NumericLiteral { span: self.end_span(span), value, raw }.into(),
-        ))
+        Ok(NumericLiteral { span: self.end_span(span), value, raw }.into())
     }
 
     fn parse_literal_boolean(&mut self) -> Result<Expression<'a>> {
@@ -271,7 +259,7 @@ impl<'a> Parser<'a> {
             kind => unreachable!("Boolean Literal: {kind:?}"),
         };
         self.bump();
-        Ok(Expression::BooleanLiteral(BooleanLiteral { span: self.end_span(span), value }.into()))
+        Ok(BooleanLiteral { span: self.end_span(span), value }.into())
     }
 
     pub fn parse_literal_string(&mut self) -> Result<Expression<'a>> {
@@ -279,7 +267,7 @@ impl<'a> Parser<'a> {
         let value = self.current_src();
         let value = &value[1..value.len() - 1];
         self.expect(Kind::String)?;
-        Ok(Expression::StringLiteral(StringLiteral { span: self.end_span(span), value }.into()))
+        Ok(StringLiteral { span: self.end_span(span), value }.into())
     }
 
     #[inline(always)] // Hot path
@@ -303,22 +291,20 @@ impl<'a> Parser<'a> {
         }
         let first_statement = match self.current_kind() {
             v if v.is_variable() => self.parse_assignment_statement_or_expression()?,
-            Kind::Return => Statement::Return(self.parse_return_statement()?.into()),
-            Kind::Break => Statement::Break(self.parse_break_statement()?.into()),
-            Kind::Continue => Statement::Continue(self.parse_continue_statement()?.into()),
-            _ => Statement::Expression(self.parse_expression(0)?.into()),
+            Kind::Return => self.parse_return_statement()?.into(),
+            Kind::Break => self.parse_break_statement()?.into(),
+            Kind::Continue => self.parse_continue_statement()?.into(),
+            _ => self.parse_expression(0)?.into(),
         };
         if let Statement::Expression(expression) = first_statement {
             match self.current_kind() {
                 Kind::RightParen => {
                     self.bump();
-                    Ok(Expression::Parenthesized(
-                        ParenthesizedExpression::Single {
-                            span: self.end_span(span),
-                            expression: *expression,
-                        }
-                        .into(),
-                    ))
+                    Ok(ParenthesizedExpression::Single {
+                        span: self.end_span(span),
+                        expression: *expression,
+                    }
+                    .into())
                 }
                 Kind::Semi => self
                     .parse_parenthesized_expression_rest(Statement::Expression(expression), span),
@@ -349,9 +335,7 @@ impl<'a> Parser<'a> {
             }
         }
         self.expect(Kind::RightParen)?;
-        Ok(Expression::Parenthesized(
-            ParenthesizedExpression::Complex { span: self.end_span(span), statements }.into(),
-        ))
+        Ok(ParenthesizedExpression::Complex { span: self.end_span(span), statements }.into())
     }
 
     fn parse_block_expression(&mut self) -> Result<BlockExpression<'a>> {
@@ -367,10 +351,10 @@ impl<'a> Parser<'a> {
         while !self.at(Kind::RightBrace) {
             statements.push(match self.current_kind() {
                 v if v.is_variable() => self.parse_assignment_statement_or_expression()?,
-                Kind::Return => Statement::Return(self.parse_return_statement()?.into()),
-                Kind::Break => Statement::Break(self.parse_break_statement()?.into()),
-                Kind::Continue => Statement::Continue(self.parse_continue_statement()?.into()),
-                _ => Statement::Expression(self.parse_expression(0)?.into()),
+                Kind::Return => self.parse_return_statement()?.into(),
+                Kind::Break => self.parse_break_statement()?.into(),
+                Kind::Continue => self.parse_continue_statement()?.into(),
+                _ => self.parse_expression(0)?.into(),
             });
             if !self.eat(Kind::Semi) {
                 self.error(errors::semi_required_in_block_expression(self.current_token().span()))
@@ -389,9 +373,7 @@ impl<'a> Parser<'a> {
         let operator = self.current_kind().into();
         self.bump();
         let right = self.parse_expression(rbp)?;
-        Ok(Expression::Binary(
-            BinaryExpression { span: self.end_span(left_span), left, operator, right }.into(),
-        ))
+        Ok(BinaryExpression { span: self.end_span(left_span), left, operator, right }.into())
     }
 
     fn parse_unary_expression(&mut self) -> Result<Expression<'a>> {
@@ -399,9 +381,7 @@ impl<'a> Parser<'a> {
         let operator = self.current_kind().into();
         self.bump();
         let argument = self.parse_expression(0)?;
-        Ok(Expression::Unary(
-            UnaryExpression { span: self.end_span(span), operator, argument }.into(),
-        ))
+        Ok(UnaryExpression { span: self.end_span(span), operator, argument }.into())
     }
 
     fn parse_ternary_or_conditional_expression(
@@ -413,14 +393,10 @@ impl<'a> Parser<'a> {
         let consequent = self.parse_expression(0)?;
         if self.eat(Kind::Colon) {
             let alternate = self.parse_expression(0)?;
-            Ok(Expression::Ternary(
-                TernaryExpression { span: self.end_span(test_span), test, consequent, alternate }
-                    .into(),
-            ))
+            Ok(TernaryExpression { span: self.end_span(test_span), test, consequent, alternate }
+                .into())
         } else {
-            Ok(Expression::Conditional(
-                ConditionalExpression { span: self.end_span(test_span), test, consequent }.into(),
-            ))
+            Ok(ConditionalExpression { span: self.end_span(test_span), test, consequent }.into())
         }
     }
 
@@ -448,9 +424,7 @@ impl<'a> Parser<'a> {
         self.bump();
         self.expect(Kind::Dot)?;
         let name = self.parse_identifier_reference()?;
-        Ok(Expression::Resource(
-            ResourceExpression { span: self.end_span(span), section, name }.into(),
-        ))
+        Ok(ResourceExpression { span: self.end_span(span), section, name }.into())
     }
 
     fn parse_array_access_expression(&mut self) -> Result<Expression<'a>> {
@@ -461,9 +435,7 @@ impl<'a> Parser<'a> {
         self.expect(Kind::LeftBracket)?;
         let index = self.parse_expression(0)?;
         self.expect(Kind::RightBracket)?;
-        Ok(Expression::ArrayAccess(
-            ArrayAccessExpression { span: self.end_span(span), name, index }.into(),
-        ))
+        Ok(ArrayAccessExpression { span: self.end_span(span), name, index }.into())
     }
 
     fn parse_arrow_access_expression(
@@ -473,9 +445,7 @@ impl<'a> Parser<'a> {
     ) -> Result<Expression<'a>> {
         self.expect(Kind::Arrow)?;
         let right = self.parse_expression(0)?;
-        Ok(Expression::ArrowAccess(
-            ArrowAccessExpression { span: self.end_span(left_span), left, right }.into(),
-        ))
+        Ok(ArrowAccessExpression { span: self.end_span(left_span), left, right }.into())
     }
 
     fn parse_call_expression(&mut self) -> Result<Expression<'a>> {
@@ -506,15 +476,13 @@ impl<'a> Parser<'a> {
         } else {
             None
         };
-        Ok(Expression::Call(
-            CallExpression { span: self.end_span(span), kind, callee, arguments }.into(),
-        ))
+        Ok(CallExpression { span: self.end_span(span), kind, callee, arguments }.into())
     }
 
     fn parse_this_expression(&mut self) -> Result<Expression<'a>> {
         let span = self.start_span();
         self.expect(Kind::This)?;
-        Ok(Expression::This(ThisExpression { span: self.end_span(span) }.into()))
+        Ok(ThisExpression { span: self.end_span(span) }.into())
     }
 
     #[inline]
