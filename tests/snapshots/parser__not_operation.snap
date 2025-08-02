@@ -18,39 +18,41 @@ ParseResult {
                     },
                     operator: Not,
                     argument: Parenthesized(
-                        Single {
+                        ParenthesizedExpression {
                             span: Span {
                                 start: 1,
                                 end: 9,
                             },
-                            expression: Binary(
-                                BinaryExpression {
-                                    span: Span {
-                                        start: 2,
-                                        end: 8,
+                            body: Single(
+                                Binary(
+                                    BinaryExpression {
+                                        span: Span {
+                                            start: 2,
+                                            end: 8,
+                                        },
+                                        left: NumericLiteral(
+                                            NumericLiteral {
+                                                span: Span {
+                                                    start: 2,
+                                                    end: 3,
+                                                },
+                                                value: 1.0,
+                                                raw: "1",
+                                            },
+                                        ),
+                                        operator: And,
+                                        right: NumericLiteral(
+                                            NumericLiteral {
+                                                span: Span {
+                                                    start: 7,
+                                                    end: 8,
+                                                },
+                                                value: 0.0,
+                                                raw: "0",
+                                            },
+                                        ),
                                     },
-                                    left: NumericLiteral(
-                                        NumericLiteral {
-                                            span: Span {
-                                                start: 2,
-                                                end: 3,
-                                            },
-                                            value: 1.0,
-                                            raw: "1",
-                                        },
-                                    ),
-                                    operator: And,
-                                    right: NumericLiteral(
-                                        NumericLiteral {
-                                            span: Span {
-                                                start: 7,
-                                                end: 8,
-                                            },
-                                            value: 0.0,
-                                            raw: "0",
-                                        },
-                                    ),
-                                },
+                                ),
                             ),
                         },
                     ),
