@@ -25,11 +25,11 @@ use crate::{
 /// 2. [`errors`] will be non-empty
 /// 3. [`panicked`] will be false
 ///
-/// [`program`]: ParserReturn::program
-/// [`errors`]: ParserReturn::errors
-/// [`panicked`]: ParserReturn::panicked
+/// [`program`]: ParseResult::program
+/// [`errors`]: ParseResult::errors
+/// [`panicked`]: ParseResult::panicked
 #[derive(Debug)]
-pub struct ParserReturn<'a> {
+pub struct ParseResult<'a> {
     pub program: Program<'a>,
     pub errors: Vec<Diagnostic>,
     pub panicked: bool,
@@ -60,8 +60,8 @@ impl<'a> Parser<'a> {
 
     /// Main entry point.
     ///
-    /// See [`ParserReturn`] for more info.
-    pub fn parse(mut self) -> ParserReturn<'a> {
+    /// See [`ParseResult`] for more info.
+    pub fn parse(mut self) -> ParseResult<'a> {
         self.bump(); // First token.
         let (program, panicked) = match self.parse_program() {
             Ok(program) => (program, false),
@@ -75,7 +75,7 @@ impl<'a> Parser<'a> {
                 (program, true)
             }
         };
-        ParserReturn { program, errors: self.errors, panicked }
+        ParseResult { program, errors: self.errors, panicked }
     }
 
     fn parse_program(&mut self) -> Result<Program<'a>> {

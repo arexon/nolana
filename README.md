@@ -32,14 +32,14 @@ Nolana achieves this performance by leveraging [logos](https://github.com/maciej
 ```rust
 use nolana::{
     codegen::{Codegen, CodegenOptions},
-    parser::{Parser, ParserReturn},
+    parser::{Parser, ParseResult},
     semantic::SemanticChecker,
 };
 
 let source_text = "math.cos(q.anim_time * 38) * v.rotation_scale + v.x * v.x * q.life_time";
 
 // Parse the provided Molang source code.
-let ParserReturn {
+let ParseResult {
     program,
     errors,
     panicked,

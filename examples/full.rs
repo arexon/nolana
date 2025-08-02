@@ -2,14 +2,14 @@ use std::fs;
 
 use nolana::{
     codegen::{Codegen, CodegenOptions},
-    parser::{Parser, ParserReturn},
+    parser::{ParseResult, Parser},
     semantic::SemanticChecker,
 };
 
 fn main() {
     let source_text = fs::read_to_string("examples/sample.molang").unwrap();
 
-    let ParserReturn { mut program, errors, panicked } = Parser::new(&source_text).parse();
+    let ParseResult { mut program, errors, panicked } = Parser::new(&source_text).parse();
 
     if !errors.is_empty() {
         for error in errors {

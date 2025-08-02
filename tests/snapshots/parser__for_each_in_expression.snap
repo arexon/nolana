@@ -2,7 +2,7 @@
 source: tests/parser.rs
 expression: out
 ---
-ParserReturn {
+ParseResult {
     program: Program {
         span: Span {
             start: 0,
