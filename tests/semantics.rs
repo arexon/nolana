@@ -1,5 +1,5 @@
 use insta::assert_snapshot;
-use nolana::{parser::Parser, semantic::SemanticChecker};
+use nolana::{semantic::SemanticChecker, Parser};
 
 fn semantics(source: &str) -> String {
     let mut result = Parser::new(source).parse();

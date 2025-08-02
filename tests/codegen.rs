@@ -1,5 +1,5 @@
 use insta::assert_snapshot;
-use nolana::{codegen::Codegen, parser::Parser};
+use nolana::{Codegen, Parser};
 
 fn codegen(source: &str) -> String {
     let result = Parser::new(source).parse();

@@ -1,6 +1,6 @@
 use std::fs;
 
-use nolana::parser::{Parser, ParseResult};
+use nolana::{ParseResult, Parser};
 
 fn main() {
     let source_text = fs::read_to_string("examples/sample.molang").unwrap();

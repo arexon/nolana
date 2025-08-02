@@ -123,7 +123,7 @@ impl Codegen {
 }
 
 /// Generate code for an AST.
-pub trait Gen {
+trait Gen {
     fn gen(&self, c: &mut Codegen);
 }
 
