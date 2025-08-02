@@ -20,19 +20,19 @@ impl SemanticChecker {
 }
 
 impl<'a> Traverse<'a> for SemanticChecker {
-    fn enter_loop_expression(&mut self, _: &mut LoopExpression<'a>) {
+    fn enter_loop_statement(&mut self, _: &mut LoopStatement<'a>) {
         self.loop_depth += 1;
     }
 
-    fn exit_loop_expression(&mut self, _: &mut LoopExpression<'a>) {
+    fn exit_loop_statement(&mut self, _: &mut LoopStatement<'a>) {
         self.loop_depth -= 1;
     }
 
-    fn enter_for_each_expression(&mut self, _: &mut ForEachExpression<'a>) {
+    fn enter_for_each_statement(&mut self, _: &mut ForEachStatement<'a>) {
         self.loop_depth += 1;
     }
 
-    fn exit_for_each_expression(&mut self, _: &mut ForEachExpression<'a>) {
+    fn exit_for_each_statement(&mut self, _: &mut ForEachStatement<'a>) {
         self.loop_depth -= 1;
     }
 

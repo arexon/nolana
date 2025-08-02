@@ -105,6 +105,8 @@ impl<'a> Parser<'a> {
         let stmt = match self.current_kind() {
             Kind::Semi => None, // We skip statements that start with `;`.
             v if v.is_variable() => Some(self.parse_assignment_statement_or_expression()?),
+            Kind::Loop => Some(self.parse_loop_statement()?),
+            Kind::ForEach => Some(self.parse_for_each_statement()?),
             Kind::Return => Some(Statement::Return(self.parse_return_statement()?.into())),
             Kind::Break => Some(Statement::Break(self.parse_break_statement()?.into())),
             Kind::Continue => Some(Statement::Continue(self.parse_continue_statement()?.into())),
@@ -138,6 +140,35 @@ impl<'a> Parser<'a> {
                 self.parse_expression_rest(0, Expression::Variable(left.into()), span)?.into(),
             ),
         })
+    }
+
+    fn parse_loop_statement(&mut self) -> Result<Statement<'a>> {
+        let span = self.start_span();
+        self.expect(Kind::Loop)?;
+        self.expect(Kind::LeftParen)?;
+        let count = self.parse_expression(0)?;
+        self.expect(Kind::Comma)?;
+        let block = self.parse_block_expression()?;
+        self.expect(Kind::RightParen)?;
+        Ok(Statement::Loop(LoopStatement { span: self.end_span(span), count, block }.into()))
+    }
+
+    fn parse_for_each_statement(&mut self) -> Result<Statement<'a>> {
+        let span = self.start_span();
+        self.expect(Kind::ForEach)?;
+        self.expect(Kind::LeftParen)?;
+        if !(self.at(Kind::Variable) || self.at(Kind::Temporary)) {
+            return Err(errors::for_each_wrong_first_arg(self.current_token().span()));
+        }
+        let variable = self.parse_variable_expression()?;
+        self.expect(Kind::Comma)?;
+        let array = self.parse_expression(0)?;
+        self.expect(Kind::Comma)?;
+        let block = self.parse_block_expression()?;
+        self.expect(Kind::RightParen)?;
+        Ok(Statement::ForEach(
+            ForEachStatement { span: self.end_span(span), variable, array, block }.into(),
+        ))
     }
 
     fn parse_return_statement(&mut self) -> Result<ReturnStatement<'a>> {
@@ -176,8 +207,9 @@ impl<'a> Parser<'a> {
             Kind::Query | Kind::Math => self.parse_call_expression()?,
             v if v.is_resource() => self.parse_resource_expression()?,
             Kind::Array => self.parse_array_access_expression()?,
-            Kind::Loop => self.parse_loop_expression()?,
-            Kind::ForEach => self.parse_for_each_expression()?,
+            Kind::Loop | Kind::ForEach => {
+                return Err(errors::loop_in_expression(self.end_span_single(span)))
+            }
             Kind::This => self.parse_this_expression()?,
             Kind::UnterminatedString => {
                 return Err(errors::unterminated_string(self.end_span(span)));
@@ -479,35 +511,6 @@ impl<'a> Parser<'a> {
         ))
     }
 
-    fn parse_loop_expression(&mut self) -> Result<Expression<'a>> {
-        let span = self.start_span();
-        self.expect(Kind::Loop)?;
-        self.expect(Kind::LeftParen)?;
-        let count = self.parse_expression(0)?;
-        self.expect(Kind::Comma)?;
-        let block = self.parse_block_expression()?;
-        self.expect(Kind::RightParen)?;
-        Ok(Expression::Loop(LoopExpression { span: self.end_span(span), count, block }.into()))
-    }
-
-    fn parse_for_each_expression(&mut self) -> Result<Expression<'a>> {
-        let span = self.start_span();
-        self.expect(Kind::ForEach)?;
-        self.expect(Kind::LeftParen)?;
-        if !(self.at(Kind::Variable) || self.at(Kind::Temporary)) {
-            return Err(errors::for_each_wrong_first_arg(self.current_token().span()));
-        }
-        let variable = self.parse_variable_expression()?;
-        self.expect(Kind::Comma)?;
-        let array = self.parse_expression(0)?;
-        self.expect(Kind::Comma)?;
-        let block = self.parse_block_expression()?;
-        self.expect(Kind::RightParen)?;
-        Ok(Expression::ForEach(
-            ForEachExpression { span: self.end_span(span), variable, array, block }.into(),
-        ))
-    }
-
     fn parse_this_expression(&mut self) -> Result<Expression<'a>> {
         let span = self.start_span();
         self.expect(Kind::This)?;
@@ -538,6 +541,12 @@ impl<'a> Parser<'a> {
     fn end_span(&self, mut span: Span) -> Span {
         span.end = self.prev_token_end;
         debug_assert!(span.end >= span.start);
+        span
+    }
+
+    #[inline]
+    fn end_span_single(&self, mut span: Span) -> Span {
+        span.end = span.start + 1;
         span
     }
 

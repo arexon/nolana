@@ -193,4 +193,11 @@ pub mod errors {
     pub fn empty_parenthesized_expression(span: Span) -> Diagnostic {
         Diagnostic::error("Empty parenthesized expression").with_label(span)
     }
+
+    #[cold]
+    pub fn loop_in_expression(span: Span) -> Diagnostic {
+        Diagnostic::error("A loop cannot be used in expressions")
+            .with_help("Try defining it in a statement")
+            .with_label(span)
+    }
 }

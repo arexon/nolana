@@ -147,6 +147,8 @@ impl Gen for Statement<'_> {
         match self {
             Statement::Expression(stmt) => stmt.gen(c),
             Statement::Assignment(stmt) => stmt.gen(c),
+            Statement::Loop(stmt) => stmt.gen(c),
+            Statement::ForEach(stmt) => stmt.gen(c),
             Statement::Return(stmt) => stmt.gen(c),
             Statement::Break(stmt) => stmt.gen(c),
             Statement::Continue(stmt) => stmt.gen(c),
@@ -165,6 +167,33 @@ impl Gen for AssignmentStatement<'_> {
         c.print_char('=');
         c.print_space();
         self.right.gen(c);
+    }
+}
+
+impl Gen for LoopStatement<'_> {
+    fn gen(&self, c: &mut Codegen) {
+        c.print_str("loop");
+        c.print_scope('(', ')', |c| {
+            self.count.gen(c);
+            c.print_comma();
+            c.print_space();
+            self.block.gen(c);
+        });
+    }
+}
+
+impl Gen for ForEachStatement<'_> {
+    fn gen(&self, c: &mut Codegen) {
+        c.print_str("for_each");
+        c.print_scope('(', ')', |c| {
+            self.variable.gen(c);
+            c.print_comma();
+            c.print_space();
+            self.array.gen(c);
+            c.print_comma();
+            c.print_space();
+            self.block.gen(c);
+        });
     }
 }
 
@@ -204,8 +233,6 @@ impl Gen for Expression<'_> {
             Self::ArrayAccess(expr) => expr.gen(c),
             Self::ArrowAccess(expr) => expr.gen(c),
             Self::Call(expr) => expr.gen(c),
-            Self::Loop(expr) => expr.gen(c),
-            Self::ForEach(expr) => expr.gen(c),
             Self::This(expr) => expr.gen(c),
         }
     }
@@ -385,33 +412,6 @@ impl Gen for CallExpression<'_> {
 impl Gen for CallKind {
     fn gen(&self, c: &mut Codegen) {
         c.print_str(if c.options.minify { self.as_str_short() } else { self.as_str_long() });
-    }
-}
-
-impl Gen for LoopExpression<'_> {
-    fn gen(&self, c: &mut Codegen) {
-        c.print_str("loop");
-        c.print_scope('(', ')', |c| {
-            self.count.gen(c);
-            c.print_comma();
-            c.print_space();
-            self.block.gen(c);
-        });
-    }
-}
-
-impl Gen for ForEachExpression<'_> {
-    fn gen(&self, c: &mut Codegen) {
-        c.print_str("for_each");
-        c.print_scope('(', ')', |c| {
-            self.variable.gen(c);
-            c.print_comma();
-            c.print_space();
-            self.array.gen(c);
-            c.print_comma();
-            c.print_space();
-            self.block.gen(c);
-        });
     }
 }
 

@@ -218,8 +218,20 @@ fn r#loop() {
 }
 
 #[test]
+fn loop_in_expression() {
+    let out = parse("1 + loop(10, {0;})");
+    assert_snapshot!(out);
+}
+
+#[test]
 fn for_each() {
     let out = parse("for_each(v.a, q.foo, {v.b = v.a + 1;});");
+    assert_snapshot!(out);
+}
+
+#[test]
+fn for_each_in_expression() {
+    let out = parse("1 + for_each(v.a, q.foo, {0;})");
     assert_snapshot!(out);
 }
 
