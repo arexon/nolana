@@ -18,10 +18,6 @@ ParseResult {
                     },
                     lifetime: Temporary,
                     member: Property {
-                        span: Span {
-                            start: 0,
-                            end: 5,
-                        },
                         property: IdentifierReference {
                             span: Span {
                                 start: 2,

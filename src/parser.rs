@@ -410,14 +410,10 @@ impl<'a> Parser<'a> {
         self.bump();
         self.expect(Kind::Dot)?;
         let property = self.parse_identifier_reference()?;
-        let mut member = VariableMember::Property { span: self.end_span(span), property };
+        let mut member = VariableMember::Property { property };
         while self.eat(Kind::Dot) {
             let property = self.parse_identifier_reference()?;
-            member = VariableMember::Object {
-                span: self.end_span(span),
-                object: member.into(),
-                property,
-            };
+            member = VariableMember::Object { object: member.into(), property };
         }
         Ok(VariableExpression { span: self.end_span(span), lifetime, member })
     }

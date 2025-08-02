@@ -24,20 +24,8 @@ ParseResult {
                             },
                             lifetime: Variable,
                             member: Object {
-                                span: Span {
-                                    start: 0,
-                                    end: 16,
-                                },
                                 object: Object {
-                                    span: Span {
-                                        start: 0,
-                                        end: 14,
-                                    },
                                     object: Property {
-                                        span: Span {
-                                            start: 0,
-                                            end: 5,
-                                        },
                                         property: IdentifierReference {
                                             span: Span {
                                                 start: 2,
@@ -88,20 +76,8 @@ ParseResult {
                             },
                             lifetime: Variable,
                             member: Object {
-                                span: Span {
-                                    start: 27,
-                                    end: 43,
-                                },
                                 object: Object {
-                                    span: Span {
-                                        start: 27,
-                                        end: 41,
-                                    },
                                     object: Property {
-                                        span: Span {
-                                            start: 27,
-                                            end: 32,
-                                        },
                                         property: IdentifierReference {
                                             span: Span {
                                                 start: 29,
@@ -152,20 +128,8 @@ ParseResult {
                             },
                             lifetime: Variable,
                             member: Object {
-                                span: Span {
-                                    start: 50,
-                                    end: 66,
-                                },
                                 object: Object {
-                                    span: Span {
-                                        start: 50,
-                                        end: 64,
-                                    },
                                     object: Property {
-                                        span: Span {
-                                            start: 50,
-                                            end: 55,
-                                        },
                                         property: IdentifierReference {
                                             span: Span {
                                                 start: 52,

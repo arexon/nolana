@@ -18,60 +18,16 @@ ParseResult {
                     },
                     lifetime: Variable,
                     member: Object {
-                        span: Span {
-                            start: 0,
-                            end: 46,
-                        },
                         object: Object {
-                            span: Span {
-                                start: 0,
-                                end: 44,
-                            },
                             object: Object {
-                                span: Span {
-                                    start: 0,
-                                    end: 42,
-                                },
                                 object: Object {
-                                    span: Span {
-                                        start: 0,
-                                        end: 40,
-                                    },
                                     object: Object {
-                                        span: Span {
-                                            start: 0,
-                                            end: 35,
-                                        },
                                         object: Object {
-                                            span: Span {
-                                                start: 0,
-                                                end: 33,
-                                            },
                                             object: Object {
-                                                span: Span {
-                                                    start: 0,
-                                                    end: 27,
-                                                },
                                                 object: Object {
-                                                    span: Span {
-                                                        start: 0,
-                                                        end: 25,
-                                                    },
                                                     object: Object {
-                                                        span: Span {
-                                                            start: 0,
-                                                            end: 17,
-                                                        },
                                                         object: Object {
-                                                            span: Span {
-                                                                start: 0,
-                                                                end: 15,
-                                                            },
                                                             object: Property {
-                                                                span: Span {
-                                                                    start: 0,
-                                                                    end: 10,
-                                                                },
                                                                 property: IdentifierReference {
                                                                     span: Span {
                                                                         start: 9,

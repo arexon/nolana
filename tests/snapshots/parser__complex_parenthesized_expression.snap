@@ -33,10 +33,6 @@ ParseResult {
                                                 },
                                                 lifetime: Variable,
                                                 member: Property {
-                                                    span: Span {
-                                                        start: 1,
-                                                        end: 4,
-                                                    },
                                                     property: IdentifierReference {
                                                         span: Span {
                                                             start: 3,
@@ -71,10 +67,6 @@ ParseResult {
                                                 },
                                                 lifetime: Variable,
                                                 member: Property {
-                                                    span: Span {
-                                                        start: 10,
-                                                        end: 13,
-                                                    },
                                                     property: IdentifierReference {
                                                         span: Span {
                                                             start: 12,
