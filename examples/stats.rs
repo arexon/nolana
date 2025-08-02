@@ -2,7 +2,7 @@ use std::fs;
 
 use nolana::{
     ast::{CallExpression, CallKind, Program},
-    parser::{Parser, ParserReturn},
+    parser::{ParseResult, Parser},
     traverse::{traverse, Traverse},
 };
 
@@ -32,7 +32,7 @@ impl<'a> Traverse<'a> for MolangStats {
 fn main() {
     let source_text = fs::read_to_string("examples/sample.molang").unwrap();
 
-    let ParserReturn { mut program, errors, panicked } = Parser::new(&source_text).parse();
+    let ParseResult { mut program, errors, panicked } = Parser::new(&source_text).parse();
 
     if !errors.is_empty() {
         for error in errors {

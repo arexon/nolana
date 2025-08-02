@@ -1,11 +1,11 @@
 use std::fs;
 
-use nolana::parser::{Parser, ParserReturn};
+use nolana::parser::{Parser, ParseResult};
 
 fn main() {
     let source_text = fs::read_to_string("examples/sample.molang").unwrap();
 
-    let ParserReturn { program, errors, panicked } = Parser::new(&source_text).parse();
+    let ParseResult { program, errors, panicked } = Parser::new(&source_text).parse();
 
     if !errors.is_empty() {
         for error in errors {
