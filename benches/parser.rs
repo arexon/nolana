@@ -1,7 +1,7 @@
 use std::fs;
 
 use criterion::{criterion_group, criterion_main, Criterion};
-use nolana::parser::Parser;
+use nolana::Parser;
 
 fn parse(source: &str) {
     let _ = Parser::new(source).parse();

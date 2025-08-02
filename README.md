@@ -30,11 +30,7 @@ Nolana achieves this performance by leveraging [logos](https://github.com/maciej
 ## 📝 Example
 
 ```rust
-use nolana::{
-    codegen::{Codegen, CodegenOptions},
-    parser::{Parser, ParseResult},
-    semantic::SemanticChecker,
-};
+use nolana::{semantic::SemanticChecker, Codegen, CodegenOptions, ParseResult, Parser};
 
 let source_text = "math.cos(q.anim_time * 38) * v.rotation_scale + v.x * v.x * q.life_time";
 

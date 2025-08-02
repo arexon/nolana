@@ -1,5 +1,5 @@
 use insta::assert_snapshot;
-use nolana::parser::Parser;
+use nolana::Parser;
 
 fn parse(source: &str) -> String {
     let result = Parser::new(source).parse();

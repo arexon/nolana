@@ -1,9 +1,8 @@
 use std::fs;
 
 use nolana::{
-    codegen::{Codegen, CodegenOptions},
-    parser::{ParseResult, Parser},
     semantic::SemanticChecker,
+    Codegen, CodegenOptions, {ParseResult, Parser},
 };
 
 fn main() {

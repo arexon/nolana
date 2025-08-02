@@ -2,8 +2,8 @@ use std::fs;
 
 use nolana::{
     ast::{CallExpression, CallKind, Program},
-    parser::{ParseResult, Parser},
     traverse::{traverse, Traverse},
+    {ParseResult, Parser},
 };
 
 #[derive(Debug)]

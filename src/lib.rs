@@ -1,9 +1,14 @@
 #![doc = include_str!("../README.md")]
 
-pub mod ast;
-pub mod codegen;
+mod parser;
+pub use parser::{ParseResult, Parser};
+
+mod codegen;
+pub use codegen::{Codegen, CodegenOptions};
+
 pub mod diagnostic;
-pub mod parser;
+
+pub mod ast;
 pub mod semantic;
 pub mod span;
 mod token;
