@@ -136,13 +136,13 @@ fn conditional() {
 fn assignment() {
     let out = parse(
         "
-        v.cow.a = 204.31;
-        v.cow.b += 87;
-        v.cow.c -= 48.933;
-        v.cow.c *= 3233.23;
-        v.cow.c /= 1290;
-        v.cow.c **= 32.2;
-        v.cow.c %= 32;
+        v.a = 204.31;
+        v.b += 87;
+        v.c -= 48.933;
+        v.d *= 3233.23;
+        v.e /= 1290;
+        v.f **= 32.2;
+        v.g %= 32;
     ",
     );
     assert_snapshot!(out)
