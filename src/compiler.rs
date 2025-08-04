@@ -176,7 +176,7 @@ fn basic_arithmetic_expression<'a>(
     operator: BinaryOperator,
     right: Expression<'a>,
 ) -> Expression<'a> {
-    Expression::Binary(BinaryExpression { span: SPAN, left, operator, right }.into())
+    BinaryExpression { span: SPAN, left, operator, right }.into()
 }
 
 /// `v.x * math.pow(2, math.y)`
