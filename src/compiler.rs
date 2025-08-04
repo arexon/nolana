@@ -58,9 +58,16 @@ impl<'a> Compiler<'a> {
         }
 
         let operator = assign_stmt.operator;
-        let left = Expression::Variable(assign_stmt.left.clone().into());
+        let mut left = assign_stmt.left.clone().into();
         let right = mem::take(&mut assign_stmt.right);
         assign_stmt.operator = AssignmentOperator::Assign;
+        if !assign_stmt.left.is_struct() {
+            left = basic_arithmetic_expression(
+                assign_stmt.left.clone().into(),
+                BinaryOperator::Coalesce,
+                NumericLiteral { span: SPAN, value: 0.0, raw: "0" }.into(),
+            );
+        }
         assign_stmt.right = match operator {
             AssignmentOperator::Remainder => math_mod_expression(left, right),
             AssignmentOperator::Exponential => math_pow_expression(left, right),

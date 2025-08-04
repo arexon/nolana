@@ -285,6 +285,13 @@ pub struct VariableExpression<'a> {
     pub member: VariableMember<'a>,
 }
 
+impl VariableExpression<'_> {
+    /// A struct is defined when an object or more are specified: `v.foo.bar`.
+    pub fn is_struct(&self) -> bool {
+        matches!(self.member, VariableMember::Object { .. })
+    }
+}
+
 impl<'a> From<VariableExpression<'a>> for Expression<'a> {
     fn from(value: VariableExpression<'a>) -> Self {
         Self::Variable(value.into())
