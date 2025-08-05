@@ -11,6 +11,7 @@ license = "MIT"
 [dependencies]
 logos = "0.15.0"
 miette = "7.6.0"
+replace_with = "0.1.8"
 
 [dev-dependencies]
 criterion = "0.7.0"

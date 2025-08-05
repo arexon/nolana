@@ -1,4 +1,4 @@
-use std::mem;
+use replace_with::replace_with_or_abort;
 
 use crate::{
     ast::*,
@@ -29,64 +29,65 @@ impl<'a> Compiler<'a> {
     }
 
     fn compile_binary_expression(&self, expr: &mut Expression<'a>) {
-        let Expression::Binary(bin_expr) = expr else { return };
-        if !matches!(
-            bin_expr.operator,
-            BinaryOperator::Remainder
-                | BinaryOperator::Exponential
-                | BinaryOperator::ShiftLeft
-                | BinaryOperator::ShiftRight
-        ) {
-            return;
+        if let Expression::Binary(bin_expr) = expr
+            && matches!(
+                bin_expr.operator,
+                BinaryOperator::Remainder
+                    | BinaryOperator::Exponential
+                    | BinaryOperator::ShiftLeft
+                    | BinaryOperator::ShiftRight
+            )
+        {
+            replace_with_or_abort(expr, |expr| {
+                let Expression::Binary(bin_expr) = expr else { unreachable!() };
+                let BinaryExpression { left, operator, right, .. } = *bin_expr;
+                match operator {
+                    BinaryOperator::Remainder => math_mod_expression(left, right),
+                    BinaryOperator::Exponential => math_pow_expression(left, right),
+                    BinaryOperator::ShiftLeft => shift_left_expression(left, right),
+                    BinaryOperator::ShiftRight => shift_right_expression(left, right),
+                    _ => unreachable!(),
+                }
+            });
         }
-
-        let operator = bin_expr.operator;
-        let bin_expr = mem::take(bin_expr);
-        *expr = match operator {
-            BinaryOperator::Remainder => math_mod_expression(bin_expr.left, bin_expr.right),
-            BinaryOperator::Exponential => math_pow_expression(bin_expr.left, bin_expr.right),
-            BinaryOperator::ShiftLeft => shift_left_expression(bin_expr.left, bin_expr.right),
-            BinaryOperator::ShiftRight => shift_right_expression(bin_expr.left, bin_expr.right),
-            _ => unreachable!(),
-        };
     }
 
     fn compile_assignment_statement(&self, stmt: &mut Statement<'a>) {
-        let Statement::Assignment(assign_stmt) = stmt else { return };
-        if assign_stmt.operator == AssignmentOperator::Assign {
-            return;
-        }
+        if let Statement::Assignment(assign_stmt) = stmt
+            && assign_stmt.operator != AssignmentOperator::Assign
+        {
+            let mut left = assign_stmt.left.clone().into();
+            if !assign_stmt.left.is_struct() {
+                left = basic_arithmetic_expression(
+                    assign_stmt.left.clone().into(),
+                    BinaryOperator::Coalesce,
+                    NumericLiteral { span: SPAN, value: 0.0, raw: "0" }.into(),
+                );
+            }
 
-        let operator = assign_stmt.operator;
-        let mut left = assign_stmt.left.clone().into();
-        let right = mem::take(&mut assign_stmt.right);
-        assign_stmt.operator = AssignmentOperator::Assign;
-        if !assign_stmt.left.is_struct() {
-            left = basic_arithmetic_expression(
-                assign_stmt.left.clone().into(),
-                BinaryOperator::Coalesce,
-                NumericLiteral { span: SPAN, value: 0.0, raw: "0" }.into(),
-            );
+            let operator = assign_stmt.operator;
+            assign_stmt.operator = AssignmentOperator::Assign;
+
+            replace_with_or_abort(&mut assign_stmt.right, |right| match operator {
+                AssignmentOperator::Addition => {
+                    basic_arithmetic_expression(left, BinaryOperator::Addition, right)
+                }
+                AssignmentOperator::Subtraction => {
+                    basic_arithmetic_expression(left, BinaryOperator::Subtraction, right)
+                }
+                AssignmentOperator::Multiplication => {
+                    basic_arithmetic_expression(left, BinaryOperator::Multiplication, right)
+                }
+                AssignmentOperator::Division => {
+                    basic_arithmetic_expression(left, BinaryOperator::Division, right)
+                }
+                AssignmentOperator::Remainder => math_mod_expression(left, right),
+                AssignmentOperator::Exponential => math_pow_expression(left, right),
+                AssignmentOperator::ShiftLeft => shift_left_expression(left, right),
+                AssignmentOperator::ShiftRight => shift_right_expression(left, right),
+                AssignmentOperator::Assign => unreachable!(),
+            });
         }
-        assign_stmt.right = match operator {
-            AssignmentOperator::Remainder => math_mod_expression(left, right),
-            AssignmentOperator::Exponential => math_pow_expression(left, right),
-            AssignmentOperator::Addition => {
-                basic_arithmetic_expression(left, BinaryOperator::Addition, right)
-            }
-            AssignmentOperator::Subtraction => {
-                basic_arithmetic_expression(left, BinaryOperator::Subtraction, right)
-            }
-            AssignmentOperator::Multiplication => {
-                basic_arithmetic_expression(left, BinaryOperator::Multiplication, right)
-            }
-            AssignmentOperator::Division => {
-                basic_arithmetic_expression(left, BinaryOperator::Division, right)
-            }
-            AssignmentOperator::ShiftLeft => shift_left_expression(left, right),
-            AssignmentOperator::ShiftRight => shift_right_expression(left, right),
-            _ => unreachable!(),
-        };
     }
 
     fn compile_update_expression(&mut self, expr: &mut Expression<'a>) {
@@ -109,7 +110,10 @@ impl<'a> Compiler<'a> {
         let index = scope.new_statements.len() + scope.statement_count - 1;
         scope.new_statements.push((index, update_stmt));
 
-        *expr = mem::take(&mut update_expr.variable).into();
+        replace_with_or_abort(expr, |expr| {
+            let Expression::Update(update_expr) = expr else { unreachable!() };
+            update_expr.variable.into()
+        });
     }
 
     fn optimize_statements(&mut self, stmts: &mut Vec<Statement<'a>>) {
