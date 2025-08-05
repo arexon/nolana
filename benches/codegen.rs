@@ -1,7 +1,7 @@
 use std::fs;
 
-use criterion::{criterion_group, criterion_main, Criterion};
-use nolana::{ast::Program, Codegen, Parser};
+use criterion::{Criterion, criterion_group, criterion_main};
+use nolana::{Codegen, Parser, ast::Program};
 
 fn codegen(program: &Program) {
     let _ = Codegen::default().build(program);
