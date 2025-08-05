@@ -24,7 +24,7 @@ impl Codegen {
     pub fn build(mut self, program: &Program) -> String {
         self.code.reserve(program.source.len());
         self.is_complex = matches!(program.body, ProgramBody::Complex(_));
-        program.gen(&mut self);
+        program.print(&mut self);
         self.code
     }
 
@@ -94,13 +94,13 @@ impl Codegen {
         self.code.push(';');
     }
 
-    fn print_list<T: Gen>(&mut self, items: &[T]) {
+    fn print_list<T: Print>(&mut self, items: &[T]) {
         for (index, item) in items.iter().enumerate() {
             if index != 0 {
                 self.print_comma();
                 self.print_space();
             }
-            item.gen(self);
+            item.print(self);
         }
     }
 
@@ -122,18 +122,18 @@ impl Codegen {
     }
 }
 
-/// Generate code for an AST.
-trait Gen {
-    fn gen(&self, c: &mut Codegen);
+/// Generate code for an AST node.
+trait Print {
+    fn print(&self, c: &mut Codegen);
 }
 
-impl Gen for Program<'_> {
-    fn gen(&self, c: &mut Codegen) {
+impl Print for Program<'_> {
+    fn print(&self, c: &mut Codegen) {
         match &self.body {
-            ProgramBody::Simple(expr) => expr.gen(c),
+            ProgramBody::Simple(expr) => expr.print(c),
             ProgramBody::Complex(stmts) => {
                 for stmt in stmts {
-                    stmt.gen(c);
+                    stmt.print(c);
                 }
             }
             ProgramBody::Empty => (),
@@ -141,18 +141,18 @@ impl Gen for Program<'_> {
     }
 }
 
-impl Gen for Statement<'_> {
-    fn gen(&self, c: &mut Codegen) {
+impl Print for Statement<'_> {
+    fn print(&self, c: &mut Codegen) {
         c.print_indent();
         match self {
-            Statement::Expression(stmt) => stmt.gen(c),
-            Statement::Assignment(stmt) => stmt.gen(c),
-            Statement::Loop(stmt) => stmt.gen(c),
-            Statement::ForEach(stmt) => stmt.gen(c),
-            Statement::Return(stmt) => stmt.gen(c),
-            Statement::Break(stmt) => stmt.gen(c),
-            Statement::Continue(stmt) => stmt.gen(c),
-            Statement::Empty(stmt) => stmt.gen(c),
+            Statement::Expression(stmt) => stmt.print(c),
+            Statement::Assignment(stmt) => stmt.print(c),
+            Statement::Loop(stmt) => stmt.print(c),
+            Statement::ForEach(stmt) => stmt.print(c),
+            Statement::Return(stmt) => stmt.print(c),
+            Statement::Break(stmt) => stmt.print(c),
+            Statement::Continue(stmt) => stmt.print(c),
+            Statement::Empty(stmt) => stmt.print(c),
         }
         if c.is_complex && !matches!(self, Statement::Empty(_)) {
             c.print_semi();
@@ -161,157 +161,157 @@ impl Gen for Statement<'_> {
     }
 }
 
-impl Gen for AssignmentStatement<'_> {
-    fn gen(&self, c: &mut Codegen) {
-        self.left.gen(c);
+impl Print for AssignmentStatement<'_> {
+    fn print(&self, c: &mut Codegen) {
+        self.left.print(c);
         c.print_space();
         c.print_char('=');
         c.print_space();
-        self.right.gen(c);
+        self.right.print(c);
     }
 }
 
-impl Gen for LoopStatement<'_> {
-    fn gen(&self, c: &mut Codegen) {
+impl Print for LoopStatement<'_> {
+    fn print(&self, c: &mut Codegen) {
         c.print_str("loop");
         c.print_scope('(', ')', |c| {
-            self.count.gen(c);
+            self.count.print(c);
             c.print_comma();
             c.print_space();
-            self.block.gen(c);
+            self.block.print(c);
         });
     }
 }
 
-impl Gen for ForEachStatement<'_> {
-    fn gen(&self, c: &mut Codegen) {
+impl Print for ForEachStatement<'_> {
+    fn print(&self, c: &mut Codegen) {
         c.print_str("for_each");
         c.print_scope('(', ')', |c| {
-            self.variable.gen(c);
+            self.variable.print(c);
             c.print_comma();
             c.print_space();
-            self.array.gen(c);
+            self.array.print(c);
             c.print_comma();
             c.print_space();
-            self.block.gen(c);
+            self.block.print(c);
         });
     }
 }
 
-impl Gen for ReturnStatement<'_> {
-    fn gen(&self, c: &mut Codegen) {
+impl Print for ReturnStatement<'_> {
+    fn print(&self, c: &mut Codegen) {
         c.print_str("return ");
-        self.argument.gen(c);
+        self.argument.print(c);
     }
 }
 
-impl Gen for BreakStatement {
-    fn gen(&self, c: &mut Codegen) {
+impl Print for BreakStatement {
+    fn print(&self, c: &mut Codegen) {
         c.print_str("break");
     }
 }
 
-impl Gen for ContinueStatement {
-    fn gen(&self, c: &mut Codegen) {
+impl Print for ContinueStatement {
+    fn print(&self, c: &mut Codegen) {
         c.print_str("continue");
     }
 }
 
-impl Gen for EmptyStatement {
-    fn gen(&self, _: &mut Codegen) {}
+impl Print for EmptyStatement {
+    fn print(&self, _: &mut Codegen) {}
 }
 
-impl Gen for Expression<'_> {
-    fn gen(&self, c: &mut Codegen) {
+impl Print for Expression<'_> {
+    fn print(&self, c: &mut Codegen) {
         match self {
-            Self::BooleanLiteral(expr) => expr.gen(c),
-            Self::NumericLiteral(expr) => expr.gen(c),
-            Self::StringLiteral(expr) => expr.gen(c),
-            Self::Variable(expr) => expr.gen(c),
-            Self::Parenthesized(expr) => expr.gen(c),
-            Self::Block(expr) => expr.gen(c),
-            Self::Binary(expr) => expr.gen(c),
-            Self::Unary(expr) => expr.gen(c),
-            Self::Ternary(expr) => expr.gen(c),
-            Self::Conditional(expr) => expr.gen(c),
-            Self::Resource(expr) => expr.gen(c),
-            Self::ArrayAccess(expr) => expr.gen(c),
-            Self::ArrowAccess(expr) => expr.gen(c),
-            Self::Call(expr) => expr.gen(c),
-            Self::This(expr) => expr.gen(c),
+            Self::BooleanLiteral(expr) => expr.print(c),
+            Self::NumericLiteral(expr) => expr.print(c),
+            Self::StringLiteral(expr) => expr.print(c),
+            Self::Variable(expr) => expr.print(c),
+            Self::Parenthesized(expr) => expr.print(c),
+            Self::Block(expr) => expr.print(c),
+            Self::Binary(expr) => expr.print(c),
+            Self::Unary(expr) => expr.print(c),
+            Self::Ternary(expr) => expr.print(c),
+            Self::Conditional(expr) => expr.print(c),
+            Self::Resource(expr) => expr.print(c),
+            Self::ArrayAccess(expr) => expr.print(c),
+            Self::ArrowAccess(expr) => expr.print(c),
+            Self::Call(expr) => expr.print(c),
+            Self::This(expr) => expr.print(c),
         }
     }
 }
 
-impl Gen for IdentifierReference<'_> {
-    fn gen(&self, c: &mut Codegen) {
+impl Print for IdentifierReference<'_> {
+    fn print(&self, c: &mut Codegen) {
         c.print_str(self.name);
     }
 }
 
-impl Gen for NumericLiteral<'_> {
-    fn gen(&self, c: &mut Codegen) {
+impl Print for NumericLiteral<'_> {
+    fn print(&self, c: &mut Codegen) {
         c.print_str(self.raw);
     }
 }
 
-impl Gen for BooleanLiteral {
-    fn gen(&self, c: &mut Codegen) {
+impl Print for BooleanLiteral {
+    fn print(&self, c: &mut Codegen) {
         c.print_str(self.as_str());
     }
 }
 
-impl Gen for StringLiteral<'_> {
-    fn gen(&self, c: &mut Codegen) {
+impl Print for StringLiteral<'_> {
+    fn print(&self, c: &mut Codegen) {
         c.print_wrapped('\'', '\'', |c| c.print_str(self.value));
     }
 }
 
-impl Gen for VariableExpression<'_> {
-    fn gen(&self, c: &mut Codegen) {
-        self.lifetime.gen(c);
+impl Print for VariableExpression<'_> {
+    fn print(&self, c: &mut Codegen) {
+        self.lifetime.print(c);
         c.print_dot();
-        self.member.gen(c);
+        self.member.print(c);
     }
 }
 
-impl Gen for VariableLifetime {
-    fn gen(&self, c: &mut Codegen) {
+impl Print for VariableLifetime {
+    fn print(&self, c: &mut Codegen) {
         c.print_str(if c.options.minify { self.as_str_short() } else { self.as_str_long() });
     }
 }
 
-impl Gen for VariableMember<'_> {
-    fn gen(&self, c: &mut Codegen) {
+impl Print for VariableMember<'_> {
+    fn print(&self, c: &mut Codegen) {
         match self {
             Self::Object { object, property, .. } => {
-                object.gen(c);
+                object.print(c);
                 c.print_dot();
-                property.gen(c);
+                property.print(c);
             }
             Self::Property { property, .. } => {
-                property.gen(c);
+                property.print(c);
             }
         }
     }
 }
 
-impl Gen for ParenthesizedExpression<'_> {
-    fn gen(&self, c: &mut Codegen) {
-        self.body.gen(c);
+impl Print for ParenthesizedExpression<'_> {
+    fn print(&self, c: &mut Codegen) {
+        self.body.print(c);
     }
 }
 
-impl Gen for ParenthesizedBody<'_> {
-    fn gen(&self, c: &mut Codegen) {
+impl Print for ParenthesizedBody<'_> {
+    fn print(&self, c: &mut Codegen) {
         match self {
             Self::Single(expression) => {
-                c.print_wrapped('(', ')', |c| expression.gen(c));
+                c.print_wrapped('(', ')', |c| expression.print(c));
             }
             Self::Multiple(statements) => {
                 c.print_scope('(', ')', |c| {
                     for stmt in statements {
-                        stmt.gen(c);
+                        stmt.print(c);
                     }
                 });
             }
@@ -319,115 +319,115 @@ impl Gen for ParenthesizedBody<'_> {
     }
 }
 
-impl Gen for BlockExpression<'_> {
-    fn gen(&self, c: &mut Codegen) {
+impl Print for BlockExpression<'_> {
+    fn print(&self, c: &mut Codegen) {
         c.print_scope('{', '}', |c| {
             for stmt in &self.statements {
-                stmt.gen(c);
+                stmt.print(c);
             }
         });
     }
 }
 
-impl Gen for BinaryExpression<'_> {
-    fn gen(&self, c: &mut Codegen) {
-        self.left.gen(c);
+impl Print for BinaryExpression<'_> {
+    fn print(&self, c: &mut Codegen) {
+        self.left.print(c);
         c.print_space();
-        self.operator.gen(c);
+        self.operator.print(c);
         c.print_space();
-        self.right.gen(c);
+        self.right.print(c);
     }
 }
 
-impl Gen for BinaryOperator {
-    fn gen(&self, c: &mut Codegen) {
+impl Print for BinaryOperator {
+    fn print(&self, c: &mut Codegen) {
         c.print_str(self.as_str());
     }
 }
 
-impl Gen for UnaryExpression<'_> {
-    fn gen(&self, c: &mut Codegen) {
-        self.operator.gen(c);
-        self.argument.gen(c);
+impl Print for UnaryExpression<'_> {
+    fn print(&self, c: &mut Codegen) {
+        self.operator.print(c);
+        self.argument.print(c);
     }
 }
 
-impl Gen for UnaryOperator {
-    fn gen(&self, c: &mut Codegen) {
+impl Print for UnaryOperator {
+    fn print(&self, c: &mut Codegen) {
         c.print_str(self.as_str());
     }
 }
 
-impl Gen for TernaryExpression<'_> {
-    fn gen(&self, c: &mut Codegen) {
-        self.test.gen(c);
+impl Print for TernaryExpression<'_> {
+    fn print(&self, c: &mut Codegen) {
+        self.test.print(c);
         c.print_space();
         c.print_char('?');
         c.print_space();
-        self.consequent.gen(c);
+        self.consequent.print(c);
         c.print_space();
         c.print_colon();
         c.print_space();
-        self.alternate.gen(c);
+        self.alternate.print(c);
     }
 }
 
-impl Gen for ConditionalExpression<'_> {
-    fn gen(&self, c: &mut Codegen) {
-        self.test.gen(c);
+impl Print for ConditionalExpression<'_> {
+    fn print(&self, c: &mut Codegen) {
+        self.test.print(c);
         c.print_space();
         c.print_char('?');
         c.print_space();
-        self.consequent.gen(c);
+        self.consequent.print(c);
     }
 }
 
-impl Gen for ResourceExpression<'_> {
-    fn gen(&self, c: &mut Codegen) {
+impl Print for ResourceExpression<'_> {
+    fn print(&self, c: &mut Codegen) {
         c.print_str(self.section.as_str());
         c.print_dot();
-        self.name.gen(c);
+        self.name.print(c);
     }
 }
 
-impl Gen for ArrayAccessExpression<'_> {
-    fn gen(&self, c: &mut Codegen) {
+impl Print for ArrayAccessExpression<'_> {
+    fn print(&self, c: &mut Codegen) {
         c.print_str("array");
         c.print_dot();
-        self.name.gen(c);
+        self.name.print(c);
         c.print_char('[');
-        self.index.gen(c);
+        self.index.print(c);
         c.print_char(']');
     }
 }
 
-impl Gen for ArrowAccessExpression<'_> {
-    fn gen(&self, c: &mut Codegen) {
-        self.left.gen(c);
+impl Print for ArrowAccessExpression<'_> {
+    fn print(&self, c: &mut Codegen) {
+        self.left.print(c);
         c.print_str("->");
-        self.right.gen(c);
+        self.right.print(c);
     }
 }
 
-impl Gen for CallExpression<'_> {
-    fn gen(&self, c: &mut Codegen) {
-        self.kind.gen(c);
+impl Print for CallExpression<'_> {
+    fn print(&self, c: &mut Codegen) {
+        self.kind.print(c);
         c.print_dot();
-        self.callee.gen(c);
+        self.callee.print(c);
         if let Some(args) = &self.arguments {
             c.print_wrapped('(', ')', |c| c.print_list(args));
         }
     }
 }
 
-impl Gen for CallKind {
-    fn gen(&self, c: &mut Codegen) {
+impl Print for CallKind {
+    fn print(&self, c: &mut Codegen) {
         c.print_str(if c.options.minify { self.as_str_short() } else { self.as_str_long() });
     }
 }
 
-impl Gen for ThisExpression {
-    fn gen(&self, c: &mut Codegen) {
+impl Print for ThisExpression {
+    fn print(&self, c: &mut Codegen) {
         c.print_str("this");
     }
 }
