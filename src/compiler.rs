@@ -89,48 +89,40 @@ impl<'a> Compiler<'a> {
         };
     }
 
-    fn compile_update_to_variable_expression(&mut self, expr: &mut Expression<'a>) {
-        let Expression::Update(update_expr) = expr else { return };
-        *expr = Expression::Variable(mem::take(&mut update_expr.variable).into());
-    }
-
-    fn compile_update_expression_to_statement(&mut self, stmt: &mut Statement<'a>) {
-        let (expr, has_side_effect) = match stmt {
-            Statement::Expression(v) => (&mut **v, false),
-            Statement::Assignment(v) => (&mut v.right, true),
-            _ => return,
-        };
+    fn compile_update_expression(&mut self, expr: &mut Expression<'a>) {
         let Expression::Update(update_expr) = expr else { return };
 
-        let new_stmt = Statement::Assignment(
-            AssignmentStatement {
+        let scope = self.scope();
+        let update_stmt = AssignmentStatement {
+            span: SPAN,
+            left: update_expr.variable.clone(),
+            operator: AssignmentOperator::Assign,
+            right: BinaryExpression {
                 span: SPAN,
-                left: update_expr.variable.clone(),
-                operator: AssignmentOperator::Assign,
-                right: Expression::Binary(
-                    BinaryExpression {
-                        span: SPAN,
-                        left: Expression::Variable(update_expr.variable.clone().into()),
-                        operator: match update_expr.operator {
-                            UpdateOperator::Increment => BinaryOperator::Addition,
-                            UpdateOperator::Decrement => BinaryOperator::Subtraction,
-                        },
-                        right: Expression::NumericLiteral(
-                            NumericLiteral { span: SPAN, value: 1.0, raw: "1" }.into(),
-                        ),
-                    }
-                    .into(),
-                ),
+                left: update_expr.variable.clone().into(),
+                operator: update_expr.operator.into(),
+                right: NumericLiteral { span: SPAN, value: 1.0, raw: "1" }.into(),
             }
             .into(),
-        );
+        }
+        .into();
+        let index = scope.new_statements.len() + scope.statement_count - 1;
+        scope.new_statements.push((index, update_stmt));
 
-        if has_side_effect {
-            let scope = self.scope();
-            let index = scope.update_statements.len() + scope.statement_count - 1;
-            scope.update_statements.push((index, new_stmt));
-        } else {
-            *stmt = new_stmt;
+        *expr = mem::take(&mut update_expr.variable).into();
+    }
+
+    fn optimize_statements(&mut self, stmts: &mut Vec<Statement<'a>>) {
+        let mut stmts_to_remove = Vec::new();
+        for (index, stmt) in stmts.iter().enumerate() {
+            if let Statement::Expression(expr) = stmt {
+                if let Expression::Variable(_) = **expr {
+                    stmts_to_remove.push(index);
+                }
+            }
+        }
+        for index in stmts_to_remove {
+            stmts.remove(index);
         }
     }
 }
@@ -142,20 +134,20 @@ impl<'a> Traverse<'a> for Compiler<'a> {
 
     fn exit_statements(&mut self, it: &mut Vec<Statement<'a>>) {
         let scope = self.exit_scope();
-        for (index, stmt) in scope.update_statements {
+        for (index, stmt) in scope.new_statements {
             it.insert(index, stmt);
         }
+        self.optimize_statements(it);
     }
 
     fn enter_statement(&mut self, it: &mut Statement<'a>) {
         self.scope().statement_count += 1;
 
-        self.compile_update_expression_to_statement(it);
         self.compile_assignment_statement(it);
     }
 
     fn enter_expression(&mut self, it: &mut Expression<'a>) {
-        self.compile_update_to_variable_expression(it);
+        self.compile_update_expression(it);
         self.compile_binary_expression(it)
     }
 }
@@ -167,7 +159,7 @@ impl<'a> Traverse<'a> for Compiler<'a> {
 #[derive(Default)]
 struct Scope<'a> {
     statement_count: usize,
-    update_statements: Vec<(usize, Statement<'a>)>,
+    new_statements: Vec<(usize, Statement<'a>)>,
 }
 
 #[inline]

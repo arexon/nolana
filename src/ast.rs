@@ -571,6 +571,15 @@ impl From<Kind> for UpdateOperator {
     }
 }
 
+impl From<UpdateOperator> for BinaryOperator {
+    fn from(op: UpdateOperator) -> Self {
+        match op {
+            UpdateOperator::Increment => BinaryOperator::Addition,
+            UpdateOperator::Decrement => BinaryOperator::Subtraction,
+        }
+    }
+}
+
 /// <https://bedrock.dev/docs/stable/Molang#Conditionals>
 ///
 /// `q.foo ? 0 : 1`
