@@ -82,7 +82,7 @@ impl<'a> Parser<'a> {
         let span = self.start_span();
         let mut body = ProgramBody::Empty;
         while !self.at(Kind::Eof) {
-            let Some(stmt) = self.parse_statement()? else { continue };
+            let stmt = self.parse_statement()?;
             match &mut body {
                 ProgramBody::Complex(stmts) => stmts.push(stmt),
                 ProgramBody::Empty => {
@@ -101,16 +101,18 @@ impl<'a> Parser<'a> {
         Ok(Program { span: self.end_span(span), source: self.source_code, body })
     }
 
-    fn parse_statement(&mut self) -> Result<Option<Statement<'a>>> {
+    fn parse_statement(&mut self) -> Result<Statement<'a>> {
         let stmt = match self.current_kind() {
-            Kind::Semi => None, // We skip statements that start with `;`.
-            v if v.is_variable() => Some(self.parse_assignment_statement_or_expression()?),
-            Kind::Loop => Some(self.parse_loop_statement()?),
-            Kind::ForEach => Some(self.parse_for_each_statement()?),
-            Kind::Return => Some(self.parse_return_statement()?.into()),
-            Kind::Break => Some(self.parse_break_statement()?.into()),
-            Kind::Continue => Some(self.parse_continue_statement()?.into()),
-            _ => Some(self.parse_expression(0)?.into()),
+            Kind::Semi => {
+                EmptyStatement { span: self.end_span_single(self.current_token().span()) }.into()
+            }
+            v if v.is_variable() => self.parse_assignment_statement_or_expression()?,
+            Kind::Loop => self.parse_loop_statement()?,
+            Kind::ForEach => self.parse_for_each_statement()?,
+            Kind::Return => self.parse_return_statement()?.into(),
+            Kind::Break => self.parse_break_statement()?.into(),
+            Kind::Continue => self.parse_continue_statement()?.into(),
+            _ => self.parse_expression(0)?.into(),
         };
         if self.eat(Kind::Semi) {
             if !self.is_complex {
@@ -330,9 +332,7 @@ impl<'a> Parser<'a> {
             if self.at(Kind::RightParen) {
                 break;
             }
-            if let Some(stmt) = self.parse_statement()? {
-                statements.push(stmt);
-            }
+            statements.push(self.parse_statement()?);
         }
         self.expect(Kind::RightParen)?;
         Ok(ParenthesizedExpression {

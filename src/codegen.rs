@@ -45,7 +45,7 @@ impl Codegen {
 
     #[inline]
     fn print_indent(&mut self) {
-        if !self.options.minify {
+        if !self.options.minify && self.is_complex {
             self.code.extend(iter::repeat_n("    ", self.indent))
         }
     }
@@ -152,8 +152,9 @@ impl Gen for Statement<'_> {
             Statement::Return(stmt) => stmt.gen(c),
             Statement::Break(stmt) => stmt.gen(c),
             Statement::Continue(stmt) => stmt.gen(c),
+            Statement::Empty(stmt) => stmt.gen(c),
         }
-        if c.is_complex {
+        if c.is_complex && !matches!(self, Statement::Empty(_)) {
             c.print_semi();
             c.print_newline();
         }
@@ -214,6 +215,10 @@ impl Gen for ContinueStatement {
     fn gen(&self, c: &mut Codegen) {
         c.print_str("continue");
     }
+}
+
+impl Gen for EmptyStatement {
+    fn gen(&self, _: &mut Codegen) {}
 }
 
 impl Gen for Expression<'_> {

@@ -62,6 +62,12 @@ pub trait Traverse<'a>: Sized {
     fn exit_continue_statement(&mut self, it: &mut ContinueStatement) {}
 
     #[inline]
+    fn enter_empty_statement(&mut self, it: &mut EmptyStatement) {}
+
+    #[inline]
+    fn exit_empty_statement(&mut self, it: &mut EmptyStatement) {}
+
+    #[inline]
     fn enter_expression(&mut self, it: &mut Expression<'a>) {}
 
     #[inline]
@@ -198,6 +204,7 @@ fn walk_statement<'a>(traverser: &mut impl Traverse<'a>, it: &mut Statement<'a>)
         Statement::Return(it) => walk_return_statement(traverser, it),
         Statement::Break(it) => walk_break_statement(traverser, it),
         Statement::Continue(it) => walk_continue_statement(traverser, it),
+        Statement::Empty(it) => walk_empty_statement(traverser, it),
     }
     traverser.exit_statement(it);
 }
@@ -241,6 +248,11 @@ fn walk_break_statement<'a>(traverser: &mut impl Traverse<'a>, it: &mut BreakSta
 fn walk_continue_statement<'a>(traverser: &mut impl Traverse<'a>, it: &mut ContinueStatement) {
     traverser.enter_continue_statement(it);
     traverser.exit_continue_statement(it);
+}
+
+fn walk_empty_statement<'a>(traverser: &mut impl Traverse<'a>, it: &mut EmptyStatement) {
+    traverser.enter_empty_statement(it);
+    traverser.exit_empty_statement(it);
 }
 
 fn walk_expression<'a>(traverser: &mut impl Traverse<'a>, it: &mut Expression<'a>) {
