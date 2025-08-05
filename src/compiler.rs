@@ -58,7 +58,7 @@ impl<'a> Compiler<'a> {
         {
             let mut left = assign_stmt.left.clone().into();
             if !assign_stmt.left.is_struct() {
-                left = basic_arithmetic_expression(
+                left = binary_expression(
                     assign_stmt.left.clone().into(),
                     BinaryOperator::Coalesce,
                     NumericLiteral { span: SPAN, value: 0.0, raw: "0" }.into(),
@@ -70,16 +70,16 @@ impl<'a> Compiler<'a> {
 
             replace_with_or_abort(&mut assign_stmt.right, |right| match operator {
                 AssignmentOperator::Addition => {
-                    basic_arithmetic_expression(left, BinaryOperator::Addition, right)
+                    binary_expression(left, BinaryOperator::Addition, right)
                 }
                 AssignmentOperator::Subtraction => {
-                    basic_arithmetic_expression(left, BinaryOperator::Subtraction, right)
+                    binary_expression(left, BinaryOperator::Subtraction, right)
                 }
                 AssignmentOperator::Multiplication => {
-                    basic_arithmetic_expression(left, BinaryOperator::Multiplication, right)
+                    binary_expression(left, BinaryOperator::Multiplication, right)
                 }
                 AssignmentOperator::Division => {
-                    basic_arithmetic_expression(left, BinaryOperator::Division, right)
+                    binary_expression(left, BinaryOperator::Division, right)
                 }
                 AssignmentOperator::Remainder => math_mod_expression(left, right),
                 AssignmentOperator::Exponential => math_pow_expression(left, right),
@@ -163,7 +163,7 @@ struct Scope<'a> {
 }
 
 #[inline]
-fn basic_arithmetic_expression<'a>(
+fn binary_expression<'a>(
     left: Expression<'a>,
     operator: BinaryOperator,
     right: Expression<'a>,
