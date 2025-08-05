@@ -1,7 +1,7 @@
 use crate::{
     ast::*,
-    diagnostic::{errors, Diagnostic},
-    traverse::{traverse, Traverse},
+    diagnostic::{Diagnostic, errors},
+    traverse::{Traverse, traverse},
 };
 
 /// Traverses an AST and checks the Molang program for any semantic errors.

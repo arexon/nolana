@@ -2,7 +2,7 @@ use logos::{Lexer, Logos};
 
 use crate::{
     ast::*,
-    diagnostic::{errors, Diagnostic, Result},
+    diagnostic::{Diagnostic, Result, errors},
     span::Span,
     token::{Kind, Token},
 };
@@ -200,7 +200,7 @@ impl<'a> Parser<'a> {
             v if v.is_resource() => self.parse_resource_expression()?,
             Kind::Array => self.parse_array_access_expression()?,
             Kind::Loop | Kind::ForEach => {
-                return Err(errors::loop_in_expression(self.end_span_single(span)))
+                return Err(errors::loop_in_expression(self.end_span_single(span)));
             }
             Kind::This => self.parse_this_expression()?,
             Kind::UnterminatedString => {
