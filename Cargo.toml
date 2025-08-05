@@ -1,7 +1,7 @@
 [package]
 name = "nolana"
 version = "1.0.0"
-edition = "2021"
+edition = "2024"
 authors = ["arexon <arexonreal@gmail.com>"]
 categories = ["parser-implementations", "compilers"]
 description = "An extremely fast parser Molang parser."

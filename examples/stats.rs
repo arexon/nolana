@@ -2,7 +2,7 @@ use std::fs;
 
 use nolana::{
     ast::{CallExpression, CallKind, Program},
-    traverse::{traverse, Traverse},
+    traverse::{Traverse, traverse},
     {ParseResult, Parser},
 };
 

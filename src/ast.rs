@@ -184,11 +184,7 @@ impl From<BooleanLiteral> for Expression<'_> {
 impl BooleanLiteral {
     /// Returns `"true"` or `"false"` depending on this boolean's value.
     pub fn as_str(&self) -> &'static str {
-        if self.value {
-            "true"
-        } else {
-            "false"
-        }
+        if self.value { "true" } else { "false" }
     }
 }
 
