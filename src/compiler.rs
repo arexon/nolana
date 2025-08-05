@@ -117,16 +117,12 @@ impl<'a> Compiler<'a> {
     }
 
     fn optimize_statements(&mut self, stmts: &mut Vec<Statement<'a>>) {
-        let mut stmts_to_remove = Vec::new();
-        for (index, stmt) in stmts.iter().enumerate() {
-            if let Statement::Expression(expr) = stmt {
-                if let Expression::Variable(_) = **expr {
-                    stmts_to_remove.push(index);
-                }
+        for stmt in stmts {
+            if let Statement::Expression(expr) = stmt
+                && matches!(expr.as_ref(), Expression::Variable(_))
+            {
+                *stmt = EmptyStatement { span: SPAN }.into()
             }
-        }
-        for index in stmts_to_remove {
-            stmts.remove(index);
         }
     }
 }
