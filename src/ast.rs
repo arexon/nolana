@@ -26,6 +26,7 @@ pub enum Statement<'a> {
     Return(Box<ReturnStatement<'a>>),
     Break(Box<BreakStatement>),
     Continue(Box<ContinueStatement>),
+    Empty(Box<EmptyStatement>),
 }
 
 /// `v.a = 0;`
@@ -113,6 +114,17 @@ pub struct ContinueStatement {
 impl From<ContinueStatement> for Statement<'_> {
     fn from(value: ContinueStatement) -> Self {
         Self::Continue(value.into())
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct EmptyStatement {
+    pub span: Span,
+}
+
+impl From<EmptyStatement> for Statement<'_> {
+    fn from(value: EmptyStatement) -> Self {
+        Self::Empty(value.into())
     }
 }
 
