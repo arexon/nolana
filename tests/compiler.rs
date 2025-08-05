@@ -8,6 +8,27 @@ fn compile(source: &str) -> String {
 }
 
 #[test]
+fn binary() {
+    let out = compile(
+        "
+            v.a % v.x;
+            v.a ** v.x;
+            v.a >> v.x;
+            v.a << v.x;
+        ",
+    );
+    assert_snapshot!(
+        out,
+        @r"
+            math.mod(variable.a, variable.x);
+            math.pow(variable.a, variable.x);
+            math.floor(variable.a / math.pow(2, variable.x));
+            variable.a * math.pow(2, variable.x);
+        "
+    );
+}
+
+#[test]
 fn assigments() {
     let out = compile(
         "
