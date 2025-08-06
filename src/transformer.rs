@@ -13,7 +13,7 @@ pub struct MolangTransformer<'a> {
 }
 
 impl<'a> MolangTransformer<'a> {
-    pub fn compile(&mut self, program: &mut Program<'a>) {
+    pub fn transform(&mut self, program: &mut Program<'a>) {
         traverse(&mut self.program_body_transformer, program);
         traverse(self, program);
     }
@@ -30,7 +30,7 @@ impl<'a> MolangTransformer<'a> {
         self.scopes.last_mut().unwrap()
     }
 
-    fn compile_binary_expression(&mut self, expr: &mut Expression<'a>) {
+    fn transform_binary_expression(&mut self, expr: &mut Expression<'a>) {
         if let Expression::Binary(bin_expr) = expr
             && bin_expr.operator.is_custom()
         {
@@ -62,7 +62,7 @@ impl<'a> MolangTransformer<'a> {
         }
     }
 
-    fn compile_assignment_statement(&mut self, stmt: &mut Statement<'a>) {
+    fn transform_assignment_statement(&mut self, stmt: &mut Statement<'a>) {
         if let Statement::Assignment(assign_stmt) = stmt
             && assign_stmt.operator.is_custom()
         {
@@ -137,7 +137,7 @@ impl<'a> MolangTransformer<'a> {
         }
     }
 
-    fn compile_update_expression(&mut self, expr: &mut Expression<'a>) {
+    fn transform_update_expression(&mut self, expr: &mut Expression<'a>) {
         let Expression::Update(update_expr) = expr else { return };
 
         let scope = self.scope();
@@ -211,12 +211,12 @@ impl<'a> Traverse<'a> for MolangTransformer<'a> {
     fn enter_statement(&mut self, it: &mut Statement<'a>) {
         self.scope().statement_count += 1;
 
-        self.compile_assignment_statement(it);
+        self.transform_assignment_statement(it);
     }
 
     fn enter_expression(&mut self, it: &mut Expression<'a>) {
-        self.compile_update_expression(it);
-        self.compile_binary_expression(it)
+        self.transform_update_expression(it);
+        self.transform_binary_expression(it)
     }
 }
 

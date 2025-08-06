@@ -3,7 +3,7 @@ use nolana::{Codegen, CodegenOptions, MolangTransformer, Parser};
 
 fn transform(source: &str) -> String {
     let mut result = Parser::new(source).parse();
-    MolangTransformer::default().compile(&mut result.program);
+    MolangTransformer::default().transform(&mut result.program);
     Codegen::default().with_options(CodegenOptions { minify: false }).build(&result.program)
 }
 
