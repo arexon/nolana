@@ -6,8 +6,8 @@ pub use parser::{ParseResult, Parser};
 mod codegen;
 pub use codegen::{Codegen, CodegenOptions};
 
-mod compiler;
-pub use compiler::Compiler;
+mod transformer;
+pub use transformer::MolangTransformer;
 
 pub mod ast;
 pub mod diagnostic;

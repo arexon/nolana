@@ -7,12 +7,12 @@ use crate::{
 };
 
 #[derive(Default)]
-pub struct Compiler<'a> {
+pub struct MolangTransformer<'a> {
     scopes: Vec<Scope<'a>>,
     program_body_transformer: ProgramBodyTransformer,
 }
 
-impl<'a> Compiler<'a> {
+impl<'a> MolangTransformer<'a> {
     pub fn compile(&mut self, program: &mut Program<'a>) {
         traverse(&mut self.program_body_transformer, program);
         traverse(self, program);
@@ -177,7 +177,7 @@ impl<'a> Compiler<'a> {
     }
 }
 
-impl<'a> Traverse<'a> for Compiler<'a> {
+impl<'a> Traverse<'a> for MolangTransformer<'a> {
     fn exit_program(&mut self, it: &mut Program<'a>) {
         if self.program_body_transformer.needs_complex
             && let ProgramBody::Complex(stmts) = &mut it.body

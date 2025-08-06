@@ -1,15 +1,15 @@
 use insta::assert_snapshot;
-use nolana::{Codegen, CodegenOptions, Compiler, Parser};
+use nolana::{Codegen, CodegenOptions, MolangTransformer, Parser};
 
-fn compile(source: &str) -> String {
+fn transform(source: &str) -> String {
     let mut result = Parser::new(source).parse();
-    Compiler::default().compile(&mut result.program);
+    MolangTransformer::default().compile(&mut result.program);
     Codegen::default().with_options(CodegenOptions { minify: false }).build(&result.program)
 }
 
 #[test]
 fn binary() {
-    let out = compile(
+    let out = transform(
         "
             v.x % v.y;
             v.x ** v.y;
@@ -66,7 +66,7 @@ fn binary() {
 
 #[test]
 fn assigments() {
-    let out = compile(
+    let out = transform(
         "
             v.x = v.y;
             v.x += v.y;
@@ -141,7 +141,7 @@ fn assigments() {
 
 #[test]
 fn updates() {
-    let out = compile(
+    let out = transform(
         "
             v.a++;
             {
@@ -176,7 +176,7 @@ fn updates() {
 
 #[test]
 fn simple_into_complex_with_update() {
-    let out = compile("v.x++");
+    let out = transform("v.x++");
     assert_snapshot!(out, @r"
         variable.x = variable.x + 1;
         return variable.x;
@@ -185,7 +185,7 @@ fn simple_into_complex_with_update() {
 
 #[test]
 fn simple_into_complex_with_bitwise() {
-    let out = compile("v.x | v.y");
+    let out = transform("v.x | v.y");
     assert_snapshot!(out, @r"
         {
             variable.__0_result = 0;
