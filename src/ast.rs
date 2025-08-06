@@ -19,6 +19,16 @@ pub enum ProgramBody<'a> {
     Empty,
 }
 
+impl ProgramBody<'_> {
+    pub fn is_simple(&self) -> bool {
+        matches!(self, ProgramBody::Simple(_))
+    }
+
+    pub fn is_complex(&self) -> bool {
+        matches!(self, ProgramBody::Complex(_))
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum Statement<'a> {
     Expression(Box<Expression<'a>>),
@@ -36,12 +46,93 @@ pub enum Statement<'a> {
 pub struct AssignmentStatement<'a> {
     pub span: Span,
     pub left: VariableExpression<'a>,
+    pub operator: AssignmentOperator,
     pub right: Expression<'a>,
 }
 
 impl<'a> From<AssignmentStatement<'a>> for Statement<'a> {
     fn from(value: AssignmentStatement<'a>) -> Self {
         Self::Assignment(value.into())
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum AssignmentOperator {
+    /// `=`
+    Assign,
+    /// `+=`
+    Addition,
+    /// `-=`
+    Subtraction,
+    /// `*=`
+    Multiplication,
+    /// `-=`
+    Division,
+    /// `**=`
+    Exponential,
+    /// `%=`
+    Remainder,
+    /// `||=`
+    LogicalOr,
+    /// `&&=`
+    LogicalAnd,
+    /// `<<=`
+    ShiftLeft,
+    /// `>>=`
+    ShiftRight,
+    /// `|=`
+    BitwiseOr,
+    /// `&=`
+    BitwiseAnd,
+    /// `^=`
+    BitwiseXor,
+}
+
+impl AssignmentOperator {
+    /// The string representation of this operator as it appears in source code.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Assign => "=",
+            Self::Addition => "+=",
+            Self::Subtraction => "-=",
+            Self::Multiplication => "*=",
+            Self::Division => "/=",
+            Self::Exponential => "**=",
+            Self::Remainder => "%=",
+            Self::LogicalOr => "||=",
+            Self::LogicalAnd => "&&=",
+            Self::ShiftLeft => "<<=",
+            Self::ShiftRight => ">>=",
+            Self::BitwiseOr => "|=",
+            Self::BitwiseAnd => "&=",
+            Self::BitwiseXor => "^=",
+        }
+    }
+
+    pub fn is_custom(&self) -> bool {
+        !matches!(self, Self::Assign)
+    }
+}
+
+impl From<Kind> for AssignmentOperator {
+    fn from(kind: Kind) -> Self {
+        match kind {
+            Kind::Eq => Self::Assign,
+            Kind::PlugEq => Self::Addition,
+            Kind::MinusEq => Self::Subtraction,
+            Kind::StarEq => Self::Multiplication,
+            Kind::SlashEq => Self::Division,
+            Kind::Star2Eq => Self::Exponential,
+            Kind::PercentEq => Self::Remainder,
+            Kind::Pipe2Eq => Self::LogicalOr,
+            Kind::Amp2Eq => Self::LogicalAnd,
+            Kind::ShiftLeftEq => Self::ShiftLeft,
+            Kind::ShiftRightEq => Self::ShiftRight,
+            Kind::PipeEq => Self::BitwiseOr,
+            Kind::AmpEq => Self::BitwiseAnd,
+            Kind::CaretEq => Self::BitwiseXor,
+            _ => unreachable!("Assignment Operator: {kind:?}"),
+        }
     }
 }
 
@@ -141,6 +232,7 @@ pub enum Expression<'a> {
     Block(Box<BlockExpression<'a>>),
     Binary(Box<BinaryExpression<'a>>),
     Unary(Box<UnaryExpression<'a>>),
+    Update(Box<UpdateExpression<'a>>),
     Ternary(Box<TernaryExpression<'a>>),
     Conditional(Box<ConditionalExpression<'a>>),
     Resource(Box<ResourceExpression<'a>>),
@@ -218,6 +310,13 @@ pub struct VariableExpression<'a> {
     pub span: Span,
     pub lifetime: VariableLifetime,
     pub member: VariableMember<'a>,
+}
+
+impl VariableExpression<'_> {
+    /// A struct is defined when an object or more are specified: `v.foo.bar`.
+    pub fn is_struct(&self) -> bool {
+        matches!(self.member, VariableMember::Object { .. })
+    }
 }
 
 impl<'a> From<VariableExpression<'a>> for Expression<'a> {
@@ -346,12 +445,26 @@ pub enum BinaryOperator {
     Multiplication,
     /// `/`
     Division,
+    /// `**`
+    Exponential,
+    /// `%`
+    Remainder,
     /// `||`
     Or,
     /// `&&`
     And,
     /// `??`
     Coalesce,
+    /// `<<`
+    ShiftLeft,
+    /// `>>`
+    ShiftRight,
+    /// `|`
+    BitwiseOr,
+    /// `&`
+    BitwiseAnd,
+    /// `^`
+    BitwiseXor,
 }
 
 impl BinaryOperator {
@@ -371,7 +484,33 @@ impl BinaryOperator {
             Self::Or => "||",
             Self::And => "&&",
             Self::Coalesce => "??",
+            Self::Exponential => "**",
+            Self::Remainder => "%",
+            Self::ShiftLeft => "<<",
+            Self::ShiftRight => ">>",
+            Self::BitwiseOr => "|",
+            Self::BitwiseAnd => "&",
+            Self::BitwiseXor => "^",
         }
+    }
+
+    pub fn is_custom(&self) -> bool {
+        !matches!(
+            self,
+            Self::Equality
+                | Self::Inequality
+                | Self::LessThan
+                | Self::LessEqualThan
+                | Self::GreaterThan
+                | Self::GreaterEqualThan
+                | Self::Addition
+                | Self::Subtraction
+                | Self::Multiplication
+                | Self::Division
+                | Self::Or
+                | Self::And
+                | Self::Coalesce
+        )
     }
 }
 
@@ -391,7 +530,33 @@ impl From<Kind> for BinaryOperator {
             Kind::Plus => Self::Addition,
             Kind::Star => Self::Multiplication,
             Kind::Slash => Self::Division,
+            Kind::Star2 => Self::Exponential,
+            Kind::Percent => Self::Remainder,
+            Kind::ShiftLeft => Self::ShiftLeft,
+            Kind::ShiftRight => Self::ShiftRight,
+            Kind::Pipe => Self::BitwiseOr,
+            Kind::Amp => Self::BitwiseAnd,
+            Kind::Caret => Self::BitwiseXor,
             _ => unreachable!("Binary Operator: {kind:?}"),
+        }
+    }
+}
+
+impl From<AssignmentOperator> for BinaryOperator {
+    fn from(op: AssignmentOperator) -> Self {
+        match op {
+            AssignmentOperator::Addition => Self::Addition,
+            AssignmentOperator::Subtraction => Self::Subtraction,
+            AssignmentOperator::Multiplication => Self::Multiplication,
+            AssignmentOperator::Division => Self::Division,
+            AssignmentOperator::Exponential => Self::Exponential,
+            AssignmentOperator::Remainder => Self::Remainder,
+            AssignmentOperator::ShiftLeft => Self::ShiftLeft,
+            AssignmentOperator::ShiftRight => Self::ShiftRight,
+            AssignmentOperator::BitwiseOr => Self::BitwiseOr,
+            AssignmentOperator::BitwiseAnd => Self::BitwiseAnd,
+            AssignmentOperator::BitwiseXor => Self::BitwiseXor,
+            _ => unimplemented!("Binary Operator: {op:?}"),
         }
     }
 }
@@ -435,6 +600,50 @@ impl From<Kind> for UnaryOperator {
             Kind::Minus => Self::Negate,
             Kind::Bang => Self::Not,
             _ => unreachable!("Unary Operator: {kind:?}"),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct UpdateExpression<'a> {
+    pub span: Span,
+    pub variable: VariableExpression<'a>,
+    pub operator: UpdateOperator,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum UpdateOperator {
+    /// `++`
+    Increment,
+    /// `--`
+    Decrement,
+}
+
+impl UpdateOperator {
+    /// The string representation of this operator as it appears in source code.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Increment => "++",
+            Self::Decrement => "--",
+        }
+    }
+}
+
+impl From<Kind> for UpdateOperator {
+    fn from(token: Kind) -> Self {
+        match token {
+            Kind::Plus2 => Self::Increment,
+            Kind::Minus2 => Self::Decrement,
+            _ => unreachable!("Update Operator: {token:?}"),
+        }
+    }
+}
+
+impl From<UpdateOperator> for BinaryOperator {
+    fn from(op: UpdateOperator) -> Self {
+        match op {
+            UpdateOperator::Increment => BinaryOperator::Addition,
+            UpdateOperator::Decrement => BinaryOperator::Subtraction,
         }
     }
 }

@@ -127,16 +127,23 @@ impl<'a> Parser<'a> {
     fn parse_assignment_statement_or_expression(&mut self) -> Result<Statement<'a>> {
         let span = self.start_span();
         let left = self.parse_variable_expression()?;
-        Ok(match self.current_kind() {
-            Kind::Eq => {
-                self.bump();
-                if !self.is_complex {
-                    self.is_complex = true;
-                }
-                let right = self.parse_expression(0)?;
-                AssignmentStatement { span: self.end_span(span), left, right }.into()
+        let kind = self.current_kind();
+        Ok(if kind.is_assignment_operator() {
+            let operator = kind.into();
+            self.bump();
+
+            if !self.is_complex {
+                self.is_complex = true;
             }
-            _ => self.parse_expression_rest(0, Expression::Variable(left.into()), span)?.into(),
+
+            let right = self.parse_expression(0)?;
+            Statement::Assignment(
+                AssignmentStatement { span: self.end_span(span), left, operator, right }.into(),
+            )
+        } else {
+            Statement::Expression(
+                self.parse_expression_rest(0, Expression::Variable(left.into()), span)?.into(),
+            )
         })
     }
 
@@ -236,6 +243,14 @@ impl<'a> Parser<'a> {
                 kind if kind.is_binary_operator() => {
                     left = self.parse_binary_expression(span, left, rbp)?;
                 }
+                kind if kind.is_update_operator() => match left {
+                    Expression::Variable(variable)
+                        if variable.lifetime != VariableLifetime::Context =>
+                    {
+                        left = self.parse_update_expression(span, *variable)?;
+                    }
+                    _ => return Err(errors::illegal_update_operation(self.end_span(span))),
+                },
                 Kind::Question => {
                     left = self.parse_ternary_or_conditional_expression(span, left)?;
                 }
@@ -416,6 +431,18 @@ impl<'a> Parser<'a> {
             member = VariableMember::Object { object: member.into(), property };
         }
         Ok(VariableExpression { span: self.end_span(span), lifetime, member })
+    }
+
+    fn parse_update_expression(
+        &mut self,
+        span: Span,
+        variable: VariableExpression<'a>,
+    ) -> Result<Expression<'a>> {
+        let operator = self.current_kind().into();
+        self.bump();
+        Ok(Expression::Update(
+            UpdateExpression { span: self.end_span(span), variable, operator }.into(),
+        ))
     }
 
     fn parse_resource_expression(&mut self) -> Result<Expression<'a>> {
