@@ -19,6 +19,16 @@ pub enum ProgramBody<'a> {
     Empty,
 }
 
+impl ProgramBody<'_> {
+    pub fn is_simple(&self) -> bool {
+        matches!(self, ProgramBody::Simple(_))
+    }
+
+    pub fn is_complex(&self) -> bool {
+        matches!(self, ProgramBody::Complex(_))
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum Statement<'a> {
     Expression(Box<Expression<'a>>),

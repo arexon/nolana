@@ -9,11 +9,15 @@ use crate::{
 #[derive(Default)]
 pub struct Compiler<'a> {
     scopes: Vec<Scope<'a>>,
+    /// See [`ProgramBodyTransformer`] for details.
+    has_transformed_into_complex: bool,
 }
 
 impl<'a> Compiler<'a> {
     pub fn compile(&mut self, program: &mut Program<'a>) {
-        traverse(&mut ComplexProgramTransformer::default(), program);
+        let mut program_body_ts = ProgramBodyTransformer::default();
+        traverse(&mut program_body_ts, program);
+        self.has_transformed_into_complex = program_body_ts.needs_complex;
         traverse(self, program);
     }
 
@@ -138,6 +142,9 @@ impl<'a> Compiler<'a> {
     }
 
     fn optimize_statements(&mut self, stmts: &mut Vec<Statement<'a>>) {
+        if self.has_transformed_into_complex {
+            return;
+        }
         for stmt in stmts {
             if let Statement::Expression(expr) = stmt
                 && matches!(expr.as_ref(), Expression::Variable(_))
@@ -149,6 +156,24 @@ impl<'a> Compiler<'a> {
 }
 
 impl<'a> Traverse<'a> for Compiler<'a> {
+    fn exit_program(&mut self, it: &mut Program<'a>) {
+        if self.has_transformed_into_complex
+            && let ProgramBody::Complex(stmts) = &mut it.body
+        {
+            replace_with_or_abort(
+                stmts.last_mut().expect("must have at least two statements"),
+                |stmt| {
+                    let Statement::Expression(expr) = stmt else {
+                        unreachable!(
+                            "simple to complex transition implies the last statement is an expression"
+                        );
+                    };
+                    ReturnStatement { span: SPAN, argument: *expr }.into()
+                },
+            );
+        }
+    }
+
     fn enter_statements(&mut self, _: &mut Vec<Statement<'a>>) {
         self.enter_scope();
     }
@@ -173,14 +198,21 @@ impl<'a> Traverse<'a> for Compiler<'a> {
     }
 }
 
+/// Some expressions will expand into entire statements. When this happens in a
+/// [`ProgramBody::Simple`], we must convert it into a [`ProgramBody::Complex`].
 #[derive(Default)]
-struct ComplexProgramTransformer {
-    is_complex: bool,
+struct ProgramBodyTransformer {
+    is_simple: bool,
+    needs_complex: bool,
 }
 
-impl<'a> Traverse<'a> for ComplexProgramTransformer {
+impl<'a> Traverse<'a> for ProgramBodyTransformer {
+    fn enter_program(&mut self, it: &mut Program<'a>) {
+        self.is_simple = it.body.is_simple();
+    }
+
     fn exit_program(&mut self, it: &mut Program<'a>) {
-        if self.is_complex && matches!(it.body, ProgramBody::Simple(_)) {
+        if self.needs_complex && self.is_simple {
             replace_with_or_abort(&mut it.body, |body| {
                 let ProgramBody::Simple(expr) = body else { unreachable!() };
                 ProgramBody::Complex(vec![Statement::Expression(expr.into())])
@@ -189,7 +221,9 @@ impl<'a> Traverse<'a> for ComplexProgramTransformer {
     }
 
     fn enter_update_expression(&mut self, _: &mut UpdateExpression<'a>) {
-        self.is_complex = true;
+        if self.is_simple {
+            self.needs_complex = true;
+        }
     }
 }
 
