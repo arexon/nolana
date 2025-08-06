@@ -13,6 +13,7 @@ pub struct Compiler<'a> {
 
 impl<'a> Compiler<'a> {
     pub fn compile(&mut self, program: &mut Program<'a>) {
+        traverse(&mut ComplexProgramTransformer::default(), program);
         traverse(self, program);
     }
 
@@ -169,6 +170,26 @@ impl<'a> Traverse<'a> for Compiler<'a> {
     fn enter_expression(&mut self, it: &mut Expression<'a>) {
         self.compile_update_expression(it);
         self.compile_binary_expression(it)
+    }
+}
+
+#[derive(Default)]
+struct ComplexProgramTransformer {
+    is_complex: bool,
+}
+
+impl<'a> Traverse<'a> for ComplexProgramTransformer {
+    fn exit_program(&mut self, it: &mut Program<'a>) {
+        if self.is_complex && matches!(it.body, ProgramBody::Simple(_)) {
+            replace_with_or_abort(&mut it.body, |body| {
+                let ProgramBody::Simple(expr) = body else { unreachable!() };
+                ProgramBody::Complex(vec![Statement::Expression(expr.into())])
+            });
+        }
+    }
+
+    fn enter_update_expression(&mut self, _: &mut UpdateExpression<'a>) {
+        self.is_complex = true;
     }
 }
 

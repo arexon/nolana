@@ -101,3 +101,8 @@ fn updates() {
         "
     );
 }
+#[test]
+fn simple_into_complex_with_update() {
+    let out = compile("v.x++");
+    assert_snapshot!(out, @r"variable.x = variable.x + 1;");
+}
