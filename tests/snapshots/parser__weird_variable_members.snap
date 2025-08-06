@@ -28,7 +28,7 @@ ParseResult {
                                                     object: Object {
                                                         object: Object {
                                                             object: Property {
-                                                                property: IdentifierReference {
+                                                                property: Identifier {
                                                                     span: Span {
                                                                         start: 9,
                                                                         end: 10,
@@ -36,7 +36,7 @@ ParseResult {
                                                                     name: "v",
                                                                 },
                                                             },
-                                                            property: IdentifierReference {
+                                                            property: Identifier {
                                                                 span: Span {
                                                                     start: 11,
                                                                     end: 15,
@@ -44,7 +44,7 @@ ParseResult {
                                                                 name: "temp",
                                                             },
                                                         },
-                                                        property: IdentifierReference {
+                                                        property: Identifier {
                                                             span: Span {
                                                                 start: 16,
                                                                 end: 17,
@@ -52,7 +52,7 @@ ParseResult {
                                                             name: "t",
                                                         },
                                                     },
-                                                    property: IdentifierReference {
+                                                    property: Identifier {
                                                         span: Span {
                                                             start: 18,
                                                             end: 25,
@@ -60,7 +60,7 @@ ParseResult {
                                                         name: "context",
                                                     },
                                                 },
-                                                property: IdentifierReference {
+                                                property: Identifier {
                                                     span: Span {
                                                         start: 26,
                                                         end: 27,
@@ -68,7 +68,7 @@ ParseResult {
                                                     name: "c",
                                                 },
                                             },
-                                            property: IdentifierReference {
+                                            property: Identifier {
                                                 span: Span {
                                                     start: 28,
                                                     end: 33,
@@ -76,7 +76,7 @@ ParseResult {
                                                 name: "query",
                                             },
                                         },
-                                        property: IdentifierReference {
+                                        property: Identifier {
                                             span: Span {
                                                 start: 34,
                                                 end: 35,
@@ -84,7 +84,7 @@ ParseResult {
                                             name: "q",
                                         },
                                     },
-                                    property: IdentifierReference {
+                                    property: Identifier {
                                         span: Span {
                                             start: 36,
                                             end: 40,
@@ -92,7 +92,7 @@ ParseResult {
                                         name: "math",
                                     },
                                 },
-                                property: IdentifierReference {
+                                property: Identifier {
                                     span: Span {
                                         start: 41,
                                         end: 42,
@@ -100,7 +100,7 @@ ParseResult {
                                     name: "a",
                                 },
                             },
-                            property: IdentifierReference {
+                            property: Identifier {
                                 span: Span {
                                     start: 43,
                                     end: 44,
@@ -108,7 +108,7 @@ ParseResult {
                                 name: "b",
                             },
                         },
-                        property: IdentifierReference {
+                        property: Identifier {
                             span: Span {
                                 start: 45,
                                 end: 46,

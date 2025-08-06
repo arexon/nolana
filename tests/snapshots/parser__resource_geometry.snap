@@ -17,7 +17,7 @@ ParseResult {
                         end: 12,
                     },
                     section: Geometry,
-                    name: IdentifierReference {
+                    name: Identifier {
                         span: Span {
                             start: 9,
                             end: 12,

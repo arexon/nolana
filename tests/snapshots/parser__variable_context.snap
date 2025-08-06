@@ -18,7 +18,7 @@ ParseResult {
                     },
                     lifetime: Context,
                     member: Property {
-                        property: IdentifierReference {
+                        property: Identifier {
                             span: Span {
                                 start: 8,
                                 end: 11,
