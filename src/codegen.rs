@@ -174,7 +174,7 @@ impl Print for AssignmentStatement<'_> {
 impl Print for LoopStatement<'_> {
     fn print(&self, c: &mut Codegen) {
         c.print_str("loop");
-        c.print_scope('(', ')', |c| {
+        c.print_wrapped('(', ')', |c| {
             self.count.print(c);
             c.print_comma();
             c.print_space();
