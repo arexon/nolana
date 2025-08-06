@@ -9,15 +9,12 @@ use crate::{
 #[derive(Default)]
 pub struct Compiler<'a> {
     scopes: Vec<Scope<'a>>,
-    /// See [`ProgramBodyTransformer`] for details.
-    has_transformed_into_complex: bool,
+    program_body_transformer: ProgramBodyTransformer,
 }
 
 impl<'a> Compiler<'a> {
     pub fn compile(&mut self, program: &mut Program<'a>) {
-        let mut program_body_ts = ProgramBodyTransformer::default();
-        traverse(&mut program_body_ts, program);
-        self.has_transformed_into_complex = program_body_ts.needs_complex;
+        traverse(&mut self.program_body_transformer, program);
         traverse(self, program);
     }
 
@@ -167,7 +164,7 @@ impl<'a> Compiler<'a> {
     }
 
     fn optimize_statements(&mut self, stmts: &mut Vec<Statement<'a>>) {
-        if self.has_transformed_into_complex {
+        if self.program_body_transformer.needs_complex {
             return;
         }
         for stmt in stmts {
@@ -182,7 +179,7 @@ impl<'a> Compiler<'a> {
 
 impl<'a> Traverse<'a> for Compiler<'a> {
     fn exit_program(&mut self, it: &mut Program<'a>) {
-        if self.has_transformed_into_complex
+        if self.program_body_transformer.needs_complex
             && let ProgramBody::Complex(stmts) = &mut it.body
         {
             replace_with_or_abort(
