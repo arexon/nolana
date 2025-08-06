@@ -81,7 +81,11 @@ pub enum AssignmentOperator {
     /// `>>=`
     ShiftRight,
     /// `|=`
-    BitwiseOR,
+    BitwiseOr,
+    /// `&=`
+    BitwiseAnd,
+    /// `^=`
+    BitwiseXor,
 }
 
 impl AssignmentOperator {
@@ -99,8 +103,14 @@ impl AssignmentOperator {
             Self::LogicalAnd => "&&=",
             Self::ShiftLeft => "<<=",
             Self::ShiftRight => ">>=",
-            Self::BitwiseOR => "|=",
+            Self::BitwiseOr => "|=",
+            Self::BitwiseAnd => "&=",
+            Self::BitwiseXor => "^=",
         }
+    }
+
+    pub fn is_custom(&self) -> bool {
+        !matches!(self, Self::Assign)
     }
 }
 
@@ -118,7 +128,9 @@ impl From<Kind> for AssignmentOperator {
             Kind::Amp2Eq => Self::LogicalAnd,
             Kind::ShiftLeftEq => Self::ShiftLeft,
             Kind::ShiftRightEq => Self::ShiftRight,
-            Kind::PipeEq => Self::BitwiseOR,
+            Kind::PipeEq => Self::BitwiseOr,
+            Kind::AmpEq => Self::BitwiseAnd,
+            Kind::CaretEq => Self::BitwiseXor,
             _ => unreachable!("Assignment Operator: {kind:?}"),
         }
     }
@@ -448,7 +460,11 @@ pub enum BinaryOperator {
     /// `>>`
     ShiftRight,
     /// `|`
-    BitwiseOR,
+    BitwiseOr,
+    /// `&`
+    BitwiseAnd,
+    /// `^`
+    BitwiseXor,
 }
 
 impl BinaryOperator {
@@ -472,8 +488,29 @@ impl BinaryOperator {
             Self::Remainder => "%",
             Self::ShiftLeft => "<<",
             Self::ShiftRight => ">>",
-            Self::BitwiseOR => "|",
+            Self::BitwiseOr => "|",
+            Self::BitwiseAnd => "&",
+            Self::BitwiseXor => "^",
         }
+    }
+
+    pub fn is_custom(&self) -> bool {
+        !matches!(
+            self,
+            Self::Equality
+                | Self::Inequality
+                | Self::LessThan
+                | Self::LessEqualThan
+                | Self::GreaterThan
+                | Self::GreaterEqualThan
+                | Self::Addition
+                | Self::Subtraction
+                | Self::Multiplication
+                | Self::Division
+                | Self::Or
+                | Self::And
+                | Self::Coalesce
+        )
     }
 }
 
@@ -497,7 +534,9 @@ impl From<Kind> for BinaryOperator {
             Kind::Percent => Self::Remainder,
             Kind::ShiftLeft => Self::ShiftLeft,
             Kind::ShiftRight => Self::ShiftRight,
-            Kind::Pipe => Self::BitwiseOR,
+            Kind::Pipe => Self::BitwiseOr,
+            Kind::Amp => Self::BitwiseAnd,
+            Kind::Caret => Self::BitwiseXor,
             _ => unreachable!("Binary Operator: {kind:?}"),
         }
     }
@@ -514,7 +553,9 @@ impl From<AssignmentOperator> for BinaryOperator {
             AssignmentOperator::Remainder => Self::Remainder,
             AssignmentOperator::ShiftLeft => Self::ShiftLeft,
             AssignmentOperator::ShiftRight => Self::ShiftRight,
-            AssignmentOperator::BitwiseOR => Self::BitwiseOR,
+            AssignmentOperator::BitwiseOr => Self::BitwiseOr,
+            AssignmentOperator::BitwiseAnd => Self::BitwiseAnd,
+            AssignmentOperator::BitwiseXor => Self::BitwiseXor,
             _ => unimplemented!("Binary Operator: {op:?}"),
         }
     }

@@ -35,14 +35,7 @@ impl<'a> Compiler<'a> {
 
     fn compile_binary_expression(&mut self, expr: &mut Expression<'a>) {
         if let Expression::Binary(bin_expr) = expr
-            && matches!(
-                bin_expr.operator,
-                BinaryOperator::Remainder
-                    | BinaryOperator::Exponential
-                    | BinaryOperator::ShiftLeft
-                    | BinaryOperator::ShiftRight
-                    | BinaryOperator::BitwiseOR
-            )
+            && bin_expr.operator.is_custom()
         {
             let scope = self.scope();
             replace_with_or_abort(expr, |expr| {
@@ -53,12 +46,14 @@ impl<'a> Compiler<'a> {
                     BinaryOperator::Exponential => math_pow_expression(left, right),
                     BinaryOperator::ShiftLeft => shift_left_expression(left, right),
                     BinaryOperator::ShiftRight => shift_right_expression(left, right),
-                    BinaryOperator::BitwiseOR => {
+                    BinaryOperator::BitwiseOr
+                    | BinaryOperator::BitwiseAnd
+                    | BinaryOperator::BitwiseXor => {
                         let index = scope.new_statements.len() + scope.statement_count - 1;
                         let (or_stmt, or_var_expr) = bitwise_operation_statement(
                             left.clone(),
                             right,
-                            BitwiseOperation::OR,
+                            operator.into(),
                             index,
                         );
                         scope.new_statements.push((index, or_stmt));
@@ -72,7 +67,7 @@ impl<'a> Compiler<'a> {
 
     fn compile_assignment_statement(&mut self, stmt: &mut Statement<'a>) {
         if let Statement::Assignment(assign_stmt) = stmt
-            && assign_stmt.operator != AssignmentOperator::Assign
+            && assign_stmt.operator.is_custom()
         {
             let mut left = assign_stmt.left.clone().into();
             if !assign_stmt.left.is_struct() {
@@ -124,14 +119,16 @@ impl<'a> Compiler<'a> {
                         shift_right_expression(left, right)
                     })
                 }
-                AssignmentOperator::BitwiseOR => {
+                AssignmentOperator::BitwiseOr
+                | AssignmentOperator::BitwiseAnd
+                | AssignmentOperator::BitwiseXor => {
                     replace_with_or_abort(&mut assign_stmt.right, |right| {
                         // TODO(@arexon): Method to calculate this.
                         let index = scope.new_statements.len() + scope.statement_count - 1;
                         let (or_stmt, or_var_expr) = bitwise_operation_statement(
                             left.clone(),
                             right,
-                            BitwiseOperation::OR,
+                            operator.into(),
                             index,
                         );
                         scope.new_statements.push((index, or_stmt));
@@ -249,7 +246,7 @@ impl<'a> Traverse<'a> for ProgramBodyTransformer {
     }
 
     fn enter_binary_expression(&mut self, it: &mut BinaryExpression<'a>) {
-        if it.operator == BinaryOperator::BitwiseOR && self.is_simple {
+        if it.operator == BinaryOperator::BitwiseOr && self.is_simple {
             self.needs_complex = true
         }
     }
@@ -313,7 +310,31 @@ fn shift_right_expression<'a>(left: Expression<'a>, right: Expression<'a>) -> Ex
 }
 
 enum BitwiseOperation {
-    OR,
+    Or,
+    And,
+    Xor,
+}
+
+impl From<BinaryOperator> for BitwiseOperation {
+    fn from(op: BinaryOperator) -> Self {
+        match op {
+            BinaryOperator::BitwiseOr => Self::Or,
+            BinaryOperator::BitwiseAnd => Self::And,
+            BinaryOperator::BitwiseXor => Self::Xor,
+            _ => unreachable!("Bitwise Operation: {op:?}"),
+        }
+    }
+}
+
+impl From<AssignmentOperator> for BitwiseOperation {
+    fn from(op: AssignmentOperator) -> Self {
+        match op {
+            AssignmentOperator::BitwiseOr => Self::Or,
+            AssignmentOperator::BitwiseAnd => Self::And,
+            AssignmentOperator::BitwiseXor => Self::Xor,
+            _ => unreachable!("Bitwise Operation: {op:?}"),
+        }
+    }
 }
 
 fn bitwise_operation_statement<'a>(
@@ -340,7 +361,7 @@ fn bitwise_operation_statement<'a>(
         )
     };
     let (op_bit_var, op_expr) = match operation {
-        BitwiseOperation::OR => (
+        BitwiseOperation::Or => (
             variable_expression(format!("__{index}_or_bit")),
             math_min_expression(
                 num_1_expr.clone(),
@@ -349,6 +370,25 @@ fn bitwise_operation_statement<'a>(
                     BinaryOperator::Addition,
                     right_bit_var.clone().into(),
                 ),
+            ),
+        ),
+        BitwiseOperation::And => (
+            variable_expression(format!("__{index}_and_bit")),
+            binary_expression(
+                left_bit_var.clone().into(),
+                BinaryOperator::Multiplication,
+                right_bit_var.clone().into(),
+            ),
+        ),
+        BitwiseOperation::Xor => (
+            variable_expression(format!("__{index}_xor_bit")),
+            math_mod_expression(
+                binary_expression(
+                    left_bit_var.clone().into(),
+                    BinaryOperator::Addition,
+                    right_bit_var.clone().into(),
+                ),
+                num_2_expr.clone(),
             ),
         ),
     };

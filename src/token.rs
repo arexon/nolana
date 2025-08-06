@@ -88,11 +88,23 @@ pub enum Kind {
     #[token("||=")]
     Pipe2Eq,
 
+    #[token("&")]
+    Amp,
+
+    #[token("&=")]
+    AmpEq,
+
     #[token("&&")]
     Amp2,
 
     #[token("&&=")]
     Amp2Eq,
+
+    #[token("^")]
+    Caret,
+
+    #[token("^=")]
+    CaretEq,
 
     #[token("->")]
     Arrow,
@@ -237,7 +249,9 @@ impl Kind {
                 | Kind::GtEq
                 | Kind::Pipe
                 | Kind::Pipe2
+                | Kind::Amp
                 | Kind::Amp2
+                | Kind::Caret
                 | Kind::Question2
                 | Kind::Minus
                 | Kind::Plus
@@ -263,6 +277,8 @@ impl Kind {
                 | Kind::PipeEq
                 | Kind::Pipe2Eq
                 | Kind::Amp2Eq
+                | Kind::AmpEq
+                | Kind::CaretEq
                 | Kind::ShiftLeftEq
                 | Kind::ShiftRightEq
         )
@@ -292,13 +308,15 @@ impl Kind {
     pub fn binding_power(self) -> Option<(u8, u8)> {
         Some(match self {
             Self::Plus2 | Self::Minus2 => (99, 0),
-            Self::Bang => (23, 24),
-            Self::Star2 => (21, 22),
-            Self::Star | Self::Slash | Self::Percent => (19, 20),
-            Self::Plus | Self::Minus => (17, 18),
-            Self::ShiftLeft | Self::ShiftRight => (15, 16),
-            Self::Lt | Self::Gt | Self::LtEq | Self::GtEq => (13, 14),
-            Self::Eq2 | Self::Neq => (11, 12),
+            Self::Bang => (27, 28),
+            Self::Star2 => (25, 26),
+            Self::Star | Self::Slash | Self::Percent => (23, 24),
+            Self::Plus | Self::Minus => (21, 22),
+            Self::ShiftLeft | Self::ShiftRight => (19, 20),
+            Self::Lt | Self::Gt | Self::LtEq | Self::GtEq => (17, 18),
+            Self::Eq2 | Self::Neq => (15, 16),
+            Self::Amp => (13, 14),
+            Self::Caret => (11, 12),
             Self::Pipe => (9, 10),
             Self::Amp2 => (7, 8),
             Self::Pipe2 => (5, 6),
@@ -333,8 +351,12 @@ impl Kind {
             Kind::PipeEq => "|=",
             Kind::Pipe2 => "||",
             Kind::Pipe2Eq => "||=",
+            Kind::Amp => "&",
+            Kind::AmpEq => "&=",
             Kind::Amp2 => "&&",
             Kind::Amp2Eq => "&&=",
+            Kind::Caret => "^",
+            Kind::CaretEq => "^=",
             Kind::Arrow => "->",
             Kind::Dot => ".",
             Kind::Question => "?",
