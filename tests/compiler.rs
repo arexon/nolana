@@ -32,25 +32,33 @@ fn binary() {
 fn assigments() {
     let out = compile(
         "
-            v.a = 204.31;
-            v.b += 87;
-            v.c -= 48.933;
-            v.d *= 3233.23;
-            v.e /= 1290;
-            v.f **= 32.2;
-            v.g %= 32;
+            v.x = 204.31;
+            v.x += 87;
+            v.x -= 48.933;
+            v.x *= 3233.23;
+            v.x /= 1290;
+            v.x **= 32.2;
+            v.x %= 32;
+            v.x &&= v.y;
+            v.x ||= v.y;
         ",
     );
     assert_snapshot!(
         out,
         @r"
-            variable.a = 204.31;
-            variable.b = variable.b ?? 0 + 87;
-            variable.c = variable.c ?? 0 - 48.933;
-            variable.d = variable.d ?? 0 * 3233.23;
-            variable.e = variable.e ?? 0 / 1290;
-            variable.f = math.pow(variable.f ?? 0, 32.2);
-            variable.g = math.mod(variable.g ?? 0, 32);
+            variable.x = 204.31;
+            variable.x = variable.x ?? 0 + 87;
+            variable.x = variable.x ?? 0 - 48.933;
+            variable.x = variable.x ?? 0 * 3233.23;
+            variable.x = variable.x ?? 0 / 1290;
+            variable.x = math.pow(variable.x ?? 0, 32.2);
+            variable.x = math.mod(variable.x ?? 0, 32);
+            variable.x ? {
+                variable.x = variable.y;
+            };
+            !variable.x ? {
+                variable.x = variable.y;
+            };
         "
     );
 }

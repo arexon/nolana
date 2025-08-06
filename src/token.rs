@@ -79,8 +79,14 @@ pub enum Kind {
     #[token("||")]
     Pipe2,
 
+    #[token("||=")]
+    Pipe2Eq,
+
     #[token("&&")]
     Amp2,
+
+    #[token("&&=")]
+    Amp2Eq,
 
     #[token("->")]
     Arrow,
@@ -247,6 +253,8 @@ impl Kind {
                 | Kind::SlashEq
                 | Kind::Star2Eq
                 | Kind::PercentEq
+                | Kind::Pipe2Eq
+                | Kind::Amp2Eq
                 | Kind::ShiftLeftEq
                 | Kind::ShiftRightEq
         )
@@ -313,7 +321,9 @@ impl Kind {
             Kind::LtEq => "<=",
             Kind::GtEq => ">=",
             Kind::Pipe2 => "||",
+            Kind::Pipe2Eq => "||=",
             Kind::Amp2 => "&&",
+            Kind::Amp2Eq => "&&=",
             Kind::Arrow => "->",
             Kind::Dot => ".",
             Kind::Question => "?",

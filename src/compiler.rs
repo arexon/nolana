@@ -68,25 +68,45 @@ impl<'a> Compiler<'a> {
             let operator = assign_stmt.operator;
             assign_stmt.operator = AssignmentOperator::Assign;
 
-            replace_with_or_abort(&mut assign_stmt.right, |right| match operator {
-                AssignmentOperator::Addition => {
-                    binary_expression(left, BinaryOperator::Addition, right)
+            match operator {
+                AssignmentOperator::Addition
+                | AssignmentOperator::Subtraction
+                | AssignmentOperator::Multiplication
+                | AssignmentOperator::Division => {
+                    replace_with_or_abort(&mut assign_stmt.right, |right| {
+                        binary_expression(left, operator.into(), right)
+                    })
                 }
-                AssignmentOperator::Subtraction => {
-                    binary_expression(left, BinaryOperator::Subtraction, right)
+                AssignmentOperator::Exponential => {
+                    replace_with_or_abort(&mut assign_stmt.right, |right| {
+                        math_pow_expression(left, right)
+                    })
                 }
-                AssignmentOperator::Multiplication => {
-                    binary_expression(left, BinaryOperator::Multiplication, right)
+                AssignmentOperator::Remainder => {
+                    replace_with_or_abort(&mut assign_stmt.right, |right| {
+                        math_mod_expression(left, right)
+                    })
                 }
-                AssignmentOperator::Division => {
-                    binary_expression(left, BinaryOperator::Division, right)
+                AssignmentOperator::LogicalOr => replace_with_or_abort(stmt, |stmt| {
+                    let Statement::Assignment(assign_stmt) = stmt else { unreachable!() };
+                    logical_or_assignment_statement(*assign_stmt)
+                }),
+                AssignmentOperator::LogicalAnd => replace_with_or_abort(stmt, |stmt| {
+                    let Statement::Assignment(assign_stmt) = stmt else { unreachable!() };
+                    logical_and_assignment_statement(*assign_stmt)
+                }),
+                AssignmentOperator::ShiftLeft => {
+                    replace_with_or_abort(&mut assign_stmt.right, |right| {
+                        shift_left_expression(left, right)
+                    })
                 }
-                AssignmentOperator::Remainder => math_mod_expression(left, right),
-                AssignmentOperator::Exponential => math_pow_expression(left, right),
-                AssignmentOperator::ShiftLeft => shift_left_expression(left, right),
-                AssignmentOperator::ShiftRight => shift_right_expression(left, right),
+                AssignmentOperator::ShiftRight => {
+                    replace_with_or_abort(&mut assign_stmt.right, |right| {
+                        shift_right_expression(left, right)
+                    })
+                }
                 AssignmentOperator::Assign => unreachable!(),
-            });
+            }
         }
     }
 
@@ -201,6 +221,37 @@ fn shift_right_expression<'a>(left: Expression<'a>, right: Expression<'a>) -> Ex
         }
         .into(),
     )
+}
+
+#[inline]
+fn logical_or_assignment_statement<'a>(assign_stmt: AssignmentStatement<'a>) -> Statement<'a> {
+    Expression::Conditional(
+        ConditionalExpression {
+            span: SPAN,
+            test: UnaryExpression {
+                span: SPAN,
+                operator: UnaryOperator::Not,
+                argument: assign_stmt.left.clone().into(),
+            }
+            .into(),
+            consequent: BlockExpression { span: SPAN, statements: vec![assign_stmt.into()] }.into(),
+        }
+        .into(),
+    )
+    .into()
+}
+
+#[inline]
+fn logical_and_assignment_statement<'a>(assign_stmt: AssignmentStatement<'a>) -> Statement<'a> {
+    Expression::Conditional(
+        ConditionalExpression {
+            span: SPAN,
+            test: assign_stmt.left.clone().into(),
+            consequent: BlockExpression { span: SPAN, statements: vec![assign_stmt.into()] }.into(),
+        }
+        .into(),
+    )
+    .into()
 }
 
 #[inline]
