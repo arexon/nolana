@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use crate::{span::Span, token::Kind};
 
 /// Represents the root of a Molang expression AST, containing all the top-level
@@ -207,7 +209,7 @@ impl<'a> From<StringLiteral<'a>> for Expression<'a> {
 #[derive(Debug, Clone, PartialEq)]
 pub struct Identifier<'a> {
     pub span: Span,
-    pub name: &'a str,
+    pub name: Cow<'a, str>,
 }
 
 /// <https://bedrock.dev/docs/stable/Molang#Variables>

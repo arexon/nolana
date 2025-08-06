@@ -280,7 +280,7 @@ impl<'a> Parser<'a> {
             v if v.is_variable() | v.is_call() => self.bump(),
             _ => self.expect(Kind::Identifier)?,
         }
-        Ok(Identifier { span: self.end_span(span), name })
+        Ok(Identifier { span: self.end_span(span), name: name.into() })
     }
 
     fn parse_parenthesized_expression(&mut self) -> Result<Expression<'a>> {
