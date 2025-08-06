@@ -76,11 +76,35 @@ pub enum Kind {
     #[token(">=")]
     GtEq,
 
+    #[token("|")]
+    Pipe,
+
+    #[token("|=")]
+    PipeEq,
+
     #[token("||")]
     Pipe2,
 
+    #[token("||=")]
+    Pipe2Eq,
+
+    #[token("&")]
+    Amp,
+
+    #[token("&=")]
+    AmpEq,
+
     #[token("&&")]
     Amp2,
+
+    #[token("&&=")]
+    Amp2Eq,
+
+    #[token("^")]
+    Caret,
+
+    #[token("^=")]
+    CaretEq,
 
     #[token("->")]
     Arrow,
@@ -106,14 +130,56 @@ pub enum Kind {
     #[token("-")]
     Minus,
 
+    #[token("--")]
+    Minus2,
+
+    #[token("-=")]
+    MinusEq,
+
     #[token("+")]
     Plus,
+
+    #[token("++")]
+    Plus2,
+
+    #[token("+=")]
+    PlugEq,
 
     #[token("*")]
     Star,
 
+    #[token("*=")]
+    StarEq,
+
+    #[token("**")]
+    Star2,
+
+    #[token("**=")]
+    Star2Eq,
+
     #[token("/")]
     Slash,
+
+    #[token("/=")]
+    SlashEq,
+
+    #[token("%")]
+    Percent,
+
+    #[token("%=")]
+    PercentEq,
+
+    #[token("<<")]
+    ShiftLeft,
+
+    #[token("<<=")]
+    ShiftLeftEq,
+
+    #[token(">>")]
+    ShiftRight,
+
+    #[token(">>=")]
+    ShiftRightEq,
 
     #[token("temp")]
     #[token("t", priority = 3)]
@@ -181,18 +247,49 @@ impl Kind {
                 | Kind::Gt
                 | Kind::LtEq
                 | Kind::GtEq
+                | Kind::Pipe
                 | Kind::Pipe2
+                | Kind::Amp
                 | Kind::Amp2
+                | Kind::Caret
                 | Kind::Question2
                 | Kind::Minus
                 | Kind::Plus
                 | Kind::Star
                 | Kind::Slash
+                | Kind::Percent
+                | Kind::Star2
+                | Kind::ShiftLeft
+                | Kind::ShiftRight
+        )
+    }
+
+    pub fn is_assignment_operator(self) -> bool {
+        matches!(
+            self,
+            Kind::Eq
+                | Kind::PlugEq
+                | Kind::MinusEq
+                | Kind::StarEq
+                | Kind::SlashEq
+                | Kind::Star2Eq
+                | Kind::PercentEq
+                | Kind::PipeEq
+                | Kind::Pipe2Eq
+                | Kind::Amp2Eq
+                | Kind::AmpEq
+                | Kind::CaretEq
+                | Kind::ShiftLeftEq
+                | Kind::ShiftRightEq
         )
     }
 
     pub fn is_unary_operator(self) -> bool {
         matches!(self, Kind::Minus | Kind::Bang)
+    }
+
+    pub fn is_update_operator(self) -> bool {
+        matches!(self, Kind::Plus2 | Kind::Minus2)
     }
 
     pub fn is_variable(self) -> bool {
@@ -210,13 +307,19 @@ impl Kind {
     /// <https://bedrock.dev/docs/stable/Molang#Operator%20Precedence>
     pub fn binding_power(self) -> Option<(u8, u8)> {
         Some(match self {
-            Self::Bang => (16, 17),
-            Self::Star | Self::Slash => (14, 15),
-            Self::Plus | Self::Minus => (12, 13),
-            Self::Lt | Self::Gt | Self::LtEq | Self::GtEq => (10, 11),
-            Self::Eq2 | Self::Neq => (8, 9),
-            Self::Amp2 => (6, 7),
-            Self::Pipe2 => (4, 5),
+            Self::Plus2 | Self::Minus2 => (99, 0),
+            Self::Bang => (27, 28),
+            Self::Star2 => (25, 26),
+            Self::Star | Self::Slash | Self::Percent => (23, 24),
+            Self::Plus | Self::Minus => (21, 22),
+            Self::ShiftLeft | Self::ShiftRight => (19, 20),
+            Self::Lt | Self::Gt | Self::LtEq | Self::GtEq => (17, 18),
+            Self::Eq2 | Self::Neq => (15, 16),
+            Self::Amp => (13, 14),
+            Self::Caret => (11, 12),
+            Self::Pipe => (9, 10),
+            Self::Amp2 => (7, 8),
+            Self::Pipe2 => (5, 6),
             Self::Question => (3, 4),
             Self::Question2 => (1, 2),
             _ => return None,
@@ -244,8 +347,16 @@ impl Kind {
             Kind::Gt => ">",
             Kind::LtEq => "<=",
             Kind::GtEq => ">=",
+            Kind::Pipe => "|",
+            Kind::PipeEq => "|=",
             Kind::Pipe2 => "||",
+            Kind::Pipe2Eq => "||=",
+            Kind::Amp => "&",
+            Kind::AmpEq => "&=",
             Kind::Amp2 => "&&",
+            Kind::Amp2Eq => "&&=",
+            Kind::Caret => "^",
+            Kind::CaretEq => "^=",
             Kind::Arrow => "->",
             Kind::Dot => ".",
             Kind::Question => "?",
@@ -254,9 +365,23 @@ impl Kind {
             Kind::Semi => ";",
             Kind::Comma => ",",
             Kind::Minus => "-",
+            Kind::Minus2 => "--",
             Kind::Plus => "+",
+            Kind::Plus2 => "++",
             Kind::Star => "*",
             Kind::Slash => "/",
+            Kind::Percent => "%",
+            Kind::Star2 => "**",
+            Kind::MinusEq => "-=",
+            Kind::PlugEq => "+=",
+            Kind::StarEq => "*=",
+            Kind::SlashEq => "/=",
+            Kind::Star2Eq => "**=",
+            Kind::PercentEq => "%=",
+            Kind::ShiftLeft => "<<",
+            Kind::ShiftLeftEq => "<<=",
+            Kind::ShiftRight => ">>",
+            Kind::ShiftRightEq => ">>=",
             Kind::Temporary => "temp",
             Kind::Variable => "variable",
             Kind::Context => "context",

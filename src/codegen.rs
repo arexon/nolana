@@ -165,9 +165,15 @@ impl Print for AssignmentStatement<'_> {
     fn print(&self, c: &mut Codegen) {
         self.left.print(c);
         c.print_space();
-        c.print_char('=');
+        self.operator.print(c);
         c.print_space();
         self.right.print(c);
+    }
+}
+
+impl Print for AssignmentOperator {
+    fn print(&self, c: &mut Codegen) {
+        c.print_str(self.as_str());
     }
 }
 
@@ -233,6 +239,7 @@ impl Print for Expression<'_> {
             Self::Binary(expr) => expr.print(c),
             Self::Unary(expr) => expr.print(c),
             Self::Ternary(expr) => expr.print(c),
+            Self::Update(expr) => expr.print(c),
             Self::Conditional(expr) => expr.print(c),
             Self::Resource(expr) => expr.print(c),
             Self::ArrayAccess(expr) => expr.print(c),
@@ -353,6 +360,19 @@ impl Print for UnaryExpression<'_> {
 }
 
 impl Print for UnaryOperator {
+    fn print(&self, c: &mut Codegen) {
+        c.print_str(self.as_str());
+    }
+}
+
+impl Print for UpdateExpression<'_> {
+    fn print(&self, c: &mut Codegen) {
+        self.variable.print(c);
+        self.operator.print(c);
+    }
+}
+
+impl Print for UpdateOperator {
     fn print(&self, c: &mut Codegen) {
         c.print_str(self.as_str());
     }
