@@ -76,6 +76,12 @@ pub enum Kind {
     #[token(">=")]
     GtEq,
 
+    #[token("|")]
+    Pipe,
+
+    #[token("|=")]
+    PipeEq,
+
     #[token("||")]
     Pipe2,
 
@@ -229,6 +235,7 @@ impl Kind {
                 | Kind::Gt
                 | Kind::LtEq
                 | Kind::GtEq
+                | Kind::Pipe
                 | Kind::Pipe2
                 | Kind::Amp2
                 | Kind::Question2
@@ -253,6 +260,7 @@ impl Kind {
                 | Kind::SlashEq
                 | Kind::Star2Eq
                 | Kind::PercentEq
+                | Kind::PipeEq
                 | Kind::Pipe2Eq
                 | Kind::Amp2Eq
                 | Kind::ShiftLeftEq
@@ -284,13 +292,14 @@ impl Kind {
     pub fn binding_power(self) -> Option<(u8, u8)> {
         Some(match self {
             Self::Plus2 | Self::Minus2 => (99, 0),
-            Self::Bang => (21, 22),
-            Self::Star2 => (19, 20),
-            Self::Star | Self::Slash | Self::Percent => (17, 18),
-            Self::Plus | Self::Minus => (15, 16),
-            Self::ShiftLeft | Self::ShiftRight => (13, 14),
-            Self::Lt | Self::Gt | Self::LtEq | Self::GtEq => (11, 12),
-            Self::Eq2 | Self::Neq => (9, 10),
+            Self::Bang => (23, 24),
+            Self::Star2 => (21, 22),
+            Self::Star | Self::Slash | Self::Percent => (19, 20),
+            Self::Plus | Self::Minus => (17, 18),
+            Self::ShiftLeft | Self::ShiftRight => (15, 16),
+            Self::Lt | Self::Gt | Self::LtEq | Self::GtEq => (13, 14),
+            Self::Eq2 | Self::Neq => (11, 12),
+            Self::Pipe => (9, 10),
             Self::Amp2 => (7, 8),
             Self::Pipe2 => (5, 6),
             Self::Question => (3, 4),
@@ -320,6 +329,8 @@ impl Kind {
             Kind::Gt => ">",
             Kind::LtEq => "<=",
             Kind::GtEq => ">=",
+            Kind::Pipe => "|",
+            Kind::PipeEq => "|=",
             Kind::Pipe2 => "||",
             Kind::Pipe2Eq => "||=",
             Kind::Amp2 => "&&",

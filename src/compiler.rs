@@ -33,7 +33,7 @@ impl<'a> Compiler<'a> {
         self.scopes.last_mut().unwrap()
     }
 
-    fn compile_binary_expression(&self, expr: &mut Expression<'a>) {
+    fn compile_binary_expression(&mut self, expr: &mut Expression<'a>) {
         if let Expression::Binary(bin_expr) = expr
             && matches!(
                 bin_expr.operator,
@@ -41,8 +41,10 @@ impl<'a> Compiler<'a> {
                     | BinaryOperator::Exponential
                     | BinaryOperator::ShiftLeft
                     | BinaryOperator::ShiftRight
+                    | BinaryOperator::BitwiseOR
             )
         {
+            let scope = self.scope();
             replace_with_or_abort(expr, |expr| {
                 let Expression::Binary(bin_expr) = expr else { unreachable!() };
                 let BinaryExpression { left, operator, right, .. } = *bin_expr;
@@ -51,13 +53,24 @@ impl<'a> Compiler<'a> {
                     BinaryOperator::Exponential => math_pow_expression(left, right),
                     BinaryOperator::ShiftLeft => shift_left_expression(left, right),
                     BinaryOperator::ShiftRight => shift_right_expression(left, right),
+                    BinaryOperator::BitwiseOR => {
+                        let index = scope.new_statements.len() + scope.statement_count - 1;
+                        let (or_stmt, or_var_expr) = bitwise_operation_statement(
+                            left.clone(),
+                            right,
+                            BitwiseOperation::OR,
+                            index,
+                        );
+                        scope.new_statements.push((index, or_stmt));
+                        or_var_expr
+                    }
                     _ => unreachable!(),
                 }
             });
         }
     }
 
-    fn compile_assignment_statement(&self, stmt: &mut Statement<'a>) {
+    fn compile_assignment_statement(&mut self, stmt: &mut Statement<'a>) {
         if let Statement::Assignment(assign_stmt) = stmt
             && assign_stmt.operator != AssignmentOperator::Assign
         {
@@ -73,6 +86,7 @@ impl<'a> Compiler<'a> {
             let operator = assign_stmt.operator;
             assign_stmt.operator = AssignmentOperator::Assign;
 
+            let scope = self.scope();
             match operator {
                 AssignmentOperator::Addition
                 | AssignmentOperator::Subtraction
@@ -108,6 +122,20 @@ impl<'a> Compiler<'a> {
                 AssignmentOperator::ShiftRight => {
                     replace_with_or_abort(&mut assign_stmt.right, |right| {
                         shift_right_expression(left, right)
+                    })
+                }
+                AssignmentOperator::BitwiseOR => {
+                    replace_with_or_abort(&mut assign_stmt.right, |right| {
+                        // TODO(@arexon): Method to calculate this.
+                        let index = scope.new_statements.len() + scope.statement_count - 1;
+                        let (or_stmt, or_var_expr) = bitwise_operation_statement(
+                            left.clone(),
+                            right,
+                            BitwiseOperation::OR,
+                            index,
+                        );
+                        scope.new_statements.push((index, or_stmt));
+                        or_var_expr
                     })
                 }
                 AssignmentOperator::Assign => unreachable!(),
@@ -220,6 +248,12 @@ impl<'a> Traverse<'a> for ProgramBodyTransformer {
         }
     }
 
+    fn enter_binary_expression(&mut self, it: &mut BinaryExpression<'a>) {
+        if it.operator == BinaryOperator::BitwiseOR && self.is_simple {
+            self.needs_complex = true
+        }
+    }
+
     fn enter_update_expression(&mut self, _: &mut UpdateExpression<'a>) {
         if self.is_simple {
             self.needs_complex = true;
@@ -276,6 +310,105 @@ fn shift_right_expression<'a>(left: Expression<'a>, right: Expression<'a>) -> Ex
         }
         .into(),
     )
+}
+
+enum BitwiseOperation {
+    OR,
+}
+
+fn bitwise_operation_statement<'a>(
+    left: Expression<'a>,
+    right: Expression<'a>,
+    operation: BitwiseOperation,
+    index: usize,
+) -> (Statement<'a>, Expression<'a>) {
+    let result_var = variable_expression(format!("__{index}_result"));
+    let bit_var = variable_expression(format!("__{index}_bit"));
+    let left_bit_var = variable_expression(format!("__{index}_left_bit"));
+    let right_bit_var = variable_expression(format!("__{index}_right_bit"));
+    let num_0_expr: Expression = NumericLiteral { span: SPAN, value: 0.0, raw: "0" }.into();
+    let num_1_expr: Expression = NumericLiteral { span: SPAN, value: 2.0, raw: "1" }.into();
+    let num_2_expr: Expression = NumericLiteral { span: SPAN, value: 2.0, raw: "2" }.into();
+    let extract_bit_expr = |input_var: Expression<'a>, bit_var: Expression<'a>| {
+        math_mod_expression(
+            math_floor_expression(binary_expression(
+                input_var,
+                BinaryOperator::Division,
+                math_pow_expression(num_2_expr.clone(), bit_var),
+            )),
+            num_2_expr.clone(),
+        )
+    };
+    let (op_bit_var, op_expr) = match operation {
+        BitwiseOperation::OR => (
+            variable_expression(format!("__{index}_or_bit")),
+            math_min_expression(
+                num_1_expr.clone(),
+                binary_expression(
+                    left_bit_var.clone().into(),
+                    BinaryOperator::Addition,
+                    right_bit_var.clone().into(),
+                ),
+            ),
+        ),
+    };
+
+    let loop_statements = vec![
+        assignment_statement(
+            left_bit_var.clone(),
+            extract_bit_expr(left.clone(), bit_var.clone().into()),
+        ),
+        assignment_statement(
+            right_bit_var.clone(),
+            extract_bit_expr(right.clone(), bit_var.clone().into()),
+        ),
+        assignment_statement(op_bit_var.clone(), op_expr),
+        assignment_statement(
+            result_var.clone(),
+            binary_expression(
+                result_var.clone().into(),
+                BinaryOperator::Addition,
+                binary_expression(
+                    op_bit_var.into(),
+                    BinaryOperator::Multiplication,
+                    math_pow_expression(num_2_expr.clone(), bit_var.clone().into()),
+                ),
+            ),
+        ),
+        assignment_statement(
+            bit_var.clone(),
+            binary_expression(bit_var.clone().into(), BinaryOperator::Addition, num_1_expr),
+        ),
+    ];
+    let block_statements = vec![
+        assignment_statement(result_var.clone(), num_0_expr.clone()),
+        assignment_statement(bit_var, num_0_expr),
+        LoopStatement {
+            span: SPAN,
+            count: NumericLiteral { span: SPAN, value: 24.0, raw: "24" }.into(),
+            block: BlockExpression { span: SPAN, statements: loop_statements },
+        }
+        .into(),
+    ];
+    (
+        Expression::Block(BlockExpression { span: SPAN, statements: block_statements }.into())
+            .into(),
+        result_var.into(),
+    )
+}
+
+#[inline]
+fn variable_expression<'a>(name: String) -> VariableExpression<'a> {
+    VariableExpression {
+        span: SPAN,
+        lifetime: VariableLifetime::Variable,
+        member: VariableMember::Property { property: Identifier { span: SPAN, name: name.into() } },
+    }
+}
+
+#[inline]
+fn assignment_statement<'a>(left: VariableExpression<'a>, right: Expression<'a>) -> Statement<'a> {
+    AssignmentStatement { span: SPAN, left, operator: AssignmentOperator::Assign, right }.into()
 }
 
 #[inline]
@@ -338,6 +471,17 @@ fn math_floor_expression<'a>(x: Expression<'a>) -> Expression<'a> {
         kind: CallKind::Math,
         callee: Identifier { span: SPAN, name: "floor".into() },
         arguments: Some(vec![x]),
+    }
+    .into()
+}
+
+#[inline]
+fn math_min_expression<'a>(left: Expression<'a>, right: Expression<'a>) -> Expression<'a> {
+    CallExpression {
+        span: SPAN,
+        kind: CallKind::Math,
+        callee: Identifier { span: SPAN, name: "min".into() },
+        arguments: Some(vec![left, right]),
     }
     .into()
 }

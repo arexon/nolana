@@ -80,6 +80,8 @@ pub enum AssignmentOperator {
     ShiftLeft,
     /// `>>=`
     ShiftRight,
+    /// `|=`
+    BitwiseOR,
 }
 
 impl AssignmentOperator {
@@ -97,6 +99,7 @@ impl AssignmentOperator {
             Self::LogicalAnd => "&&=",
             Self::ShiftLeft => "<<=",
             Self::ShiftRight => ">>=",
+            Self::BitwiseOR => "|=",
         }
     }
 }
@@ -115,6 +118,7 @@ impl From<Kind> for AssignmentOperator {
             Kind::Amp2Eq => Self::LogicalAnd,
             Kind::ShiftLeftEq => Self::ShiftLeft,
             Kind::ShiftRightEq => Self::ShiftRight,
+            Kind::PipeEq => Self::BitwiseOR,
             _ => unreachable!("Assignment Operator: {kind:?}"),
         }
     }
@@ -443,6 +447,8 @@ pub enum BinaryOperator {
     ShiftLeft,
     /// `>>`
     ShiftRight,
+    /// `|`
+    BitwiseOR,
 }
 
 impl BinaryOperator {
@@ -466,6 +472,7 @@ impl BinaryOperator {
             Self::Remainder => "%",
             Self::ShiftLeft => "<<",
             Self::ShiftRight => ">>",
+            Self::BitwiseOR => "|",
         }
     }
 }
@@ -490,6 +497,7 @@ impl From<Kind> for BinaryOperator {
             Kind::Percent => Self::Remainder,
             Kind::ShiftLeft => Self::ShiftLeft,
             Kind::ShiftRight => Self::ShiftRight,
+            Kind::Pipe => Self::BitwiseOR,
             _ => unreachable!("Binary Operator: {kind:?}"),
         }
     }
@@ -506,6 +514,7 @@ impl From<AssignmentOperator> for BinaryOperator {
             AssignmentOperator::Remainder => Self::Remainder,
             AssignmentOperator::ShiftLeft => Self::ShiftLeft,
             AssignmentOperator::ShiftRight => Self::ShiftRight,
+            AssignmentOperator::BitwiseOR => Self::BitwiseOR,
             _ => unimplemented!("Binary Operator: {op:?}"),
         }
     }
