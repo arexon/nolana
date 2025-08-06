@@ -175,12 +175,10 @@ impl<'a> MolangTransformer<'a> {
             }
         }
     }
-}
 
-impl<'a> Traverse<'a> for MolangTransformer<'a> {
-    fn exit_program(&mut self, it: &mut Program<'a>) {
+    fn add_return_statement(&mut self, program: &mut Program<'a>) {
         if self.program_body_transformer.needs_complex
-            && let ProgramBody::Complex(stmts) = &mut it.body
+            && let ProgramBody::Complex(stmts) = &mut program.body
         {
             replace_with_or_abort(
                 stmts.last_mut().expect("must have at least two statements"),
@@ -194,6 +192,12 @@ impl<'a> Traverse<'a> for MolangTransformer<'a> {
                 },
             );
         }
+    }
+}
+
+impl<'a> Traverse<'a> for MolangTransformer<'a> {
+    fn exit_program(&mut self, it: &mut Program<'a>) {
+        self.add_return_statement(it);
     }
 
     fn enter_statements(&mut self, _: &mut Vec<Statement<'a>>) {
