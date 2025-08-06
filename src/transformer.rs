@@ -247,7 +247,11 @@ impl<'a> Traverse<'a> for ProgramBodyTransformer {
     }
 
     fn enter_binary_expression(&mut self, it: &mut BinaryExpression<'a>) {
-        if it.operator == BinaryOperator::BitwiseOr && self.is_simple {
+        if matches!(
+            it.operator,
+            BinaryOperator::BitwiseOr | BinaryOperator::BitwiseAnd | BinaryOperator::BitwiseXor
+        ) && self.is_simple
+        {
             self.needs_complex = true
         }
     }
