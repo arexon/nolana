@@ -273,14 +273,14 @@ impl<'a> Parser<'a> {
     }
 
     #[inline(always)] // Hot path
-    fn parse_identifier_reference(&mut self) -> Result<IdentifierReference<'a>> {
+    fn parse_identifier(&mut self) -> Result<Identifier<'a>> {
         let span = self.start_span();
         let name = self.current_src();
         match self.current_kind() {
             v if v.is_variable() | v.is_call() => self.bump(),
             _ => self.expect(Kind::Identifier)?,
         }
-        Ok(IdentifierReference { span: self.end_span(span), name })
+        Ok(Identifier { span: self.end_span(span), name })
     }
 
     fn parse_parenthesized_expression(&mut self) -> Result<Expression<'a>> {
@@ -409,10 +409,10 @@ impl<'a> Parser<'a> {
         let lifetime: VariableLifetime = self.current_kind().into();
         self.bump();
         self.expect(Kind::Dot)?;
-        let property = self.parse_identifier_reference()?;
+        let property = self.parse_identifier()?;
         let mut member = VariableMember::Property { property };
         while self.eat(Kind::Dot) {
-            let property = self.parse_identifier_reference()?;
+            let property = self.parse_identifier()?;
             member = VariableMember::Object { object: member.into(), property };
         }
         Ok(VariableExpression { span: self.end_span(span), lifetime, member })
@@ -423,7 +423,7 @@ impl<'a> Parser<'a> {
         let section: ResourceSection = self.current_kind().into();
         self.bump();
         self.expect(Kind::Dot)?;
-        let name = self.parse_identifier_reference()?;
+        let name = self.parse_identifier()?;
         Ok(ResourceExpression { span: self.end_span(span), section, name }.into())
     }
 
@@ -431,7 +431,7 @@ impl<'a> Parser<'a> {
         let span = self.start_span();
         self.expect(Kind::Array)?;
         self.expect(Kind::Dot)?;
-        let name = self.parse_identifier_reference()?;
+        let name = self.parse_identifier()?;
         self.expect(Kind::LeftBracket)?;
         let index = self.parse_expression(0)?;
         self.expect(Kind::RightBracket)?;
@@ -453,7 +453,7 @@ impl<'a> Parser<'a> {
         let kind: CallKind = self.current_kind().into();
         self.bump();
         self.expect(Kind::Dot)?;
-        let callee = self.parse_identifier_reference()?;
+        let callee = self.parse_identifier()?;
         let arguments = if self.eat(Kind::LeftParen) {
             let mut arguments = Vec::new();
             let mut first = true;

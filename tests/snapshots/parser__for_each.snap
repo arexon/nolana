@@ -24,7 +24,7 @@ ParseResult {
                             },
                             lifetime: Variable,
                             member: Property {
-                                property: IdentifierReference {
+                                property: Identifier {
                                     span: Span {
                                         start: 11,
                                         end: 12,
@@ -40,7 +40,7 @@ ParseResult {
                                     end: 19,
                                 },
                                 kind: Query,
-                                callee: IdentifierReference {
+                                callee: Identifier {
                                     span: Span {
                                         start: 16,
                                         end: 19,
@@ -69,7 +69,7 @@ ParseResult {
                                             },
                                             lifetime: Variable,
                                             member: Property {
-                                                property: IdentifierReference {
+                                                property: Identifier {
                                                     span: Span {
                                                         start: 24,
                                                         end: 25,
@@ -92,7 +92,7 @@ ParseResult {
                                                         },
                                                         lifetime: Variable,
                                                         member: Property {
-                                                            property: IdentifierReference {
+                                                            property: Identifier {
                                                                 span: Span {
                                                                     start: 30,
                                                                     end: 31,

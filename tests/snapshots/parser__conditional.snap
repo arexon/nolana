@@ -23,7 +23,7 @@ ParseResult {
                                 end: 5,
                             },
                             kind: Query,
-                            callee: IdentifierReference {
+                            callee: Identifier {
                                 span: Span {
                                     start: 2,
                                     end: 5,

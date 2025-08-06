@@ -74,10 +74,10 @@ pub trait Traverse<'a>: Sized {
     fn exit_expression(&mut self, it: &mut Expression<'a>) {}
 
     #[inline]
-    fn enter_identifier_reference(&mut self, it: &mut IdentifierReference<'a>) {}
+    fn enter_identifier_reference(&mut self, it: &mut Identifier<'a>) {}
 
     #[inline]
-    fn exit_identifier_reference(&mut self, it: &mut IdentifierReference<'a>) {}
+    fn exit_identifier_reference(&mut self, it: &mut Identifier<'a>) {}
 
     #[inline]
     fn enter_numeric_literal(&mut self, it: &mut NumericLiteral<'a>) {}
@@ -277,10 +277,7 @@ fn walk_expression<'a>(traverser: &mut impl Traverse<'a>, it: &mut Expression<'a
     traverser.exit_expression(it);
 }
 
-fn walk_identifier_reference<'a>(
-    traverser: &mut impl Traverse<'a>,
-    it: &mut IdentifierReference<'a>,
-) {
+fn walk_identifier_reference<'a>(traverser: &mut impl Traverse<'a>, it: &mut Identifier<'a>) {
     traverser.enter_identifier_reference(it);
     traverser.exit_identifier_reference(it);
 }

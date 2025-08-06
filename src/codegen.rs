@@ -243,7 +243,7 @@ impl Print for Expression<'_> {
     }
 }
 
-impl Print for IdentifierReference<'_> {
+impl Print for Identifier<'_> {
     fn print(&self, c: &mut Codegen) {
         c.print_str(self.name);
     }

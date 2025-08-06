@@ -16,7 +16,7 @@ ParseResult {
                         start: 0,
                         end: 16,
                     },
-                    name: IdentifierReference {
+                    name: Identifier {
                         span: Span {
                             start: 6,
                             end: 9,
@@ -30,7 +30,7 @@ ParseResult {
                                 end: 15,
                             },
                             kind: Query,
-                            callee: IdentifierReference {
+                            callee: Identifier {
                                 span: Span {
                                     start: 12,
                                     end: 15,

@@ -205,7 +205,7 @@ impl<'a> From<StringLiteral<'a>> for Expression<'a> {
 
 /// `foo` in `v.foo.bar`
 #[derive(Debug, Clone, PartialEq)]
-pub struct IdentifierReference<'a> {
+pub struct Identifier<'a> {
     pub span: Span,
     pub name: &'a str,
 }
@@ -268,9 +268,9 @@ impl From<Kind> for VariableLifetime {
 #[derive(Debug, Clone, PartialEq)]
 pub enum VariableMember<'a> {
     /// `foo.bar` in `v.foo.bar`
-    Object { object: Box<VariableMember<'a>>, property: IdentifierReference<'a> },
+    Object { object: Box<VariableMember<'a>>, property: Identifier<'a> },
     /// `foo` in `v.foo`
-    Property { property: IdentifierReference<'a> },
+    Property { property: Identifier<'a> },
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -475,7 +475,7 @@ impl<'a> From<ConditionalExpression<'a>> for Expression<'a> {
 pub struct ResourceExpression<'a> {
     pub span: Span,
     pub section: ResourceSection,
-    pub name: IdentifierReference<'a>,
+    pub name: Identifier<'a>,
 }
 
 impl<'a> From<ResourceExpression<'a>> for Expression<'a> {
@@ -523,7 +523,7 @@ impl From<Kind> for ResourceSection {
 #[derive(Debug, Clone, PartialEq)]
 pub struct ArrayAccessExpression<'a> {
     pub span: Span,
-    pub name: IdentifierReference<'a>,
+    pub name: Identifier<'a>,
     pub index: Expression<'a>,
 }
 
@@ -557,7 +557,7 @@ impl<'a> From<ArrowAccessExpression<'a>> for Expression<'a> {
 pub struct CallExpression<'a> {
     pub span: Span,
     pub kind: CallKind,
-    pub callee: IdentifierReference<'a>,
+    pub callee: Identifier<'a>,
     pub arguments: Option<Vec<Expression<'a>>>,
 }
 
