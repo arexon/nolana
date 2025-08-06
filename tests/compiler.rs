@@ -11,19 +11,19 @@ fn compile(source: &str) -> String {
 fn binary() {
     let out = compile(
         "
-            v.a % v.x;
-            v.a ** v.x;
-            v.a >> v.x;
-            v.a << v.x;
+            v.x % v.y;
+            v.x ** v.y;
+            v.x >> v.y;
+            v.x << v.y;
         ",
     );
     assert_snapshot!(
         out,
         @r"
-            math.mod(variable.a, variable.x);
-            math.pow(variable.a, variable.x);
-            math.floor(variable.a / math.pow(2, variable.x));
-            variable.a * math.pow(2, variable.x);
+            math.mod(variable.x, variable.y);
+            math.pow(variable.x, variable.y);
+            math.floor(variable.x / math.pow(2, variable.y));
+            variable.x * math.pow(2, variable.y);
         "
     );
 }
@@ -32,13 +32,13 @@ fn binary() {
 fn assigments() {
     let out = compile(
         "
-            v.x = 204.31;
-            v.x += 87;
-            v.x -= 48.933;
-            v.x *= 3233.23;
-            v.x /= 1290;
-            v.x **= 32.2;
-            v.x %= 32;
+            v.x = v.y;
+            v.x += v.y;
+            v.x -= v.y;
+            v.x *= v.y;
+            v.x /= v.y;
+            v.x **= v.y;
+            v.x %= v.y;
             v.x &&= v.y;
             v.x ||= v.y;
             v.x >>= v.y;
@@ -48,13 +48,13 @@ fn assigments() {
     assert_snapshot!(
         out,
         @r"
-            variable.x = 204.31;
-            variable.x = variable.x ?? 0 + 87;
-            variable.x = variable.x ?? 0 - 48.933;
-            variable.x = variable.x ?? 0 * 3233.23;
-            variable.x = variable.x ?? 0 / 1290;
-            variable.x = math.pow(variable.x ?? 0, 32.2);
-            variable.x = math.mod(variable.x ?? 0, 32);
+            variable.x = variable.y;
+            variable.x = variable.x ?? 0 + variable.y;
+            variable.x = variable.x ?? 0 - variable.y;
+            variable.x = variable.x ?? 0 * variable.y;
+            variable.x = variable.x ?? 0 / variable.y;
+            variable.x = math.pow(variable.x ?? 0, variable.y);
+            variable.x = math.mod(variable.x ?? 0, variable.y);
             variable.x ? {
                 variable.x = variable.y;
             };
