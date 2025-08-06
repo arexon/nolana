@@ -41,6 +41,8 @@ fn assigments() {
             v.x %= 32;
             v.x &&= v.y;
             v.x ||= v.y;
+            v.x >>= v.y;
+            v.x <<= v.y;
         ",
     );
     assert_snapshot!(
@@ -59,6 +61,8 @@ fn assigments() {
             !variable.x ? {
                 variable.x = variable.y;
             };
+            variable.x = math.floor(variable.x ?? 0 / math.pow(2, variable.y));
+            variable.x = variable.x ?? 0 * math.pow(2, variable.y);
         "
     );
 }
