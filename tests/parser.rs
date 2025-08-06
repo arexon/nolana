@@ -79,6 +79,12 @@ fn binary_operation() {
 }
 
 #[test]
+fn bitwise_binary_operation() {
+    let out = parse("1 >> 2 << 3 & 4 | 5 ^ 6");
+    assert_snapshot!(out)
+}
+
+#[test]
 fn parenthesized_binary_operation() {
     let out = parse("(1 + 1) * (1 + 1)");
     assert_snapshot!(out)
@@ -136,13 +142,18 @@ fn conditional() {
 fn assignment() {
     let out = parse(
         "
-        v.a = 204.31;
-        v.b += 87;
-        v.c -= 48.933;
-        v.d *= 3233.23;
-        v.e /= 1290;
-        v.f **= 32.2;
-        v.g %= 32;
+        v.x = v.y;
+        v.x += v.y;
+        v.x -= v.y;
+        v.x *= v.y;
+        v.x /= v.y;
+        v.x **= v.y;
+        v.x %= v.y;
+        v.x &&= v.y;
+        v.x ||= v.y;
+        v.x |= v.y;
+        v.x &= v.y;
+        v.x ^= v.y;
     ",
     );
     assert_snapshot!(out)
