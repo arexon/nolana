@@ -23,7 +23,7 @@ ParseResult {
                                 end: 5,
                             },
                             kind: Query,
-                            callee: IdentifierReference {
+                            callee: Identifier {
                                 span: Span {
                                     start: 2,
                                     end: 5,
@@ -63,7 +63,7 @@ ParseResult {
                                             },
                                             lifetime: Variable,
                                             member: Property {
-                                                property: IdentifierReference {
+                                                property: Identifier {
                                                     span: Span {
                                                         start: 14,
                                                         end: 17,
