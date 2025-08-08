@@ -7,13 +7,13 @@ use crate::{
 };
 
 #[derive(Default)]
-pub struct MolangTransformer<'a> {
-    scopes: Vec<Scope<'a>>,
+pub struct MolangTransformer<'src> {
+    scopes: Vec<Scope<'src>>,
     program_body_transformer: ProgramBodyTransformer,
 }
 
-impl<'a> MolangTransformer<'a> {
-    pub fn transform(&mut self, program: &mut Program<'a>) {
+impl<'src> MolangTransformer<'src> {
+    pub fn transform(&mut self, program: &mut Program<'src>) {
         traverse(&mut self.program_body_transformer, program);
         traverse(self, program);
     }
@@ -22,15 +22,15 @@ impl<'a> MolangTransformer<'a> {
         self.scopes.push(Scope::default());
     }
 
-    fn exit_scope(&mut self) -> Scope<'a> {
+    fn exit_scope(&mut self) -> Scope<'src> {
         self.scopes.pop().unwrap()
     }
 
-    fn scope(&mut self) -> &mut Scope<'a> {
+    fn scope(&mut self) -> &mut Scope<'src> {
         self.scopes.last_mut().unwrap()
     }
 
-    fn transform_binary_expression(&mut self, expr: &mut Expression<'a>) {
+    fn transform_binary_expression(&mut self, expr: &mut Expression<'src>) {
         if let Expression::Binary(bin_expr) = expr
             && bin_expr.operator.is_custom()
         {
@@ -62,7 +62,7 @@ impl<'a> MolangTransformer<'a> {
         }
     }
 
-    fn transform_assignment_statement(&mut self, stmt: &mut Statement<'a>) {
+    fn transform_assignment_statement(&mut self, stmt: &mut Statement<'src>) {
         if let Statement::Assignment(assign_stmt) = stmt
             && assign_stmt.operator.is_custom()
         {
@@ -137,7 +137,7 @@ impl<'a> MolangTransformer<'a> {
         }
     }
 
-    fn transform_update_expression(&mut self, expr: &mut Expression<'a>) {
+    fn transform_update_expression(&mut self, expr: &mut Expression<'src>) {
         let Expression::Update(update_expr) = expr else { return };
 
         let scope = self.scope();
@@ -163,7 +163,7 @@ impl<'a> MolangTransformer<'a> {
         });
     }
 
-    fn optimize_statements(&mut self, stmts: &mut Vec<Statement<'a>>) {
+    fn optimize_statements(&mut self, stmts: &mut Vec<Statement<'src>>) {
         if self.program_body_transformer.needs_complex {
             return;
         }
@@ -176,7 +176,7 @@ impl<'a> MolangTransformer<'a> {
         }
     }
 
-    fn add_return_statement(&mut self, program: &mut Program<'a>) {
+    fn add_return_statement(&mut self, program: &mut Program<'src>) {
         if self.program_body_transformer.needs_complex
             && let ProgramBody::Complex(stmts) = &mut program.body
         {
@@ -195,16 +195,16 @@ impl<'a> MolangTransformer<'a> {
     }
 }
 
-impl<'a> Traverse<'a> for MolangTransformer<'a> {
-    fn exit_program(&mut self, it: &mut Program<'a>) {
+impl<'src> Traverse<'src> for MolangTransformer<'src> {
+    fn exit_program(&mut self, it: &mut Program<'src>) {
         self.add_return_statement(it);
     }
 
-    fn enter_statements(&mut self, _: &mut Vec<Statement<'a>>) {
+    fn enter_statements(&mut self, _: &mut Vec<Statement<'src>>) {
         self.enter_scope();
     }
 
-    fn exit_statements(&mut self, it: &mut Vec<Statement<'a>>) {
+    fn exit_statements(&mut self, it: &mut Vec<Statement<'src>>) {
         let scope = self.exit_scope();
         for (index, stmt) in scope.new_statements {
             it.insert(index, stmt);
@@ -212,13 +212,13 @@ impl<'a> Traverse<'a> for MolangTransformer<'a> {
         self.optimize_statements(it);
     }
 
-    fn enter_statement(&mut self, it: &mut Statement<'a>) {
+    fn enter_statement(&mut self, it: &mut Statement<'src>) {
         self.scope().statement_count += 1;
 
         self.transform_assignment_statement(it);
     }
 
-    fn enter_expression(&mut self, it: &mut Expression<'a>) {
+    fn enter_expression(&mut self, it: &mut Expression<'src>) {
         self.transform_update_expression(it);
         self.transform_binary_expression(it)
     }
@@ -232,12 +232,12 @@ struct ProgramBodyTransformer {
     needs_complex: bool,
 }
 
-impl<'a> Traverse<'a> for ProgramBodyTransformer {
-    fn enter_program(&mut self, it: &mut Program<'a>) {
+impl<'src> Traverse<'src> for ProgramBodyTransformer {
+    fn enter_program(&mut self, it: &mut Program<'src>) {
         self.is_simple = it.body.is_simple();
     }
 
-    fn exit_program(&mut self, it: &mut Program<'a>) {
+    fn exit_program(&mut self, it: &mut Program<'src>) {
         if self.needs_complex && self.is_simple {
             replace_with_or_abort(&mut it.body, |body| {
                 let ProgramBody::Simple(expr) = body else { unreachable!() };
@@ -246,7 +246,7 @@ impl<'a> Traverse<'a> for ProgramBodyTransformer {
         }
     }
 
-    fn enter_binary_expression(&mut self, it: &mut BinaryExpression<'a>) {
+    fn enter_binary_expression(&mut self, it: &mut BinaryExpression<'src>) {
         if matches!(
             it.operator,
             BinaryOperator::BitwiseOr | BinaryOperator::BitwiseAnd | BinaryOperator::BitwiseXor
@@ -256,7 +256,7 @@ impl<'a> Traverse<'a> for ProgramBodyTransformer {
         }
     }
 
-    fn enter_update_expression(&mut self, _: &mut UpdateExpression<'a>) {
+    fn enter_update_expression(&mut self, _: &mut UpdateExpression<'src>) {
         if self.is_simple {
             self.needs_complex = true;
         }
@@ -268,23 +268,26 @@ impl<'a> Traverse<'a> for ProgramBodyTransformer {
 /// Mainly stores extra statements to be added to the statement list upon
 /// exiting the scope.
 #[derive(Default)]
-struct Scope<'a> {
+struct Scope<'src> {
     statement_count: usize,
-    new_statements: Vec<(usize, Statement<'a>)>,
+    new_statements: Vec<(usize, Statement<'src>)>,
 }
 
 #[inline]
-fn binary_expression<'a>(
-    left: Expression<'a>,
+fn binary_expression<'src>(
+    left: Expression<'src>,
     operator: BinaryOperator,
-    right: Expression<'a>,
-) -> Expression<'a> {
+    right: Expression<'src>,
+) -> Expression<'src> {
     BinaryExpression { span: SPAN, left, operator, right }.into()
 }
 
 /// `v.x * math.pow(2, math.y)`
 #[inline]
-fn shift_left_expression<'a>(left: Expression<'a>, right: Expression<'a>) -> Expression<'a> {
+fn shift_left_expression<'src>(
+    left: Expression<'src>,
+    right: Expression<'src>,
+) -> Expression<'src> {
     BinaryExpression {
         span: SPAN,
         left,
@@ -299,7 +302,10 @@ fn shift_left_expression<'a>(left: Expression<'a>, right: Expression<'a>) -> Exp
 
 /// `math.floor(v.x / math.pow(2, math.y))`
 #[inline]
-fn shift_right_expression<'a>(left: Expression<'a>, right: Expression<'a>) -> Expression<'a> {
+fn shift_right_expression<'src>(
+    left: Expression<'src>,
+    right: Expression<'src>,
+) -> Expression<'src> {
     math_floor_expression(
         BinaryExpression {
             span: SPAN,
@@ -342,12 +348,12 @@ impl From<AssignmentOperator> for BitwiseOperation {
     }
 }
 
-fn bitwise_operation_statement<'a>(
-    left: Expression<'a>,
-    right: Expression<'a>,
+fn bitwise_operation_statement<'src>(
+    left: Expression<'src>,
+    right: Expression<'src>,
     operation: BitwiseOperation,
     index: usize,
-) -> (Statement<'a>, Expression<'a>) {
+) -> (Statement<'src>, Expression<'src>) {
     let result_var = variable_expression(format!("__{index}_result"));
     let bit_var = variable_expression(format!("__{index}_bit"));
     let left_bit_var = variable_expression(format!("__{index}_left_bit"));
@@ -355,7 +361,7 @@ fn bitwise_operation_statement<'a>(
     let num_0_expr: Expression = NumericLiteral { span: SPAN, value: 0.0, raw: "0" }.into();
     let num_1_expr: Expression = NumericLiteral { span: SPAN, value: 2.0, raw: "1" }.into();
     let num_2_expr: Expression = NumericLiteral { span: SPAN, value: 2.0, raw: "2" }.into();
-    let extract_bit_expr = |input_var: Expression<'a>, bit_var: Expression<'a>| {
+    let extract_bit_expr = |input_var: Expression<'src>, bit_var: Expression<'src>| {
         math_mod_expression(
             math_floor_expression(binary_expression(
                 input_var,
@@ -443,7 +449,7 @@ fn bitwise_operation_statement<'a>(
 }
 
 #[inline]
-fn variable_expression<'a>(name: String) -> VariableExpression<'a> {
+fn variable_expression<'src>(name: String) -> VariableExpression<'src> {
     VariableExpression {
         span: SPAN,
         lifetime: VariableLifetime::Variable,
@@ -452,12 +458,17 @@ fn variable_expression<'a>(name: String) -> VariableExpression<'a> {
 }
 
 #[inline]
-fn assignment_statement<'a>(left: VariableExpression<'a>, right: Expression<'a>) -> Statement<'a> {
+fn assignment_statement<'src>(
+    left: VariableExpression<'src>,
+    right: Expression<'src>,
+) -> Statement<'src> {
     AssignmentStatement { span: SPAN, left, operator: AssignmentOperator::Assign, right }.into()
 }
 
 #[inline]
-fn logical_or_assignment_statement<'a>(assign_stmt: AssignmentStatement<'a>) -> Statement<'a> {
+fn logical_or_assignment_statement<'src>(
+    assign_stmt: AssignmentStatement<'src>,
+) -> Statement<'src> {
     Expression::Conditional(
         ConditionalExpression {
             span: SPAN,
@@ -475,7 +486,9 @@ fn logical_or_assignment_statement<'a>(assign_stmt: AssignmentStatement<'a>) -> 
 }
 
 #[inline]
-fn logical_and_assignment_statement<'a>(assign_stmt: AssignmentStatement<'a>) -> Statement<'a> {
+fn logical_and_assignment_statement<'src>(
+    assign_stmt: AssignmentStatement<'src>,
+) -> Statement<'src> {
     Expression::Conditional(
         ConditionalExpression {
             span: SPAN,
@@ -488,7 +501,7 @@ fn logical_and_assignment_statement<'a>(assign_stmt: AssignmentStatement<'a>) ->
 }
 
 #[inline]
-fn math_pow_expression<'a>(left: Expression<'a>, right: Expression<'a>) -> Expression<'a> {
+fn math_pow_expression<'src>(left: Expression<'src>, right: Expression<'src>) -> Expression<'src> {
     CallExpression {
         span: SPAN,
         kind: CallKind::Math,
@@ -499,7 +512,7 @@ fn math_pow_expression<'a>(left: Expression<'a>, right: Expression<'a>) -> Expre
 }
 
 #[inline]
-fn math_mod_expression<'a>(left: Expression<'a>, right: Expression<'a>) -> Expression<'a> {
+fn math_mod_expression<'src>(left: Expression<'src>, right: Expression<'src>) -> Expression<'src> {
     CallExpression {
         span: SPAN,
         kind: CallKind::Math,
@@ -510,7 +523,7 @@ fn math_mod_expression<'a>(left: Expression<'a>, right: Expression<'a>) -> Expre
 }
 
 #[inline]
-fn math_floor_expression<'a>(x: Expression<'a>) -> Expression<'a> {
+fn math_floor_expression<'src>(x: Expression<'src>) -> Expression<'src> {
     CallExpression {
         span: SPAN,
         kind: CallKind::Math,
@@ -521,7 +534,7 @@ fn math_floor_expression<'a>(x: Expression<'a>) -> Expression<'a> {
 }
 
 #[inline]
-fn math_min_expression<'a>(left: Expression<'a>, right: Expression<'a>) -> Expression<'a> {
+fn math_min_expression<'src>(left: Expression<'src>, right: Expression<'src>) -> Expression<'src> {
     CallExpression {
         span: SPAN,
         kind: CallKind::Math,

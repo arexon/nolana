@@ -1,53 +1,53 @@
 use crate::ast::*;
 
 /// Traverses the AST using an implementer of [`Traverse`].
-pub fn traverse<'a>(traverser: &mut impl Traverse<'a>, program: &mut Program<'a>) {
+pub fn traverse<'src>(traverser: &mut impl Traverse<'src>, program: &mut Program<'src>) {
     walk_program(traverser, program);
 }
 
 #[expect(unused_variables)]
-pub trait Traverse<'a>: Sized {
+pub trait Traverse<'src>: Sized {
     #[inline]
-    fn enter_program(&mut self, it: &mut Program<'a>) {}
+    fn enter_program(&mut self, it: &mut Program<'src>) {}
 
     #[inline]
-    fn exit_program(&mut self, it: &mut Program<'a>) {}
+    fn exit_program(&mut self, it: &mut Program<'src>) {}
 
     #[inline]
-    fn enter_statements(&mut self, it: &mut Vec<Statement<'a>>) {}
+    fn enter_statements(&mut self, it: &mut Vec<Statement<'src>>) {}
 
     #[inline]
-    fn exit_statements(&mut self, it: &mut Vec<Statement<'a>>) {}
+    fn exit_statements(&mut self, it: &mut Vec<Statement<'src>>) {}
 
     #[inline]
-    fn enter_statement(&mut self, it: &mut Statement<'a>) {}
+    fn enter_statement(&mut self, it: &mut Statement<'src>) {}
 
     #[inline]
-    fn exit_statement(&mut self, it: &mut Statement<'a>) {}
+    fn exit_statement(&mut self, it: &mut Statement<'src>) {}
 
     #[inline]
-    fn enter_assignment_statement(&mut self, it: &mut AssignmentStatement<'a>) {}
+    fn enter_assignment_statement(&mut self, it: &mut AssignmentStatement<'src>) {}
 
     #[inline]
-    fn exit_assignment_statement(&mut self, it: &mut AssignmentStatement<'a>) {}
+    fn exit_assignment_statement(&mut self, it: &mut AssignmentStatement<'src>) {}
 
     #[inline]
-    fn enter_loop_statement(&mut self, it: &mut LoopStatement<'a>) {}
+    fn enter_loop_statement(&mut self, it: &mut LoopStatement<'src>) {}
 
     #[inline]
-    fn exit_loop_statement(&mut self, it: &mut LoopStatement<'a>) {}
+    fn exit_loop_statement(&mut self, it: &mut LoopStatement<'src>) {}
 
     #[inline]
-    fn enter_for_each_statement(&mut self, it: &mut ForEachStatement<'a>) {}
+    fn enter_for_each_statement(&mut self, it: &mut ForEachStatement<'src>) {}
 
     #[inline]
-    fn exit_for_each_statement(&mut self, it: &mut ForEachStatement<'a>) {}
+    fn exit_for_each_statement(&mut self, it: &mut ForEachStatement<'src>) {}
 
     #[inline]
-    fn enter_return_statement(&mut self, it: &mut ReturnStatement<'a>) {}
+    fn enter_return_statement(&mut self, it: &mut ReturnStatement<'src>) {}
 
     #[inline]
-    fn exit_return_statement(&mut self, it: &mut ReturnStatement<'a>) {}
+    fn exit_return_statement(&mut self, it: &mut ReturnStatement<'src>) {}
 
     #[inline]
     fn enter_break_statement(&mut self, it: &mut BreakStatement) {}
@@ -68,22 +68,22 @@ pub trait Traverse<'a>: Sized {
     fn exit_empty_statement(&mut self, it: &mut EmptyStatement) {}
 
     #[inline]
-    fn enter_expression(&mut self, it: &mut Expression<'a>) {}
+    fn enter_expression(&mut self, it: &mut Expression<'src>) {}
 
     #[inline]
-    fn exit_expression(&mut self, it: &mut Expression<'a>) {}
+    fn exit_expression(&mut self, it: &mut Expression<'src>) {}
 
     #[inline]
-    fn enter_identifier_reference(&mut self, it: &mut Identifier<'a>) {}
+    fn enter_identifier_reference(&mut self, it: &mut Identifier<'src>) {}
 
     #[inline]
-    fn exit_identifier_reference(&mut self, it: &mut Identifier<'a>) {}
+    fn exit_identifier_reference(&mut self, it: &mut Identifier<'src>) {}
 
     #[inline]
-    fn enter_numeric_literal(&mut self, it: &mut NumericLiteral<'a>) {}
+    fn enter_numeric_literal(&mut self, it: &mut NumericLiteral<'src>) {}
 
     #[inline]
-    fn exit_numeric_literal(&mut self, it: &mut NumericLiteral<'a>) {}
+    fn exit_numeric_literal(&mut self, it: &mut NumericLiteral<'src>) {}
 
     #[inline]
     fn enter_boolean_literal(&mut self, it: &mut BooleanLiteral) {}
@@ -92,88 +92,88 @@ pub trait Traverse<'a>: Sized {
     fn exit_boolean_literal(&mut self, it: &mut BooleanLiteral) {}
 
     #[inline]
-    fn enter_string_literal(&mut self, it: &mut StringLiteral<'a>) {}
+    fn enter_string_literal(&mut self, it: &mut StringLiteral<'src>) {}
 
     #[inline]
-    fn exit_string_literal(&mut self, it: &mut StringLiteral<'a>) {}
+    fn exit_string_literal(&mut self, it: &mut StringLiteral<'src>) {}
 
     #[inline]
-    fn enter_variable_expression(&mut self, it: &mut VariableExpression<'a>) {}
+    fn enter_variable_expression(&mut self, it: &mut VariableExpression<'src>) {}
 
     #[inline]
-    fn exit_variable_expression(&mut self, it: &mut VariableExpression<'a>) {}
+    fn exit_variable_expression(&mut self, it: &mut VariableExpression<'src>) {}
 
     #[inline]
-    fn enter_variable_member(&mut self, it: &mut VariableMember<'a>) {}
+    fn enter_variable_member(&mut self, it: &mut VariableMember<'src>) {}
 
     #[inline]
-    fn exit_variable_member(&mut self, it: &mut VariableMember<'a>) {}
+    fn exit_variable_member(&mut self, it: &mut VariableMember<'src>) {}
 
     #[inline]
-    fn enter_parenthesized_expression(&mut self, it: &mut ParenthesizedExpression<'a>) {}
+    fn enter_parenthesized_expression(&mut self, it: &mut ParenthesizedExpression<'src>) {}
 
     #[inline]
-    fn exit_parenthesized_expression(&mut self, it: &mut ParenthesizedExpression<'a>) {}
+    fn exit_parenthesized_expression(&mut self, it: &mut ParenthesizedExpression<'src>) {}
 
     #[inline]
-    fn enter_block_expression(&mut self, it: &mut BlockExpression<'a>) {}
+    fn enter_block_expression(&mut self, it: &mut BlockExpression<'src>) {}
 
     #[inline]
-    fn exit_block_expression(&mut self, it: &mut BlockExpression<'a>) {}
+    fn exit_block_expression(&mut self, it: &mut BlockExpression<'src>) {}
 
     #[inline]
-    fn enter_binary_expression(&mut self, it: &mut BinaryExpression<'a>) {}
+    fn enter_binary_expression(&mut self, it: &mut BinaryExpression<'src>) {}
 
     #[inline]
-    fn exit_binary_expression(&mut self, it: &mut BinaryExpression<'a>) {}
+    fn exit_binary_expression(&mut self, it: &mut BinaryExpression<'src>) {}
 
     #[inline]
-    fn enter_unary_expression(&mut self, it: &mut UnaryExpression<'a>) {}
+    fn enter_unary_expression(&mut self, it: &mut UnaryExpression<'src>) {}
 
     #[inline]
-    fn exit_unary_expression(&mut self, it: &mut UnaryExpression<'a>) {}
+    fn exit_unary_expression(&mut self, it: &mut UnaryExpression<'src>) {}
 
     #[inline]
-    fn enter_update_expression(&mut self, it: &mut UpdateExpression<'a>) {}
+    fn enter_update_expression(&mut self, it: &mut UpdateExpression<'src>) {}
 
     #[inline]
-    fn exit_update_expression(&mut self, it: &mut UpdateExpression<'a>) {}
+    fn exit_update_expression(&mut self, it: &mut UpdateExpression<'src>) {}
 
     #[inline]
-    fn enter_ternary_expression(&mut self, it: &mut TernaryExpression<'a>) {}
+    fn enter_ternary_expression(&mut self, it: &mut TernaryExpression<'src>) {}
 
     #[inline]
-    fn exit_ternary_expression(&mut self, it: &mut TernaryExpression<'a>) {}
+    fn exit_ternary_expression(&mut self, it: &mut TernaryExpression<'src>) {}
 
     #[inline]
-    fn enter_conditional_expression(&mut self, it: &mut ConditionalExpression<'a>) {}
+    fn enter_conditional_expression(&mut self, it: &mut ConditionalExpression<'src>) {}
 
     #[inline]
-    fn exit_conditional_expression(&mut self, it: &mut ConditionalExpression<'a>) {}
+    fn exit_conditional_expression(&mut self, it: &mut ConditionalExpression<'src>) {}
 
     #[inline]
-    fn enter_resource_expression(&mut self, it: &mut ResourceExpression<'a>) {}
+    fn enter_resource_expression(&mut self, it: &mut ResourceExpression<'src>) {}
 
     #[inline]
-    fn exit_resource_expression(&mut self, it: &mut ResourceExpression<'a>) {}
+    fn exit_resource_expression(&mut self, it: &mut ResourceExpression<'src>) {}
 
     #[inline]
-    fn enter_array_access_expression(&mut self, it: &mut ArrayAccessExpression<'a>) {}
+    fn enter_array_access_expression(&mut self, it: &mut ArrayAccessExpression<'src>) {}
 
     #[inline]
-    fn exit_array_access_expression(&mut self, it: &mut ArrayAccessExpression<'a>) {}
+    fn exit_array_access_expression(&mut self, it: &mut ArrayAccessExpression<'src>) {}
 
     #[inline]
-    fn enter_arrow_access_expression(&mut self, it: &mut ArrowAccessExpression<'a>) {}
+    fn enter_arrow_access_expression(&mut self, it: &mut ArrowAccessExpression<'src>) {}
 
     #[inline]
-    fn exit_arrow_access_expression(&mut self, it: &mut ArrowAccessExpression<'a>) {}
+    fn exit_arrow_access_expression(&mut self, it: &mut ArrowAccessExpression<'src>) {}
 
     #[inline]
-    fn enter_call_expression(&mut self, it: &mut CallExpression<'a>) {}
+    fn enter_call_expression(&mut self, it: &mut CallExpression<'src>) {}
 
     #[inline]
-    fn exit_call_expression(&mut self, it: &mut CallExpression<'a>) {}
+    fn exit_call_expression(&mut self, it: &mut CallExpression<'src>) {}
 
     #[inline]
     fn enter_this_expression(&mut self, it: &mut ThisExpression) {}
@@ -182,7 +182,7 @@ pub trait Traverse<'a>: Sized {
     fn exit_this_expression(&mut self, it: &mut ThisExpression) {}
 }
 
-fn walk_program<'a>(traverser: &mut impl Traverse<'a>, it: &mut Program<'a>) {
+fn walk_program<'src>(traverser: &mut impl Traverse<'src>, it: &mut Program<'src>) {
     traverser.enter_program(it);
     match &mut it.body {
         ProgramBody::Simple(expr) => walk_expression(traverser, expr),
@@ -192,7 +192,7 @@ fn walk_program<'a>(traverser: &mut impl Traverse<'a>, it: &mut Program<'a>) {
     traverser.exit_program(it);
 }
 
-fn walk_statements<'a>(traverser: &mut impl Traverse<'a>, it: &mut Vec<Statement<'a>>) {
+fn walk_statements<'src>(traverser: &mut impl Traverse<'src>, it: &mut Vec<Statement<'src>>) {
     traverser.enter_statements(it);
     for stmt in it.iter_mut() {
         walk_statement(traverser, stmt);
@@ -200,7 +200,7 @@ fn walk_statements<'a>(traverser: &mut impl Traverse<'a>, it: &mut Vec<Statement
     traverser.exit_statements(it);
 }
 
-fn walk_statement<'a>(traverser: &mut impl Traverse<'a>, it: &mut Statement<'a>) {
+fn walk_statement<'src>(traverser: &mut impl Traverse<'src>, it: &mut Statement<'src>) {
     traverser.enter_statement(it);
     match it {
         Statement::Expression(it) => walk_expression(traverser, it),
@@ -215,9 +215,9 @@ fn walk_statement<'a>(traverser: &mut impl Traverse<'a>, it: &mut Statement<'a>)
     traverser.exit_statement(it);
 }
 
-fn walk_assignment_statement<'a>(
-    traverser: &mut impl Traverse<'a>,
-    it: &mut AssignmentStatement<'a>,
+fn walk_assignment_statement<'src>(
+    traverser: &mut impl Traverse<'src>,
+    it: &mut AssignmentStatement<'src>,
 ) {
     traverser.enter_assignment_statement(it);
     walk_variable_expression(traverser, &mut it.left);
@@ -225,14 +225,17 @@ fn walk_assignment_statement<'a>(
     traverser.exit_assignment_statement(it);
 }
 
-fn walk_loop_statement<'a>(traverser: &mut impl Traverse<'a>, it: &mut LoopStatement<'a>) {
+fn walk_loop_statement<'src>(traverser: &mut impl Traverse<'src>, it: &mut LoopStatement<'src>) {
     traverser.enter_loop_statement(it);
     walk_expression(traverser, &mut it.count);
     walk_block_expression(traverser, &mut it.block);
     traverser.exit_loop_statement(it);
 }
 
-fn walk_for_each_statement<'a>(traverser: &mut impl Traverse<'a>, it: &mut ForEachStatement<'a>) {
+fn walk_for_each_statement<'src>(
+    traverser: &mut impl Traverse<'src>,
+    it: &mut ForEachStatement<'src>,
+) {
     traverser.enter_for_each_statement(it);
     walk_variable_expression(traverser, &mut it.variable);
     walk_expression(traverser, &mut it.array);
@@ -240,28 +243,31 @@ fn walk_for_each_statement<'a>(traverser: &mut impl Traverse<'a>, it: &mut ForEa
     traverser.exit_for_each_statement(it);
 }
 
-fn walk_return_statement<'a>(traverser: &mut impl Traverse<'a>, it: &mut ReturnStatement<'a>) {
+fn walk_return_statement<'src>(
+    traverser: &mut impl Traverse<'src>,
+    it: &mut ReturnStatement<'src>,
+) {
     traverser.enter_return_statement(it);
     walk_expression(traverser, &mut it.argument);
     traverser.exit_return_statement(it);
 }
 
-fn walk_break_statement<'a>(traverser: &mut impl Traverse<'a>, it: &mut BreakStatement) {
+fn walk_break_statement<'src>(traverser: &mut impl Traverse<'src>, it: &mut BreakStatement) {
     traverser.enter_break_statement(it);
     traverser.exit_break_statement(it);
 }
 
-fn walk_continue_statement<'a>(traverser: &mut impl Traverse<'a>, it: &mut ContinueStatement) {
+fn walk_continue_statement<'src>(traverser: &mut impl Traverse<'src>, it: &mut ContinueStatement) {
     traverser.enter_continue_statement(it);
     traverser.exit_continue_statement(it);
 }
 
-fn walk_empty_statement<'a>(traverser: &mut impl Traverse<'a>, it: &mut EmptyStatement) {
+fn walk_empty_statement<'src>(traverser: &mut impl Traverse<'src>, it: &mut EmptyStatement) {
     traverser.enter_empty_statement(it);
     traverser.exit_empty_statement(it);
 }
 
-fn walk_expression<'a>(traverser: &mut impl Traverse<'a>, it: &mut Expression<'a>) {
+fn walk_expression<'src>(traverser: &mut impl Traverse<'src>, it: &mut Expression<'src>) {
     traverser.enter_expression(it);
     match it {
         Expression::NumericLiteral(it) => walk_numeric_literal(traverser, it),
@@ -284,36 +290,36 @@ fn walk_expression<'a>(traverser: &mut impl Traverse<'a>, it: &mut Expression<'a
     traverser.exit_expression(it);
 }
 
-fn walk_identifier_reference<'a>(traverser: &mut impl Traverse<'a>, it: &mut Identifier<'a>) {
+fn walk_identifier_reference<'src>(traverser: &mut impl Traverse<'src>, it: &mut Identifier<'src>) {
     traverser.enter_identifier_reference(it);
     traverser.exit_identifier_reference(it);
 }
 
-fn walk_boolean_literal<'a>(traverser: &mut impl Traverse<'a>, it: &mut BooleanLiteral) {
+fn walk_boolean_literal<'src>(traverser: &mut impl Traverse<'src>, it: &mut BooleanLiteral) {
     traverser.enter_boolean_literal(it);
     traverser.exit_boolean_literal(it);
 }
 
-fn walk_numeric_literal<'a>(traverser: &mut impl Traverse<'a>, it: &mut NumericLiteral<'a>) {
+fn walk_numeric_literal<'src>(traverser: &mut impl Traverse<'src>, it: &mut NumericLiteral<'src>) {
     traverser.enter_numeric_literal(it);
     traverser.exit_numeric_literal(it);
 }
 
-fn walk_string_literal<'a>(traverser: &mut impl Traverse<'a>, it: &mut StringLiteral<'a>) {
+fn walk_string_literal<'src>(traverser: &mut impl Traverse<'src>, it: &mut StringLiteral<'src>) {
     traverser.enter_string_literal(it);
     traverser.exit_string_literal(it);
 }
 
-fn walk_variable_expression<'a>(
-    traverser: &mut impl Traverse<'a>,
-    it: &mut VariableExpression<'a>,
+fn walk_variable_expression<'src>(
+    traverser: &mut impl Traverse<'src>,
+    it: &mut VariableExpression<'src>,
 ) {
     traverser.enter_variable_expression(it);
     walk_variable_member(traverser, &mut it.member);
     traverser.exit_variable_expression(it);
 }
 
-fn walk_variable_member<'a>(traverser: &mut impl Traverse<'a>, it: &mut VariableMember<'a>) {
+fn walk_variable_member<'src>(traverser: &mut impl Traverse<'src>, it: &mut VariableMember<'src>) {
     traverser.enter_variable_member(it);
     match it {
         VariableMember::Object { object, property, .. } => {
@@ -327,9 +333,9 @@ fn walk_variable_member<'a>(traverser: &mut impl Traverse<'a>, it: &mut Variable
     traverser.exit_variable_member(it);
 }
 
-fn walk_parenthesized_expression<'a>(
-    traverser: &mut impl Traverse<'a>,
-    it: &mut ParenthesizedExpression<'a>,
+fn walk_parenthesized_expression<'src>(
+    traverser: &mut impl Traverse<'src>,
+    it: &mut ParenthesizedExpression<'src>,
 ) {
     traverser.enter_parenthesized_expression(it);
     match &mut it.body {
@@ -343,32 +349,47 @@ fn walk_parenthesized_expression<'a>(
     traverser.exit_parenthesized_expression(it);
 }
 
-fn walk_block_expression<'a>(traverser: &mut impl Traverse<'a>, it: &mut BlockExpression<'a>) {
+fn walk_block_expression<'src>(
+    traverser: &mut impl Traverse<'src>,
+    it: &mut BlockExpression<'src>,
+) {
     traverser.enter_block_expression(it);
     walk_statements(traverser, &mut it.statements);
     traverser.exit_block_expression(it);
 }
 
-fn walk_binary_expression<'a>(traverser: &mut impl Traverse<'a>, it: &mut BinaryExpression<'a>) {
+fn walk_binary_expression<'src>(
+    traverser: &mut impl Traverse<'src>,
+    it: &mut BinaryExpression<'src>,
+) {
     traverser.enter_binary_expression(it);
     walk_expression(traverser, &mut it.left);
     walk_expression(traverser, &mut it.right);
     traverser.exit_binary_expression(it);
 }
 
-fn walk_unary_expression<'a>(traverser: &mut impl Traverse<'a>, it: &mut UnaryExpression<'a>) {
+fn walk_unary_expression<'src>(
+    traverser: &mut impl Traverse<'src>,
+    it: &mut UnaryExpression<'src>,
+) {
     traverser.enter_unary_expression(it);
     walk_expression(traverser, &mut it.argument);
     traverser.exit_unary_expression(it);
 }
 
-fn walk_update_expression<'a>(visitor: &mut impl Traverse<'a>, it: &mut UpdateExpression<'a>) {
+fn walk_update_expression<'src>(
+    visitor: &mut impl Traverse<'src>,
+    it: &mut UpdateExpression<'src>,
+) {
     visitor.enter_update_expression(it);
     walk_variable_expression(visitor, &mut it.variable);
     visitor.exit_update_expression(it);
 }
 
-fn walk_ternary_expression<'a>(traverser: &mut impl Traverse<'a>, it: &mut TernaryExpression<'a>) {
+fn walk_ternary_expression<'src>(
+    traverser: &mut impl Traverse<'src>,
+    it: &mut TernaryExpression<'src>,
+) {
     traverser.enter_ternary_expression(it);
     walk_expression(traverser, &mut it.test);
     walk_expression(traverser, &mut it.consequent);
@@ -376,9 +397,9 @@ fn walk_ternary_expression<'a>(traverser: &mut impl Traverse<'a>, it: &mut Terna
     traverser.exit_ternary_expression(it);
 }
 
-fn walk_conditional_expression<'a>(
-    traverser: &mut impl Traverse<'a>,
-    it: &mut ConditionalExpression<'a>,
+fn walk_conditional_expression<'src>(
+    traverser: &mut impl Traverse<'src>,
+    it: &mut ConditionalExpression<'src>,
 ) {
     traverser.enter_conditional_expression(it);
     walk_expression(traverser, &mut it.test);
@@ -386,18 +407,18 @@ fn walk_conditional_expression<'a>(
     traverser.exit_conditional_expression(it);
 }
 
-fn walk_resource_expression<'a>(
-    traverser: &mut impl Traverse<'a>,
-    it: &mut ResourceExpression<'a>,
+fn walk_resource_expression<'src>(
+    traverser: &mut impl Traverse<'src>,
+    it: &mut ResourceExpression<'src>,
 ) {
     traverser.enter_resource_expression(it);
     walk_identifier_reference(traverser, &mut it.name);
     traverser.exit_resource_expression(it);
 }
 
-fn walk_array_access_expression<'a>(
-    traverser: &mut impl Traverse<'a>,
-    it: &mut ArrayAccessExpression<'a>,
+fn walk_array_access_expression<'src>(
+    traverser: &mut impl Traverse<'src>,
+    it: &mut ArrayAccessExpression<'src>,
 ) {
     traverser.enter_array_access_expression(it);
     walk_identifier_reference(traverser, &mut it.name);
@@ -405,9 +426,9 @@ fn walk_array_access_expression<'a>(
     traverser.exit_array_access_expression(it);
 }
 
-fn walk_arrow_access_expression<'a>(
-    traverser: &mut impl Traverse<'a>,
-    it: &mut ArrowAccessExpression<'a>,
+fn walk_arrow_access_expression<'src>(
+    traverser: &mut impl Traverse<'src>,
+    it: &mut ArrowAccessExpression<'src>,
 ) {
     traverser.enter_arrow_access_expression(it);
     walk_expression(traverser, &mut it.left);
@@ -415,7 +436,7 @@ fn walk_arrow_access_expression<'a>(
     traverser.exit_arrow_access_expression(it);
 }
 
-fn walk_call_expression<'a>(traverser: &mut impl Traverse<'a>, it: &mut CallExpression<'a>) {
+fn walk_call_expression<'src>(traverser: &mut impl Traverse<'src>, it: &mut CallExpression<'src>) {
     traverser.enter_call_expression(it);
     walk_identifier_reference(traverser, &mut it.callee);
     if let Some(args) = &mut it.arguments {
@@ -426,7 +447,7 @@ fn walk_call_expression<'a>(traverser: &mut impl Traverse<'a>, it: &mut CallExpr
     traverser.exit_call_expression(it);
 }
 
-fn walk_this_expression<'a>(traverser: &mut impl Traverse<'a>, it: &mut ThisExpression) {
+fn walk_this_expression<'src>(traverser: &mut impl Traverse<'src>, it: &mut ThisExpression) {
     traverser.enter_this_expression(it);
     traverser.exit_this_expression(it);
 }
