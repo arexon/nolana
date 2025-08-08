@@ -5,17 +5,17 @@ use crate::{span::Span, token::Kind};
 /// Represents the root of a Molang expression AST, containing all the top-level
 /// information.
 #[derive(Debug, Clone, PartialEq)]
-pub struct Program<'a> {
+pub struct Program<'src> {
     pub span: Span,
-    pub source: &'a str,
-    pub body: ProgramBody<'a>,
+    pub source: &'src str,
+    pub body: ProgramBody<'src>,
 }
 
 /// A program is considered complex if it contains any statement.
 #[derive(Debug, Clone, PartialEq)]
-pub enum ProgramBody<'a> {
-    Simple(Expression<'a>),
-    Complex(Vec<Statement<'a>>),
+pub enum ProgramBody<'src> {
+    Simple(Expression<'src>),
+    Complex(Vec<Statement<'src>>),
     Empty,
 }
 
@@ -30,12 +30,12 @@ impl ProgramBody<'_> {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum Statement<'a> {
-    Expression(Box<Expression<'a>>),
-    Assignment(Box<AssignmentStatement<'a>>),
-    Loop(Box<LoopStatement<'a>>),
-    ForEach(Box<ForEachStatement<'a>>),
-    Return(Box<ReturnStatement<'a>>),
+pub enum Statement<'src> {
+    Expression(Box<Expression<'src>>),
+    Assignment(Box<AssignmentStatement<'src>>),
+    Loop(Box<LoopStatement<'src>>),
+    ForEach(Box<ForEachStatement<'src>>),
+    Return(Box<ReturnStatement<'src>>),
     Break(Box<BreakStatement>),
     Continue(Box<ContinueStatement>),
     Empty(Box<EmptyStatement>),
@@ -49,15 +49,15 @@ impl Statement<'_> {
 
 /// `v.a = 0;`
 #[derive(Debug, Clone, PartialEq)]
-pub struct AssignmentStatement<'a> {
+pub struct AssignmentStatement<'src> {
     pub span: Span,
-    pub left: VariableExpression<'a>,
+    pub left: VariableExpression<'src>,
     pub operator: AssignmentOperator,
-    pub right: Expression<'a>,
+    pub right: Expression<'src>,
 }
 
-impl<'a> From<AssignmentStatement<'a>> for Statement<'a> {
-    fn from(value: AssignmentStatement<'a>) -> Self {
+impl<'src> From<AssignmentStatement<'src>> for Statement<'src> {
+    fn from(value: AssignmentStatement<'src>) -> Self {
         Self::Assignment(value.into())
     }
 }
@@ -146,14 +146,14 @@ impl From<Kind> for AssignmentOperator {
 ///
 /// `loop(10, { v.x = v.x + 1; });`
 #[derive(Debug, Clone, PartialEq)]
-pub struct LoopStatement<'a> {
+pub struct LoopStatement<'src> {
     pub span: Span,
-    pub count: Expression<'a>,
-    pub block: BlockExpression<'a>,
+    pub count: Expression<'src>,
+    pub block: BlockExpression<'src>,
 }
 
-impl<'a> From<LoopStatement<'a>> for Statement<'a> {
-    fn from(value: LoopStatement<'a>) -> Self {
+impl<'src> From<LoopStatement<'src>> for Statement<'src> {
+    fn from(value: LoopStatement<'src>) -> Self {
         Self::Loop(value.into())
     }
 }
@@ -162,28 +162,28 @@ impl<'a> From<LoopStatement<'a>> for Statement<'a> {
 ///
 /// `for_each(t.foo, q.baz, { v.x = v.x + 1; });`
 #[derive(Debug, Clone, PartialEq)]
-pub struct ForEachStatement<'a> {
+pub struct ForEachStatement<'src> {
     pub span: Span,
-    pub variable: VariableExpression<'a>,
-    pub array: Expression<'a>,
-    pub block: BlockExpression<'a>,
+    pub variable: VariableExpression<'src>,
+    pub array: Expression<'src>,
+    pub block: BlockExpression<'src>,
 }
 
-impl<'a> From<ForEachStatement<'a>> for Statement<'a> {
-    fn from(value: ForEachStatement<'a>) -> Self {
+impl<'src> From<ForEachStatement<'src>> for Statement<'src> {
+    fn from(value: ForEachStatement<'src>) -> Self {
         Self::ForEach(value.into())
     }
 }
 
 /// `return` in `v.a = 1; return v.a;`
 #[derive(Debug, Clone, PartialEq)]
-pub struct ReturnStatement<'a> {
+pub struct ReturnStatement<'src> {
     pub span: Span,
-    pub argument: Expression<'a>,
+    pub argument: Expression<'src>,
 }
 
-impl<'a> From<ReturnStatement<'a>> for Statement<'a> {
-    fn from(value: ReturnStatement<'a>) -> Self {
+impl<'src> From<ReturnStatement<'src>> for Statement<'src> {
+    fn from(value: ReturnStatement<'src>) -> Self {
         Self::Return(value.into())
     }
 }
@@ -229,41 +229,41 @@ impl From<EmptyStatement> for Statement<'_> {
 
 /// <https://bedrock.dev/docs/stable/Molang#Lexical%20Structure>
 #[derive(Debug, Clone, PartialEq)]
-pub enum Expression<'a> {
-    NumericLiteral(Box<NumericLiteral<'a>>),
+pub enum Expression<'src> {
+    NumericLiteral(Box<NumericLiteral<'src>>),
     BooleanLiteral(Box<BooleanLiteral>),
-    StringLiteral(Box<StringLiteral<'a>>),
-    Variable(Box<VariableExpression<'a>>),
-    Parenthesized(Box<ParenthesizedExpression<'a>>),
-    Block(Box<BlockExpression<'a>>),
-    Binary(Box<BinaryExpression<'a>>),
-    Unary(Box<UnaryExpression<'a>>),
-    Update(Box<UpdateExpression<'a>>),
-    Ternary(Box<TernaryExpression<'a>>),
-    Conditional(Box<ConditionalExpression<'a>>),
-    Resource(Box<ResourceExpression<'a>>),
-    ArrayAccess(Box<ArrayAccessExpression<'a>>),
-    ArrowAccess(Box<ArrowAccessExpression<'a>>),
-    Call(Box<CallExpression<'a>>),
+    StringLiteral(Box<StringLiteral<'src>>),
+    Variable(Box<VariableExpression<'src>>),
+    Parenthesized(Box<ParenthesizedExpression<'src>>),
+    Block(Box<BlockExpression<'src>>),
+    Binary(Box<BinaryExpression<'src>>),
+    Unary(Box<UnaryExpression<'src>>),
+    Update(Box<UpdateExpression<'src>>),
+    Ternary(Box<TernaryExpression<'src>>),
+    Conditional(Box<ConditionalExpression<'src>>),
+    Resource(Box<ResourceExpression<'src>>),
+    ArrayAccess(Box<ArrayAccessExpression<'src>>),
+    ArrowAccess(Box<ArrowAccessExpression<'src>>),
+    Call(Box<CallExpression<'src>>),
     This(Box<ThisExpression>),
 }
 
-impl<'a> From<Expression<'a>> for Statement<'a> {
-    fn from(value: Expression<'a>) -> Self {
+impl<'src> From<Expression<'src>> for Statement<'src> {
+    fn from(value: Expression<'src>) -> Self {
         Self::Expression(value.into())
     }
 }
 
 /// `1.23` in `v.a = 1.23;`
 #[derive(Debug, Clone, PartialEq)]
-pub struct NumericLiteral<'a> {
+pub struct NumericLiteral<'src> {
     pub span: Span,
     pub value: f32,
-    pub raw: &'a str,
+    pub raw: &'src str,
 }
 
-impl<'a> From<NumericLiteral<'a>> for Expression<'a> {
-    fn from(value: NumericLiteral<'a>) -> Self {
+impl<'src> From<NumericLiteral<'src>> for Expression<'src> {
+    fn from(value: NumericLiteral<'src>) -> Self {
         Self::NumericLiteral(value.into())
     }
 }
@@ -292,30 +292,30 @@ impl BooleanLiteral {
 ///
 /// `'foo bar'` in `v.a = 'foo bar';`
 #[derive(Debug, Clone, PartialEq)]
-pub struct StringLiteral<'a> {
+pub struct StringLiteral<'src> {
     pub span: Span,
-    pub value: &'a str,
+    pub value: &'src str,
 }
 
-impl<'a> From<StringLiteral<'a>> for Expression<'a> {
-    fn from(value: StringLiteral<'a>) -> Self {
+impl<'src> From<StringLiteral<'src>> for Expression<'src> {
+    fn from(value: StringLiteral<'src>) -> Self {
         Self::StringLiteral(value.into())
     }
 }
 
 /// `foo` in `v.foo.bar`
 #[derive(Debug, Clone, PartialEq)]
-pub struct Identifier<'a> {
+pub struct Identifier<'src> {
     pub span: Span,
-    pub name: Cow<'a, str>,
+    pub name: Cow<'src, str>,
 }
 
 /// <https://bedrock.dev/docs/stable/Molang#Variables>
 #[derive(Debug, Clone, PartialEq)]
-pub struct VariableExpression<'a> {
+pub struct VariableExpression<'src> {
     pub span: Span,
     pub lifetime: VariableLifetime,
-    pub member: VariableMember<'a>,
+    pub member: VariableMember<'src>,
 }
 
 impl VariableExpression<'_> {
@@ -325,8 +325,8 @@ impl VariableExpression<'_> {
     }
 }
 
-impl<'a> From<VariableExpression<'a>> for Expression<'a> {
-    fn from(value: VariableExpression<'a>) -> Self {
+impl<'src> From<VariableExpression<'src>> for Expression<'src> {
+    fn from(value: VariableExpression<'src>) -> Self {
         Self::Variable(value.into())
     }
 }
@@ -373,57 +373,57 @@ impl From<Kind> for VariableLifetime {
 
 /// <https://bedrock.dev/docs/stable/Molang#Structs>
 #[derive(Debug, Clone, PartialEq)]
-pub enum VariableMember<'a> {
+pub enum VariableMember<'src> {
     /// `foo.bar` in `v.foo.bar`
-    Object { object: Box<VariableMember<'a>>, property: Identifier<'a> },
+    Object { object: Box<VariableMember<'src>>, property: Identifier<'src> },
     /// `foo` in `v.foo`
-    Property { property: Identifier<'a> },
+    Property { property: Identifier<'src> },
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct ParenthesizedExpression<'a> {
+pub struct ParenthesizedExpression<'src> {
     pub span: Span,
-    pub body: ParenthesizedBody<'a>,
+    pub body: ParenthesizedBody<'src>,
 }
 
-impl<'a> From<ParenthesizedExpression<'a>> for Expression<'a> {
-    fn from(value: ParenthesizedExpression<'a>) -> Self {
+impl<'src> From<ParenthesizedExpression<'src>> for Expression<'src> {
+    fn from(value: ParenthesizedExpression<'src>) -> Self {
         Self::Parenthesized(value.into())
     }
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum ParenthesizedBody<'a> {
+pub enum ParenthesizedBody<'src> {
     /// `(1 + 1)` in `(1 + 1) * 2`
-    Single(Expression<'a>),
+    Single(Expression<'src>),
     /// `(v.a = 1;)` in `(v.b = 'B'; v.a = 1;);`
-    Multiple(Vec<Statement<'a>>),
+    Multiple(Vec<Statement<'src>>),
 }
 
 /// `{ v.a = 0; }` in `loop(10, { v.a = 0; })`
 #[derive(Debug, Clone, PartialEq)]
-pub struct BlockExpression<'a> {
+pub struct BlockExpression<'src> {
     pub span: Span,
-    pub statements: Vec<Statement<'a>>,
+    pub statements: Vec<Statement<'src>>,
 }
 
-impl<'a> From<BlockExpression<'a>> for Expression<'a> {
-    fn from(value: BlockExpression<'a>) -> Self {
+impl<'src> From<BlockExpression<'src>> for Expression<'src> {
+    fn from(value: BlockExpression<'src>) -> Self {
         Self::Block(value.into())
     }
 }
 
 /// `1 + 1` in `v.a = 1 + 1;`
 #[derive(Debug, Clone, PartialEq)]
-pub struct BinaryExpression<'a> {
+pub struct BinaryExpression<'src> {
     pub span: Span,
-    pub left: Expression<'a>,
+    pub left: Expression<'src>,
     pub operator: BinaryOperator,
-    pub right: Expression<'a>,
+    pub right: Expression<'src>,
 }
 
-impl<'a> From<BinaryExpression<'a>> for Expression<'a> {
-    fn from(value: BinaryExpression<'a>) -> Self {
+impl<'src> From<BinaryExpression<'src>> for Expression<'src> {
+    fn from(value: BinaryExpression<'src>) -> Self {
         Self::Binary(value.into())
     }
 }
@@ -569,14 +569,14 @@ impl From<AssignmentOperator> for BinaryOperator {
 
 /// `-1` in `q.foo(-1)`
 #[derive(Debug, Clone, PartialEq)]
-pub struct UnaryExpression<'a> {
+pub struct UnaryExpression<'src> {
     pub span: Span,
     pub operator: UnaryOperator,
-    pub argument: Expression<'a>,
+    pub argument: Expression<'src>,
 }
 
-impl<'a> From<UnaryExpression<'a>> for Expression<'a> {
-    fn from(value: UnaryExpression<'a>) -> Self {
+impl<'src> From<UnaryExpression<'src>> for Expression<'src> {
+    fn from(value: UnaryExpression<'src>) -> Self {
         Self::Unary(value.into())
     }
 }
@@ -611,9 +611,9 @@ impl From<Kind> for UnaryOperator {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct UpdateExpression<'a> {
+pub struct UpdateExpression<'src> {
     pub span: Span,
-    pub variable: VariableExpression<'a>,
+    pub variable: VariableExpression<'src>,
     pub operator: UpdateOperator,
 }
 
@@ -658,15 +658,15 @@ impl From<UpdateOperator> for BinaryOperator {
 ///
 /// `q.foo ? 0 : 1`
 #[derive(Debug, Clone, PartialEq)]
-pub struct TernaryExpression<'a> {
+pub struct TernaryExpression<'src> {
     pub span: Span,
-    pub test: Expression<'a>,
-    pub consequent: Expression<'a>,
-    pub alternate: Expression<'a>,
+    pub test: Expression<'src>,
+    pub consequent: Expression<'src>,
+    pub alternate: Expression<'src>,
 }
 
-impl<'a> From<TernaryExpression<'a>> for Expression<'a> {
-    fn from(value: TernaryExpression<'a>) -> Self {
+impl<'src> From<TernaryExpression<'src>> for Expression<'src> {
+    fn from(value: TernaryExpression<'src>) -> Self {
         Self::Ternary(value.into())
     }
 }
@@ -675,28 +675,28 @@ impl<'a> From<TernaryExpression<'a>> for Expression<'a> {
 ///
 /// `q.foo ? 0`
 #[derive(Debug, Clone, PartialEq)]
-pub struct ConditionalExpression<'a> {
+pub struct ConditionalExpression<'src> {
     pub span: Span,
-    pub test: Expression<'a>,
-    pub consequent: Expression<'a>,
+    pub test: Expression<'src>,
+    pub consequent: Expression<'src>,
 }
 
-impl<'a> From<ConditionalExpression<'a>> for Expression<'a> {
-    fn from(value: ConditionalExpression<'a>) -> Self {
+impl<'src> From<ConditionalExpression<'src>> for Expression<'src> {
+    fn from(value: ConditionalExpression<'src>) -> Self {
         Self::Conditional(value.into())
     }
 }
 
 /// <https://bedrock.dev/docs/stable/Molang#Resource%20Expression>
 #[derive(Debug, Clone, PartialEq)]
-pub struct ResourceExpression<'a> {
+pub struct ResourceExpression<'src> {
     pub span: Span,
     pub section: ResourceSection,
-    pub name: Identifier<'a>,
+    pub name: Identifier<'src>,
 }
 
-impl<'a> From<ResourceExpression<'a>> for Expression<'a> {
-    fn from(value: ResourceExpression<'a>) -> Self {
+impl<'src> From<ResourceExpression<'src>> for Expression<'src> {
+    fn from(value: ResourceExpression<'src>) -> Self {
         Self::Resource(value.into())
     }
 }
@@ -738,14 +738,14 @@ impl From<Kind> for ResourceSection {
 ///
 /// `array.foo[0]`
 #[derive(Debug, Clone, PartialEq)]
-pub struct ArrayAccessExpression<'a> {
+pub struct ArrayAccessExpression<'src> {
     pub span: Span,
-    pub name: Identifier<'a>,
-    pub index: Expression<'a>,
+    pub name: Identifier<'src>,
+    pub index: Expression<'src>,
 }
 
-impl<'a> From<ArrayAccessExpression<'a>> for Expression<'a> {
-    fn from(value: ArrayAccessExpression<'a>) -> Self {
+impl<'src> From<ArrayAccessExpression<'src>> for Expression<'src> {
+    fn from(value: ArrayAccessExpression<'src>) -> Self {
         Self::ArrayAccess(value.into())
     }
 }
@@ -754,14 +754,14 @@ impl<'a> From<ArrayAccessExpression<'a>> for Expression<'a> {
 ///
 /// `v.foo->q.bar`
 #[derive(Debug, Clone, PartialEq)]
-pub struct ArrowAccessExpression<'a> {
+pub struct ArrowAccessExpression<'src> {
     pub span: Span,
-    pub left: Expression<'a>,
-    pub right: Expression<'a>,
+    pub left: Expression<'src>,
+    pub right: Expression<'src>,
 }
 
-impl<'a> From<ArrowAccessExpression<'a>> for Expression<'a> {
-    fn from(value: ArrowAccessExpression<'a>) -> Self {
+impl<'src> From<ArrowAccessExpression<'src>> for Expression<'src> {
+    fn from(value: ArrowAccessExpression<'src>) -> Self {
         Self::ArrowAccess(value.into())
     }
 }
@@ -771,15 +771,15 @@ impl<'a> From<ArrowAccessExpression<'a>> for Expression<'a> {
 ///
 /// `math.random(1, 2)` or `math.random`
 #[derive(Debug, Clone, PartialEq)]
-pub struct CallExpression<'a> {
+pub struct CallExpression<'src> {
     pub span: Span,
     pub kind: CallKind,
-    pub callee: Identifier<'a>,
-    pub arguments: Option<Vec<Expression<'a>>>,
+    pub callee: Identifier<'src>,
+    pub arguments: Option<Vec<Expression<'src>>>,
 }
 
-impl<'a> From<CallExpression<'a>> for Expression<'a> {
-    fn from(value: CallExpression<'a>) -> Self {
+impl<'src> From<CallExpression<'src>> for Expression<'src> {
+    fn from(value: CallExpression<'src>) -> Self {
         Self::Call(value.into())
     }
 }
