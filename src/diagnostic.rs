@@ -149,8 +149,15 @@ pub mod errors {
     }
 
     #[cold]
+    pub fn semi_required_in_parenthesized_expression(span: Span) -> Diagnostic {
+        Diagnostic::error("Statements inside `()` must be delimited by `;` if the other statements also end with `;`")
+            .with_help("Try inserting a semicolon here")
+            .with_label(span)
+    }
+
+    #[cold]
     pub fn semi_required_in_block_expression(span: Span) -> Diagnostic {
-        Diagnostic::error("Expressions inside `{}` must be delimited by `;`")
+        Diagnostic::error("Statements inside `{}` must be delimited by `;`")
             .with_help("Try inserting a semicolon here")
             .with_label(span)
     }

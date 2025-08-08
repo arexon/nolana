@@ -83,6 +83,9 @@ impl<'a> Parser<'a> {
         let mut body = ProgramBody::Empty;
         while !self.at(Kind::Eof) {
             let stmt = self.parse_statement()?;
+            if !self.parse_semi(&stmt) && self.is_complex {
+                self.error(errors::semi_required(self.current_token().span()));
+            }
             match &mut body {
                 ProgramBody::Complex(stmts) => stmts.push(stmt),
                 ProgramBody::Empty => {
@@ -103,9 +106,7 @@ impl<'a> Parser<'a> {
 
     fn parse_statement(&mut self) -> Result<Statement<'a>> {
         let stmt = match self.current_kind() {
-            Kind::Semi => {
-                EmptyStatement { span: self.end_span_single(self.current_token().span()) }.into()
-            }
+            Kind::Semi => self.parse_empty_statement()?,
             v if v.is_variable() => self.parse_assignment_statement_or_expression()?,
             Kind::Loop => self.parse_loop_statement()?,
             Kind::ForEach => self.parse_for_each_statement()?,
@@ -114,14 +115,15 @@ impl<'a> Parser<'a> {
             Kind::Continue => self.parse_continue_statement()?.into(),
             _ => self.parse_expression(0)?.into(),
         };
-        if self.eat(Kind::Semi) {
-            if !self.is_complex {
-                self.is_complex = true;
-            }
-        } else if self.is_complex {
-            self.error(errors::semi_required(self.current_token().span()));
-        }
         Ok(stmt)
+    }
+
+    fn parse_semi(&mut self, stmt: &Statement<'a>) -> bool {
+        if !stmt.is_empty() && self.eat(Kind::Semi) {
+            self.is_complex = true;
+            return true;
+        }
+        false
     }
 
     fn parse_assignment_statement_or_expression(&mut self) -> Result<Statement<'a>> {
@@ -191,6 +193,11 @@ impl<'a> Parser<'a> {
         let span = self.start_span();
         self.expect(Kind::Continue)?;
         Ok(ContinueStatement { span: self.end_span(span) })
+    }
+
+    fn parse_empty_statement(&mut self) -> Result<Statement<'a>> {
+        self.expect(Kind::Semi)?;
+        Ok(EmptyStatement { span: self.end_span_single(self.current_token().span()) }.into())
     }
 
     fn parse_expression(&mut self, min_bp: u8) -> Result<Expression<'a>> {
@@ -306,34 +313,25 @@ impl<'a> Parser<'a> {
             self.bump();
             return Err(errors::empty_parenthesized_expression(self.end_span(span)));
         }
-        let first_statement = match self.current_kind() {
-            v if v.is_variable() => self.parse_assignment_statement_or_expression()?,
-            Kind::Return => self.parse_return_statement()?.into(),
-            Kind::Break => self.parse_break_statement()?.into(),
-            Kind::Continue => self.parse_continue_statement()?.into(),
-            _ => self.parse_expression(0)?.into(),
-        };
-        if let Statement::Expression(expression) = first_statement {
-            match self.current_kind() {
-                Kind::RightParen => {
-                    self.bump();
-                    Ok(ParenthesizedExpression {
-                        span: self.end_span(span),
-                        body: ParenthesizedBody::Single(*expression),
-                    }
-                    .into())
-                }
-                Kind::Semi => self
-                    .parse_parenthesized_expression_rest(Statement::Expression(expression), span),
-                Kind::Eof => Err(errors::expected_token(
-                    Kind::RightParen.as_str(),
-                    self.current_kind().as_str(),
-                    Span::new(self.prev_token_end, self.current_token().start),
-                )),
-                _ => Err(errors::unexpected_token(self.current_token().span())),
+        let first_stmt = self.parse_statement()?;
+        if self.parse_semi(&first_stmt) {
+            self.parse_parenthesized_expression_rest(first_stmt, span)
+        } else if let Statement::Expression(expr) = first_stmt
+            && self.eat(Kind::RightParen)
+        {
+            Ok(ParenthesizedExpression {
+                span: self.end_span(span),
+                body: ParenthesizedBody::Single(*expr),
             }
+            .into())
+        } else if self.eat(Kind::Eof) {
+            Err(errors::expected_token(
+                Kind::RightParen.as_str(),
+                self.current_kind().as_str(),
+                Span::new(self.prev_token_end, self.current_token().start),
+            ))
         } else {
-            self.parse_parenthesized_expression_rest(first_statement, span)
+            Err(errors::unexpected_token(self.current_token().span()))
         }
     }
 
@@ -347,7 +345,13 @@ impl<'a> Parser<'a> {
             if self.at(Kind::RightParen) {
                 break;
             }
-            statements.push(self.parse_statement()?);
+            let stmt = self.parse_statement()?;
+            if !self.parse_semi(&stmt) {
+                self.error(errors::semi_required_in_parenthesized_expression(
+                    self.current_token().span(),
+                ));
+            }
+            statements.push(stmt);
         }
         self.expect(Kind::RightParen)?;
         Ok(ParenthesizedExpression {
@@ -368,16 +372,11 @@ impl<'a> Parser<'a> {
         self.expect(Kind::LeftBrace)?;
         let mut statements = Vec::new();
         while !self.at(Kind::RightBrace) {
-            statements.push(match self.current_kind() {
-                v if v.is_variable() => self.parse_assignment_statement_or_expression()?,
-                Kind::Return => self.parse_return_statement()?.into(),
-                Kind::Break => self.parse_break_statement()?.into(),
-                Kind::Continue => self.parse_continue_statement()?.into(),
-                _ => self.parse_expression(0)?.into(),
-            });
-            if !self.eat(Kind::Semi) {
-                self.error(errors::semi_required_in_block_expression(self.current_token().span()))
+            let stmt = self.parse_statement()?;
+            if !self.parse_semi(&stmt) && self.is_complex {
+                self.error(errors::semi_required_in_block_expression(self.current_token().span()));
             }
+            statements.push(stmt)
         }
         self.expect(Kind::RightBrace)?;
         Ok(BlockExpression { span: self.end_span(span), statements })

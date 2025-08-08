@@ -41,6 +41,12 @@ pub enum Statement<'a> {
     Empty(Box<EmptyStatement>),
 }
 
+impl Statement<'_> {
+    pub fn is_empty(&self) -> bool {
+        matches!(self, Self::Empty(_))
+    }
+}
+
 /// `v.a = 0;`
 #[derive(Debug, Clone, PartialEq)]
 pub struct AssignmentStatement<'a> {
@@ -185,7 +191,7 @@ impl<'a> From<ReturnStatement<'a>> for Statement<'a> {
 /// <https://bedrock.dev/docs/stable/Molang#break>
 ///
 /// `break` in `loop(10, { v.x = v.x + 1; (v.x > 20) ? break; });`
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct BreakStatement {
     pub span: Span,
 }
@@ -199,7 +205,7 @@ impl From<BreakStatement> for Statement<'_> {
 /// <https://bedrock.dev/docs/stable/Molang#continue>
 ///
 /// `continue` in `loop(10, { (v.x > 5) ? continue; v.x = v.x + 1; });`
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ContinueStatement {
     pub span: Span,
 }
@@ -210,7 +216,7 @@ impl From<ContinueStatement> for Statement<'_> {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct EmptyStatement {
     pub span: Span,
 }
