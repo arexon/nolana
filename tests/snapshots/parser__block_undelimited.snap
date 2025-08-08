@@ -41,7 +41,7 @@ ParseResult {
     errors: [
         Diagnostic {
             inner: DiagnosticInner {
-                message: "Expressions inside `{}` must be delimited by `;`",
+                message: "Statements inside `{}` must be delimited by `;`",
                 labels: Some(
                     [
                         LabeledSpan {

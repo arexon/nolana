@@ -244,6 +244,19 @@ fn r#loop() {
 }
 
 #[test]
+fn loop_in_block() {
+    let out = parse(
+        "
+            {
+                v.i = 1;
+                loop(10, {v.i = v.i + 1;});
+            };
+        ",
+    );
+    assert_snapshot!(out);
+}
+
+#[test]
 fn loop_in_expression() {
     let out = parse("1 + loop(10, {0;})");
     assert_snapshot!(out);
@@ -319,11 +332,11 @@ fn illegal_update_operation_with_context() {
 fn semisemisemisemi() {
     let out = parse(
         "
-        ;;;;;;; ;;;;;;; ;;;    ;;; ;;
-        ;;      ;;      ;;;;  ;;;; ;;
-        ;;;;;;; ;;;;;   ;; ;;;; ;; ;;
-             ;; ;;      ;;  ;;  ;; ;;
-        ;;;;;;; ;;;;;;; ;;      ;; ;;
+            ;;;;;;; ;;;;;;; ;;;    ;;; ;;
+            ;;      ;;      ;;;;  ;;;; ;;
+            ;;;;;;; ;;;;;   ;; ;;;; ;; ;;
+                 ;; ;;      ;;  ;;  ;; ;;
+            ;;;;;;; ;;;;;;; ;;      ;; ;;
         ",
     );
     assert_snapshot!(out);
