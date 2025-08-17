@@ -1,7 +1,6 @@
-use replace_with::replace_with_or_abort;
-
 use crate::{
     ast::*,
+    replace_with::ReplaceWith,
     span::SPAN,
     traverse::{Traverse, traverse},
 };
@@ -35,7 +34,7 @@ impl<'src> MolangTransformer<'src> {
             && bin_expr.operator.is_custom()
         {
             let scope = self.scope();
-            replace_with_or_abort(expr, |expr| {
+            expr.replace_with(|expr| {
                 let Expression::Binary(bin_expr) = expr else { unreachable!() };
                 let BinaryExpression { left, operator, right, .. } = *bin_expr;
                 match operator {
@@ -83,43 +82,33 @@ impl<'src> MolangTransformer<'src> {
                 AssignmentOperator::Addition
                 | AssignmentOperator::Subtraction
                 | AssignmentOperator::Multiplication
-                | AssignmentOperator::Division => {
-                    replace_with_or_abort(&mut assign_stmt.right, |right| {
-                        binary_expression(left, operator.into(), right)
-                    })
-                }
+                | AssignmentOperator::Division => assign_stmt
+                    .right
+                    .replace_with(|right| binary_expression(left, operator.into(), right)),
                 AssignmentOperator::Exponential => {
-                    replace_with_or_abort(&mut assign_stmt.right, |right| {
-                        math_pow_expression(left, right)
-                    })
+                    assign_stmt.right.replace_with(|right| math_pow_expression(left, right))
                 }
                 AssignmentOperator::Remainder => {
-                    replace_with_or_abort(&mut assign_stmt.right, |right| {
-                        math_mod_expression(left, right)
-                    })
+                    assign_stmt.right.replace_with(|right| math_mod_expression(left, right))
                 }
-                AssignmentOperator::LogicalOr => replace_with_or_abort(stmt, |stmt| {
+                AssignmentOperator::LogicalOr => stmt.replace_with(|stmt| {
                     let Statement::Assignment(assign_stmt) = stmt else { unreachable!() };
                     logical_or_assignment_statement(*assign_stmt)
                 }),
-                AssignmentOperator::LogicalAnd => replace_with_or_abort(stmt, |stmt| {
+                AssignmentOperator::LogicalAnd => stmt.replace_with(|stmt| {
                     let Statement::Assignment(assign_stmt) = stmt else { unreachable!() };
                     logical_and_assignment_statement(*assign_stmt)
                 }),
                 AssignmentOperator::ShiftLeft => {
-                    replace_with_or_abort(&mut assign_stmt.right, |right| {
-                        shift_left_expression(left, right)
-                    })
+                    assign_stmt.right.replace_with(|right| shift_left_expression(left, right))
                 }
                 AssignmentOperator::ShiftRight => {
-                    replace_with_or_abort(&mut assign_stmt.right, |right| {
-                        shift_right_expression(left, right)
-                    })
+                    assign_stmt.right.replace_with(|right| shift_right_expression(left, right))
                 }
                 AssignmentOperator::BitwiseOr
                 | AssignmentOperator::BitwiseAnd
                 | AssignmentOperator::BitwiseXor => {
-                    replace_with_or_abort(&mut assign_stmt.right, |right| {
+                    assign_stmt.right.replace_with(|right| {
                         // TODO(@arexon): Method to calculate this.
                         let index = scope.new_statements.len() + scope.statement_count - 1;
                         let (or_stmt, or_var_expr) = bitwise_operation_statement(
@@ -157,7 +146,7 @@ impl<'src> MolangTransformer<'src> {
         let index = scope.new_statements.len() + scope.statement_count - 1;
         scope.new_statements.push((index, update_stmt));
 
-        replace_with_or_abort(expr, |expr| {
+        expr.replace_with(|expr| {
             let Expression::Update(update_expr) = expr else { unreachable!() };
             update_expr.variable.into()
         });
@@ -180,17 +169,14 @@ impl<'src> MolangTransformer<'src> {
         if self.program_body_transformer.needs_complex
             && let ProgramBody::Complex(stmts) = &mut program.body
         {
-            replace_with_or_abort(
-                stmts.last_mut().expect("must have at least two statements"),
-                |stmt| {
-                    let Statement::Expression(expr) = stmt else {
-                        unreachable!(
-                            "simple to complex transition implies the last statement is an expression"
-                        );
-                    };
-                    ReturnStatement { span: SPAN, argument: *expr }.into()
-                },
-            );
+            stmts.last_mut().expect("must have at least two statements").replace_with(|stmt| {
+                let Statement::Expression(expr) = stmt else {
+                    unreachable!(
+                        "simple to complex transition implies the last statement is an expression"
+                    );
+                };
+                ReturnStatement { span: SPAN, argument: *expr }.into()
+            });
         }
     }
 }
@@ -239,7 +225,7 @@ impl<'src> Traverse<'src> for ProgramBodyTransformer {
 
     fn exit_program(&mut self, it: &mut Program<'src>) {
         if self.needs_complex && self.is_simple {
-            replace_with_or_abort(&mut it.body, |body| {
+            it.body.replace_with(|body| {
                 let ProgramBody::Simple(expr) = body else { unreachable!() };
                 ProgramBody::Complex(vec![Statement::Expression(expr.into())])
             });
