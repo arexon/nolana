@@ -11,6 +11,7 @@ pub use transformer::MolangTransformer;
 
 pub mod ast;
 pub mod diagnostic;
+pub mod replace_with;
 pub mod semantic;
 pub mod span;
 mod token;
