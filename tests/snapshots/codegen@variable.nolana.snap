@@ -1,0 +1,5 @@
+---
+source: tests/integration.rs
+input_file: tests/codegen/variable.nolana
+---
+v.foo;v.foo;t.foo;t.foo;c.foo;c.foo;

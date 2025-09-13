@@ -1,0 +1,5 @@
+---
+source: tests/integration.rs
+input_file: tests/codegen/loop.nolana
+---
+loop(10,{v.i=v.i+1;});

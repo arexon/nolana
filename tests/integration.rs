@@ -16,6 +16,14 @@ fn read_and_parse(path: &Path) -> String {
     format!("{result:#?}")
 }
 
+fn read_and_codegen(path: &Path) -> String {
+    let source = fs::read_to_string(path).unwrap();
+    let result = Parser::new(&source).parse();
+    assert!(result.errors.is_empty());
+    assert!(!result.panicked);
+    Codegen::default().build(&result.program)
+}
+
 fn read_and_transform(path: &Path) -> String {
     let source = fs::read_to_string(path).unwrap();
     let mut result = Parser::new(&source).parse();
@@ -28,6 +36,15 @@ fn test_parser() {
     with_settings(|| {
         insta::glob!("parser/*.nolana", |path| {
             insta::assert_snapshot!(read_and_parse(path));
+        });
+    });
+}
+
+#[test]
+fn test_codegen() {
+    with_settings(|| {
+        insta::glob!("codegen/*.nolana", |path| {
+            insta::assert_snapshot!(read_and_codegen(path));
         });
     });
 }

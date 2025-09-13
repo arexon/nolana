@@ -1,0 +1,5 @@
+---
+source: tests/integration.rs
+input_file: tests/codegen/conditional.nolana
+---
+q.foo?1

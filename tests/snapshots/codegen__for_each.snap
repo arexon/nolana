@@ -1,5 +1,0 @@
----
-source: tests/codegen.rs
-expression: out
----
-for_each(v.a,q.foo,{v.b=v.a+1;});
