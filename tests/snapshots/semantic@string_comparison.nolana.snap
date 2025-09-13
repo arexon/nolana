@@ -1,0 +1,5 @@
+---
+source: tests/integration.rs
+input_file: tests/semantic/string_comparison.nolana
+---
+[]

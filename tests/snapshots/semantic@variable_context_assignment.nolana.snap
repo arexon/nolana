@@ -1,11 +1,11 @@
 ---
-source: tests/semantics.rs
-expression: out
+source: tests/integration.rs
+input_file: tests/semantic/variable_context_assignment.nolana
 ---
 [
     Diagnostic {
         inner: DiagnosticInner {
-            message: "Strings only support `==` and `!=` operators",
+            message: "`context.` variables are read-only",
             labels: Some(
                 [
                     LabeledSpan {
@@ -14,13 +14,15 @@ expression: out
                             offset: SourceOffset(
                                 0,
                             ),
-                            length: 13,
+                            length: 15,
                         },
                         primary: false,
                     },
                 ],
             ),
-            help: None,
+            help: Some(
+                "Try assigning to `variable.` or `temp.` instead",
+            ),
             severity: Error,
         },
     },

@@ -1,11 +1,11 @@
 ---
-source: tests/semantics.rs
-expression: out
+source: tests/integration.rs
+input_file: tests/semantic/block_empty.nolana
 ---
 [
     Diagnostic {
         inner: DiagnosticInner {
-            message: "Strings only support `==` and `!=` operators",
+            message: "Block expressions must contain at least one expression",
             labels: Some(
                 [
                     LabeledSpan {
@@ -14,7 +14,7 @@ expression: out
                             offset: SourceOffset(
                                 0,
                             ),
-                            length: 9,
+                            length: 2,
                         },
                         primary: false,
                     },

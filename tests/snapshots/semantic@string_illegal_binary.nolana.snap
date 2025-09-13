@@ -1,0 +1,48 @@
+---
+source: tests/integration.rs
+input_file: tests/semantic/string_illegal_binary.nolana
+---
+[
+    Diagnostic {
+        inner: DiagnosticInner {
+            message: "Strings only support `==` and `!=` operators",
+            labels: Some(
+                [
+                    LabeledSpan {
+                        label: None,
+                        span: SourceSpan {
+                            offset: SourceOffset(
+                                0,
+                            ),
+                            length: 13,
+                        },
+                        primary: false,
+                    },
+                ],
+            ),
+            help: None,
+            severity: Error,
+        },
+    },
+    Diagnostic {
+        inner: DiagnosticInner {
+            message: "Strings only support `==` and `!=` operators",
+            labels: Some(
+                [
+                    LabeledSpan {
+                        label: None,
+                        span: SourceSpan {
+                            offset: SourceOffset(
+                                15,
+                            ),
+                            length: 9,
+                        },
+                        primary: false,
+                    },
+                ],
+            ),
+            help: None,
+            severity: Error,
+        },
+    },
+]

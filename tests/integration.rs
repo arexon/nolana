@@ -1,7 +1,7 @@
 use std::{fs, path::Path};
 
 use insta::Settings;
-use nolana::{Codegen, CodegenOptions, MolangTransformer, Parser};
+use nolana::{Codegen, CodegenOptions, MolangTransformer, Parser, semantic::SemanticChecker};
 
 fn with_settings(f: impl FnOnce()) {
     let mut settings = Settings::clone_current();
@@ -22,6 +22,13 @@ fn read_and_codegen(path: &Path) -> String {
     assert!(result.errors.is_empty());
     assert!(!result.panicked);
     Codegen::default().build(&result.program)
+}
+
+fn read_and_semantic(path: &Path) -> String {
+    let source = fs::read_to_string(path).unwrap();
+    let mut result = Parser::new(&source).parse();
+    let diagnostics = SemanticChecker::default().check(&mut result.program);
+    format!("{diagnostics:#?}")
 }
 
 fn read_and_transform(path: &Path) -> String {
@@ -45,6 +52,15 @@ fn test_codegen() {
     with_settings(|| {
         insta::glob!("codegen/*.nolana", |path| {
             insta::assert_snapshot!(read_and_codegen(path));
+        });
+    });
+}
+
+#[test]
+fn test_semantic() {
+    with_settings(|| {
+        insta::glob!("semantic/*.nolana", |path| {
+            insta::assert_snapshot!(read_and_semantic(path));
         });
     });
 }
