@@ -36,5 +36,4 @@ ParseResult {
             },
         },
     ],
-    panicked: true,
 }

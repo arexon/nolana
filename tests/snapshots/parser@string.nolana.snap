@@ -22,5 +22,4 @@ ParseResult {
         ),
     },
     errors: [],
-    panicked: false,
 }

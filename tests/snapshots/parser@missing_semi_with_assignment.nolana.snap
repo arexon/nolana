@@ -94,5 +94,4 @@ ParseResult {
             },
         },
     ],
-    panicked: false,
 }

@@ -63,5 +63,4 @@ ParseResult {
             },
         },
     ],
-    panicked: false,
 }
