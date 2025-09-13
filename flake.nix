@@ -30,6 +30,7 @@
           cargo-insta
           just
           cargo-edit
+          taplo
         ];
       };
     });
