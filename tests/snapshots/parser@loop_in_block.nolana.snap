@@ -8,7 +8,7 @@ ParseResult {
             start: 0,
             end: 49,
         },
-        source: "{\n    v.i = 1;\n    loop(10, {v.i = v.i + 1;});\n};\n\n",
+        source: "{\n    v.i = 1;\n    loop(10, {v.i = v.i + 1;});\n};\n",
         body: Complex(
             [
                 Expression(
