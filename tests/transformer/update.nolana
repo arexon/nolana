@@ -1,0 +1,10 @@
+v.a++;
+{
+    v.other = math.random();
+    v.result = v.b--;
+    v.do ? {
+        v.other = math.random();
+        q.foo(v.c++);
+        v.other = math.random();
+    };
+};
