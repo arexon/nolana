@@ -15,7 +15,7 @@ replace_with = "0.1.8"
 
 [dev-dependencies]
 criterion = "0.7.0"
-insta = "1.43.1"
+insta = { version = "1.43.1", features = ["glob"] }
 miette = { version = "7.6.0", features = ["fancy"] }
 
 [[bench]]

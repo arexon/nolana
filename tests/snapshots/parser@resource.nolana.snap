@@ -1,0 +1,73 @@
+---
+source: tests/integration.rs
+input_file: tests/parser/resource.nolana
+---
+ParseResult {
+    program: Program {
+        span: Span {
+            start: 0,
+            end: 40,
+        },
+        source: "geometry.foo;\nmaterial.foo;\ntexture.foo;\n",
+        body: Complex(
+            [
+                Expression(
+                    Resource(
+                        ResourceExpression {
+                            span: Span {
+                                start: 0,
+                                end: 12,
+                            },
+                            section: Geometry,
+                            name: Identifier {
+                                span: Span {
+                                    start: 9,
+                                    end: 12,
+                                },
+                                name: "foo",
+                            },
+                        },
+                    ),
+                ),
+                Expression(
+                    Resource(
+                        ResourceExpression {
+                            span: Span {
+                                start: 14,
+                                end: 26,
+                            },
+                            section: Material,
+                            name: Identifier {
+                                span: Span {
+                                    start: 23,
+                                    end: 26,
+                                },
+                                name: "foo",
+                            },
+                        },
+                    ),
+                ),
+                Expression(
+                    Resource(
+                        ResourceExpression {
+                            span: Span {
+                                start: 28,
+                                end: 39,
+                            },
+                            section: Texture,
+                            name: Identifier {
+                                span: Span {
+                                    start: 36,
+                                    end: 39,
+                                },
+                                name: "foo",
+                            },
+                        },
+                    ),
+                ),
+            ],
+        ),
+    },
+    errors: [],
+    panicked: false,
+}

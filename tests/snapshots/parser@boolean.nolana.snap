@@ -1,0 +1,41 @@
+---
+source: tests/integration.rs
+input_file: tests/parser/boolean.nolana
+---
+ParseResult {
+    program: Program {
+        span: Span {
+            start: 0,
+            end: 12,
+        },
+        source: "false; true;\n",
+        body: Complex(
+            [
+                Expression(
+                    BooleanLiteral(
+                        BooleanLiteral {
+                            span: Span {
+                                start: 0,
+                                end: 5,
+                            },
+                            value: false,
+                        },
+                    ),
+                ),
+                Expression(
+                    BooleanLiteral(
+                        BooleanLiteral {
+                            span: Span {
+                                start: 7,
+                                end: 11,
+                            },
+                            value: true,
+                        },
+                    ),
+                ),
+            ],
+        ),
+    },
+    errors: [],
+    panicked: false,
+}

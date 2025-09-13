@@ -1,0 +1,107 @@
+---
+source: tests/integration.rs
+input_file: tests/parser/loop.nolana
+---
+ParseResult {
+    program: Program {
+        span: Span {
+            start: 0,
+            end: 33,
+        },
+        source: "loop(10, {\n    v.i = v.i + 1;\n});\n",
+        body: Complex(
+            [
+                Loop(
+                    LoopStatement {
+                        span: Span {
+                            start: 0,
+                            end: 32,
+                        },
+                        count: NumericLiteral(
+                            NumericLiteral {
+                                span: Span {
+                                    start: 5,
+                                    end: 7,
+                                },
+                                value: 10.0,
+                                raw: "10",
+                            },
+                        ),
+                        block: BlockExpression {
+                            span: Span {
+                                start: 9,
+                                end: 31,
+                            },
+                            statements: [
+                                Assignment(
+                                    AssignmentStatement {
+                                        span: Span {
+                                            start: 15,
+                                            end: 28,
+                                        },
+                                        left: VariableExpression {
+                                            span: Span {
+                                                start: 15,
+                                                end: 18,
+                                            },
+                                            lifetime: Variable,
+                                            member: Property {
+                                                property: Identifier {
+                                                    span: Span {
+                                                        start: 17,
+                                                        end: 18,
+                                                    },
+                                                    name: "i",
+                                                },
+                                            },
+                                        },
+                                        operator: Assign,
+                                        right: Binary(
+                                            BinaryExpression {
+                                                span: Span {
+                                                    start: 21,
+                                                    end: 28,
+                                                },
+                                                left: Variable(
+                                                    VariableExpression {
+                                                        span: Span {
+                                                            start: 21,
+                                                            end: 24,
+                                                        },
+                                                        lifetime: Variable,
+                                                        member: Property {
+                                                            property: Identifier {
+                                                                span: Span {
+                                                                    start: 23,
+                                                                    end: 24,
+                                                                },
+                                                                name: "i",
+                                                            },
+                                                        },
+                                                    },
+                                                ),
+                                                operator: Addition,
+                                                right: NumericLiteral(
+                                                    NumericLiteral {
+                                                        span: Span {
+                                                            start: 27,
+                                                            end: 28,
+                                                        },
+                                                        value: 1.0,
+                                                        raw: "1",
+                                                    },
+                                                ),
+                                            },
+                                        ),
+                                    },
+                                ),
+                            ],
+                        },
+                    },
+                ),
+            ],
+        ),
+    },
+    errors: [],
+    panicked: false,
+}

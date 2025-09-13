@@ -1,0 +1,154 @@
+---
+source: tests/integration.rs
+input_file: tests/parser/loop_in_block.nolana
+---
+ParseResult {
+    program: Program {
+        span: Span {
+            start: 0,
+            end: 49,
+        },
+        source: "{\n    v.i = 1;\n    loop(10, {v.i = v.i + 1;});\n};\n\n",
+        body: Complex(
+            [
+                Expression(
+                    Block(
+                        BlockExpression {
+                            span: Span {
+                                start: 0,
+                                end: 48,
+                            },
+                            statements: [
+                                Assignment(
+                                    AssignmentStatement {
+                                        span: Span {
+                                            start: 6,
+                                            end: 13,
+                                        },
+                                        left: VariableExpression {
+                                            span: Span {
+                                                start: 6,
+                                                end: 9,
+                                            },
+                                            lifetime: Variable,
+                                            member: Property {
+                                                property: Identifier {
+                                                    span: Span {
+                                                        start: 8,
+                                                        end: 9,
+                                                    },
+                                                    name: "i",
+                                                },
+                                            },
+                                        },
+                                        operator: Assign,
+                                        right: NumericLiteral(
+                                            NumericLiteral {
+                                                span: Span {
+                                                    start: 12,
+                                                    end: 13,
+                                                },
+                                                value: 1.0,
+                                                raw: "1",
+                                            },
+                                        ),
+                                    },
+                                ),
+                                Loop(
+                                    LoopStatement {
+                                        span: Span {
+                                            start: 19,
+                                            end: 45,
+                                        },
+                                        count: NumericLiteral(
+                                            NumericLiteral {
+                                                span: Span {
+                                                    start: 24,
+                                                    end: 26,
+                                                },
+                                                value: 10.0,
+                                                raw: "10",
+                                            },
+                                        ),
+                                        block: BlockExpression {
+                                            span: Span {
+                                                start: 28,
+                                                end: 44,
+                                            },
+                                            statements: [
+                                                Assignment(
+                                                    AssignmentStatement {
+                                                        span: Span {
+                                                            start: 29,
+                                                            end: 42,
+                                                        },
+                                                        left: VariableExpression {
+                                                            span: Span {
+                                                                start: 29,
+                                                                end: 32,
+                                                            },
+                                                            lifetime: Variable,
+                                                            member: Property {
+                                                                property: Identifier {
+                                                                    span: Span {
+                                                                        start: 31,
+                                                                        end: 32,
+                                                                    },
+                                                                    name: "i",
+                                                                },
+                                                            },
+                                                        },
+                                                        operator: Assign,
+                                                        right: Binary(
+                                                            BinaryExpression {
+                                                                span: Span {
+                                                                    start: 35,
+                                                                    end: 42,
+                                                                },
+                                                                left: Variable(
+                                                                    VariableExpression {
+                                                                        span: Span {
+                                                                            start: 35,
+                                                                            end: 38,
+                                                                        },
+                                                                        lifetime: Variable,
+                                                                        member: Property {
+                                                                            property: Identifier {
+                                                                                span: Span {
+                                                                                    start: 37,
+                                                                                    end: 38,
+                                                                                },
+                                                                                name: "i",
+                                                                            },
+                                                                        },
+                                                                    },
+                                                                ),
+                                                                operator: Addition,
+                                                                right: NumericLiteral(
+                                                                    NumericLiteral {
+                                                                        span: Span {
+                                                                            start: 41,
+                                                                            end: 42,
+                                                                        },
+                                                                        value: 1.0,
+                                                                        raw: "1",
+                                                                    },
+                                                                ),
+                                                            },
+                                                        ),
+                                                    },
+                                                ),
+                                            ],
+                                        },
+                                    },
+                                ),
+                            ],
+                        },
+                    ),
+                ),
+            ],
+        ),
+    },
+    errors: [],
+    panicked: false,
+}

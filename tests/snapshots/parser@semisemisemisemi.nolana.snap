@@ -1,0 +1,739 @@
+---
+source: tests/integration.rs
+input_file: tests/parser/semisemisemisemi.nolana
+---
+ParseResult {
+    program: Program {
+        span: Span {
+            start: 0,
+            end: 149,
+        },
+        source: ";;;;;;; ;;;;;;; ;;;    ;;; ;;\n;;      ;;      ;;;;  ;;;; ;;\n;;;;;;; ;;;;;   ;; ;;;; ;; ;;\n     ;; ;;      ;;  ;;  ;; ;;\n;;;;;;; ;;;;;;; ;;      ;; ;;\n",
+        body: Complex(
+            [
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 1,
+                            end: 2,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 2,
+                            end: 3,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 3,
+                            end: 4,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 4,
+                            end: 5,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 5,
+                            end: 6,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 6,
+                            end: 7,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 8,
+                            end: 9,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 9,
+                            end: 10,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 10,
+                            end: 11,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 11,
+                            end: 12,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 12,
+                            end: 13,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 13,
+                            end: 14,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 14,
+                            end: 15,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 16,
+                            end: 17,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 17,
+                            end: 18,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 18,
+                            end: 19,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 23,
+                            end: 24,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 24,
+                            end: 25,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 25,
+                            end: 26,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 27,
+                            end: 28,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 28,
+                            end: 29,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 30,
+                            end: 31,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 31,
+                            end: 32,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 38,
+                            end: 39,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 39,
+                            end: 40,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 46,
+                            end: 47,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 47,
+                            end: 48,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 48,
+                            end: 49,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 49,
+                            end: 50,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 52,
+                            end: 53,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 53,
+                            end: 54,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 54,
+                            end: 55,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 55,
+                            end: 56,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 57,
+                            end: 58,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 58,
+                            end: 59,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 60,
+                            end: 61,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 61,
+                            end: 62,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 62,
+                            end: 63,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 63,
+                            end: 64,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 64,
+                            end: 65,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 65,
+                            end: 66,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 66,
+                            end: 67,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 68,
+                            end: 69,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 69,
+                            end: 70,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 70,
+                            end: 71,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 71,
+                            end: 72,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 72,
+                            end: 73,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 76,
+                            end: 77,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 77,
+                            end: 78,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 79,
+                            end: 80,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 80,
+                            end: 81,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 81,
+                            end: 82,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 82,
+                            end: 83,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 84,
+                            end: 85,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 85,
+                            end: 86,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 87,
+                            end: 88,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 88,
+                            end: 89,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 95,
+                            end: 96,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 96,
+                            end: 97,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 98,
+                            end: 99,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 99,
+                            end: 100,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 106,
+                            end: 107,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 107,
+                            end: 108,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 110,
+                            end: 111,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 111,
+                            end: 112,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 114,
+                            end: 115,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 115,
+                            end: 116,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 117,
+                            end: 118,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 118,
+                            end: 119,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 120,
+                            end: 121,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 121,
+                            end: 122,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 122,
+                            end: 123,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 123,
+                            end: 124,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 124,
+                            end: 125,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 125,
+                            end: 126,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 126,
+                            end: 127,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 128,
+                            end: 129,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 129,
+                            end: 130,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 130,
+                            end: 131,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 131,
+                            end: 132,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 132,
+                            end: 133,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 133,
+                            end: 134,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 134,
+                            end: 135,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 136,
+                            end: 137,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 137,
+                            end: 138,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 144,
+                            end: 145,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 145,
+                            end: 146,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 147,
+                            end: 148,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 148,
+                            end: 149,
+                        },
+                    },
+                ),
+                Empty(
+                    EmptyStatement {
+                        span: Span {
+                            start: 150,
+                            end: 151,
+                        },
+                    },
+                ),
+            ],
+        ),
+    },
+    errors: [],
+    panicked: false,
+}
