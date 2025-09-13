@@ -103,5 +103,4 @@ ParseResult {
         ),
     },
     errors: [],
-    panicked: false,
 }

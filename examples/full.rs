@@ -9,15 +9,12 @@ use nolana::{
 fn main() {
     let source_text = fs::read_to_string("examples/sample.molang").unwrap();
 
-    let ParseResult { mut program, errors, panicked } = Parser::new(&source_text).parse();
+    let ParseResult { mut program, errors } = Parser::new(&source_text).parse();
 
     if !errors.is_empty() {
         for error in errors {
             let error = error.with_source_code(source_text.clone());
             print!("{error:?}");
-        }
-        if panicked {
-            println!("Encountered an unrecoverable error");
         }
         return;
     }

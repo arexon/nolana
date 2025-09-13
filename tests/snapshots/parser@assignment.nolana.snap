@@ -531,5 +531,4 @@ ParseResult {
         ),
     },
     errors: [],
-    panicked: false,
 }

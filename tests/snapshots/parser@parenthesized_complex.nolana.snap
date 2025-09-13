@@ -99,5 +99,4 @@ ParseResult {
         ),
     },
     errors: [],
-    panicked: false,
 }
