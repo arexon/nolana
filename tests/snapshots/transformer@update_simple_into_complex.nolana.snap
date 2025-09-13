@@ -1,0 +1,6 @@
+---
+source: tests/integration.rs
+input_file: tests/transformer/update_simple_into_complex.nolana
+---
+variable.x = variable.x + 1;
+return variable.x;

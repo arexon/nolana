@@ -1,0 +1,5 @@
+---
+source: tests/integration.rs
+input_file: tests/codegen/for_each.nolana
+---
+for_each(v.a,q.foo,{v.b=v.a+1;});

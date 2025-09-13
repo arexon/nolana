@@ -1,0 +1,29 @@
+---
+source: tests/integration.rs
+input_file: tests/semantic/variable_context_assignment.nolana
+---
+[
+    Diagnostic {
+        inner: DiagnosticInner {
+            message: "`context.` variables are read-only",
+            labels: Some(
+                [
+                    LabeledSpan {
+                        label: None,
+                        span: SourceSpan {
+                            offset: SourceOffset(
+                                0,
+                            ),
+                            length: 15,
+                        },
+                        primary: false,
+                    },
+                ],
+            ),
+            help: Some(
+                "Try assigning to `variable.` or `temp.` instead",
+            ),
+            severity: Error,
+        },
+    },
+]

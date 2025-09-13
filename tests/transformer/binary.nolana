@@ -1,0 +1,7 @@
+v.x % v.y;
+v.x ** v.y;
+v.x >> v.y;
+v.x << v.y;
+q.foo(v.x | v.y);
+q.bar(v.x & v.y);
+q.baz(v.x ^ v.y);

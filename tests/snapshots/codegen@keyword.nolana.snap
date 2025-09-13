@@ -1,0 +1,5 @@
+---
+source: tests/integration.rs
+input_file: tests/codegen/keyword.nolana
+---
+break;continue;this;return v.a;

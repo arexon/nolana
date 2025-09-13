@@ -1,5 +1,0 @@
----
-source: tests/codegen.rs
-expression: out
----
-array.foo[q.bar]

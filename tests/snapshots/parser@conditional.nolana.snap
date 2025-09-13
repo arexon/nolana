@@ -1,0 +1,128 @@
+---
+source: tests/integration.rs
+input_file: tests/parser/conditional.nolana
+---
+ParseResult {
+    program: Program {
+        span: Span {
+            start: 0,
+            end: 36,
+        },
+        source: "q.foo ? 1;\nq.foo ? {\n    v.a = 1;\n};\n",
+        body: Complex(
+            [
+                Expression(
+                    Conditional(
+                        ConditionalExpression {
+                            span: Span {
+                                start: 0,
+                                end: 9,
+                            },
+                            test: Call(
+                                CallExpression {
+                                    span: Span {
+                                        start: 0,
+                                        end: 5,
+                                    },
+                                    kind: Query,
+                                    callee: Identifier {
+                                        span: Span {
+                                            start: 2,
+                                            end: 5,
+                                        },
+                                        name: "foo",
+                                    },
+                                    arguments: None,
+                                },
+                            ),
+                            consequent: NumericLiteral(
+                                NumericLiteral {
+                                    span: Span {
+                                        start: 8,
+                                        end: 9,
+                                    },
+                                    value: 1.0,
+                                    raw: "1",
+                                },
+                            ),
+                        },
+                    ),
+                ),
+                Expression(
+                    Conditional(
+                        ConditionalExpression {
+                            span: Span {
+                                start: 11,
+                                end: 35,
+                            },
+                            test: Call(
+                                CallExpression {
+                                    span: Span {
+                                        start: 11,
+                                        end: 16,
+                                    },
+                                    kind: Query,
+                                    callee: Identifier {
+                                        span: Span {
+                                            start: 13,
+                                            end: 16,
+                                        },
+                                        name: "foo",
+                                    },
+                                    arguments: None,
+                                },
+                            ),
+                            consequent: Block(
+                                BlockExpression {
+                                    span: Span {
+                                        start: 19,
+                                        end: 35,
+                                    },
+                                    statements: [
+                                        Assignment(
+                                            AssignmentStatement {
+                                                span: Span {
+                                                    start: 25,
+                                                    end: 32,
+                                                },
+                                                left: VariableExpression {
+                                                    span: Span {
+                                                        start: 25,
+                                                        end: 28,
+                                                    },
+                                                    lifetime: Variable,
+                                                    member: Property {
+                                                        property: Identifier {
+                                                            span: Span {
+                                                                start: 27,
+                                                                end: 28,
+                                                            },
+                                                            name: "a",
+                                                        },
+                                                    },
+                                                },
+                                                operator: Assign,
+                                                right: NumericLiteral(
+                                                    NumericLiteral {
+                                                        span: Span {
+                                                            start: 31,
+                                                            end: 32,
+                                                        },
+                                                        value: 1.0,
+                                                        raw: "1",
+                                                    },
+                                                ),
+                                            },
+                                        ),
+                                    ],
+                                },
+                            ),
+                        },
+                    ),
+                ),
+            ],
+        ),
+    },
+    errors: [],
+    panicked: false,
+}

@@ -1,0 +1,63 @@
+---
+source: tests/integration.rs
+input_file: tests/parser/keywords.nolana
+---
+ParseResult {
+    program: Program {
+        span: Span {
+            start: 0,
+            end: 32,
+        },
+        source: "this;\nbreak;\ncontinue;\nreturn 1;\n",
+        body: Complex(
+            [
+                Expression(
+                    This(
+                        ThisExpression {
+                            span: Span {
+                                start: 0,
+                                end: 4,
+                            },
+                        },
+                    ),
+                ),
+                Break(
+                    BreakStatement {
+                        span: Span {
+                            start: 6,
+                            end: 11,
+                        },
+                    },
+                ),
+                Continue(
+                    ContinueStatement {
+                        span: Span {
+                            start: 13,
+                            end: 21,
+                        },
+                    },
+                ),
+                Return(
+                    ReturnStatement {
+                        span: Span {
+                            start: 23,
+                            end: 31,
+                        },
+                        argument: NumericLiteral(
+                            NumericLiteral {
+                                span: Span {
+                                    start: 30,
+                                    end: 31,
+                                },
+                                value: 1.0,
+                                raw: "1",
+                            },
+                        ),
+                    },
+                ),
+            ],
+        ),
+    },
+    errors: [],
+    panicked: false,
+}
