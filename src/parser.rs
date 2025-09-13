@@ -23,7 +23,6 @@ use crate::{
 /// anyway. When this happens:
 /// 1. [`program`] will contain an AST
 /// 2. [`errors`] will be non-empty
-/// 3. [`panicked`] will be false
 ///
 /// [`program`]: ParseResult::program
 /// [`errors`]: ParseResult::errors
@@ -32,7 +31,6 @@ use crate::{
 pub struct ParseResult<'src> {
     pub program: Program<'src>,
     pub errors: Vec<Diagnostic>,
-    pub panicked: bool,
 }
 
 /// Recursive Descent Parser for [Molang](https://bedrock.dev/docs/stable/Molang).
@@ -63,19 +61,18 @@ impl<'src> Parser<'src> {
     /// See [`ParseResult`] for more info.
     pub fn parse(mut self) -> ParseResult<'src> {
         self.bump(); // First token.
-        let (program, panicked) = match self.parse_program() {
-            Ok(program) => (program, false),
+        let program = match self.parse_program() {
+            Ok(program) => program,
             Err(error) => {
                 self.error(error);
-                let program = Program {
+                Program {
                     span: Span::default(),
                     source: self.source_code,
                     body: ProgramBody::Empty,
-                };
-                (program, true)
+                }
             }
         };
-        ParseResult { program, errors: self.errors, panicked }
+        ParseResult { program, errors: self.errors }
     }
 
     fn parse_program(&mut self) -> Result<Program<'src>> {

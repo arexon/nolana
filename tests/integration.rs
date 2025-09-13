@@ -20,7 +20,6 @@ fn read_and_codegen(path: &Path) -> String {
     let source = fs::read_to_string(path).unwrap();
     let result = Parser::new(&source).parse();
     assert!(result.errors.is_empty());
-    assert!(!result.panicked);
     Codegen::default().build(&result.program)
 }
 

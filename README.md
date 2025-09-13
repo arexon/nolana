@@ -35,20 +35,13 @@ use nolana::{semantic::SemanticChecker, Codegen, CodegenOptions, ParseResult, Pa
 let source_text = "math.cos(q.anim_time * 38) * v.rotation_scale + v.x * v.x * q.life_time";
 
 // Parse the provided Molang source code.
-let ParseResult {
-    program,
-    errors,
-    panicked,
-} = Parser::new(source_text).parse();
+let ParseResult { program, errors } = Parser::new(source_text).parse();
 
 // Check for syntax errors.
 if !errors.is_empty() {
     for error in errors {
         let error = error.with_source_code(source_text);
         print!("{error:?}");
-    }
-    if panicked {
-        println!("Encountered an unrecoverable error");
     }
     return;
 }

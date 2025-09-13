@@ -735,5 +735,4 @@ ParseResult {
         ),
     },
     errors: [],
-    panicked: false,
 }
