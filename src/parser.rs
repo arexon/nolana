@@ -26,7 +26,6 @@ use crate::{
 ///
 /// [`program`]: ParseResult::program
 /// [`errors`]: ParseResult::errors
-/// [`panicked`]: ParseResult::panicked
 #[derive(Debug)]
 pub struct ParseResult<'src> {
     pub program: Program<'src>,
