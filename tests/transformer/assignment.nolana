@@ -1,0 +1,14 @@
+v.x = v.y;
+v.x += v.y;
+v.x -= v.y;
+v.x *= v.y;
+v.x /= v.y;
+v.x **= v.y;
+v.x %= v.y;
+v.x &&= v.y;
+v.x ||= v.y;
+v.x >>= v.y;
+v.x <<= v.y;
+v.x |= v.y;
+v.x &= v.y;
+v.x ^= v.y;

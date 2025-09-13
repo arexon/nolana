@@ -1,0 +1,16 @@
+---
+source: tests/integration.rs
+input_file: tests/transformer/update.nolana
+---
+variable.a = variable.a + 1;
+{
+    variable.other = math.random();
+    variable.b = variable.b - 1;
+    variable.result = variable.b;
+    variable.do ? {
+        variable.other = math.random();
+        variable.c = variable.c + 1;
+        query.foo(variable.c);
+        variable.other = math.random();
+    };
+};

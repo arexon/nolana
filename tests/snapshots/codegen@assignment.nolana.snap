@@ -1,0 +1,5 @@
+---
+source: tests/integration.rs
+input_file: tests/codegen/assignment.nolana
+---
+v.cow.location=16;

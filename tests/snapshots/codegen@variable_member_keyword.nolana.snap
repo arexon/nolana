@@ -1,0 +1,5 @@
+---
+source: tests/integration.rs
+input_file: tests/codegen/variable_member_keyword.nolana
+---
+v.v.temp.t.context.c.query.q.math.a.b.c

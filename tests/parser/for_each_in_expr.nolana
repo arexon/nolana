@@ -1,0 +1,1 @@
+1 + for_each(v.a, q.foo, {0;})
