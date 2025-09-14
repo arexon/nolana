@@ -14,7 +14,7 @@ ParseResult {
     errors: [
         Diagnostic {
             inner: DiagnosticInner {
-                message: "Unterminated string",
+                message: "unterminated string",
                 labels: Some(
                     [
                         LabeledSpan {

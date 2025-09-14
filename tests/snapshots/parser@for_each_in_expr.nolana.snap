@@ -14,7 +14,7 @@ ParseResult {
     errors: [
         Diagnostic {
             inner: DiagnosticInner {
-                message: "A loop cannot be used in expressions",
+                message: "`loop` statement cannot be used inside expressions",
                 labels: Some(
                     [
                         LabeledSpan {
@@ -30,7 +30,7 @@ ParseResult {
                     ],
                 ),
                 help: Some(
-                    "Try defining it in a statement",
+                    "try defining it in a statement",
                 ),
                 severity: Error,
             },

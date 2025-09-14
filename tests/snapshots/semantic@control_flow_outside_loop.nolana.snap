@@ -5,7 +5,7 @@ input_file: tests/semantic/control_flow_outside_loop.nolana
 [
     Diagnostic {
         inner: DiagnosticInner {
-            message: "`break` is only supported inside `loop` and `for_each` expressions",
+            message: "`break` is only supported inside `loop` and `for_each` statements",
             labels: Some(
                 [
                     LabeledSpan {
@@ -26,7 +26,7 @@ input_file: tests/semantic/control_flow_outside_loop.nolana
     },
     Diagnostic {
         inner: DiagnosticInner {
-            message: "`continue` is only supported inside `loop` and `for_each` expressions",
+            message: "`continue` is only supported inside `loop` and `for_each` statements",
             labels: Some(
                 [
                     LabeledSpan {

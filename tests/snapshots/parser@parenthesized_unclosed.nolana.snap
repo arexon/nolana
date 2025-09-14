@@ -14,13 +14,11 @@ ParseResult {
     errors: [
         Diagnostic {
             inner: DiagnosticInner {
-                message: "Expected `)` but found `EOF`",
+                message: "expected `)` but found `EOF`",
                 labels: Some(
                     [
                         LabeledSpan {
-                            label: Some(
-                                "Here",
-                            ),
+                            label: None,
                             span: SourceSpan {
                                 offset: SourceOffset(
                                     5,

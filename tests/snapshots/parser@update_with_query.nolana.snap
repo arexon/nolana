@@ -14,7 +14,7 @@ ParseResult {
     errors: [
         Diagnostic {
             inner: DiagnosticInner {
-                message: "`++` and `--` can only be used on `variable.*` and `temp.*`",
+                message: "`++` and `--` can only be used on variables",
                 labels: Some(
                     [
                         LabeledSpan {
