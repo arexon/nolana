@@ -5,7 +5,7 @@ input_file: tests/semantic/block_empty.nolana
 [
     Diagnostic {
         inner: DiagnosticInner {
-            message: "Block expressions must contain at least one expression",
+            message: "block statement must contain at least one statement",
             labels: Some(
                 [
                     LabeledSpan {

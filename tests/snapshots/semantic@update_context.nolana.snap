@@ -1,6 +1,6 @@
 ---
 source: tests/integration.rs
-input_file: tests/semantic/variable_context_assignment.nolana
+input_file: tests/semantic/update_context.nolana
 ---
 [
     Diagnostic {
@@ -14,7 +14,7 @@ input_file: tests/semantic/variable_context_assignment.nolana
                             offset: SourceOffset(
                                 0,
                             ),
-                            length: 15,
+                            length: 13,
                         },
                         primary: false,
                     },

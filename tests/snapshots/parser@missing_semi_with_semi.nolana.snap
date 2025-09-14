@@ -41,7 +41,7 @@ ParseResult {
     errors: [
         Diagnostic {
             inner: DiagnosticInner {
-                message: "Semicolons are required for complex Molang expressions (contain `=` or `;`)",
+                message: "semicolons are required for complex programs (containing `=` or `;`)",
                 labels: Some(
                     [
                         LabeledSpan {
@@ -57,7 +57,7 @@ ParseResult {
                     ],
                 ),
                 help: Some(
-                    "Try inserting a semicolon here",
+                    "try inserting a semicolon here",
                 ),
                 severity: Error,
             },
