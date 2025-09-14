@@ -10,9 +10,10 @@ pub type Result<T> = std::result::Result<T, Diagnostic>;
 /// Describes an error or warning that occurred during parsing.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Diagnostic {
-    // Boxed to make `Diagnostic` 8 bytes so that `Result` is small.
-    // This is due to rust not supporting return value optimization.
-    // <https://users.rust-lang.org/t/does-rust-have-return-value-optimization/10389>
+    /// Boxed to make [`Diagnostic`] 8 bytes so that `Result` is small.
+    /// This is due to rust not supporting [return value optimization].
+    ///
+    /// [return value optimization]: <https://users.rust-lang.org/t/does-rust-have-return-value-optimization/10389>
     inner: Box<DiagnosticInner>,
 }
 
