@@ -17,6 +17,8 @@ impl Token {
 
 #[derive(Debug, PartialEq, Clone, Copy, Default, Logos)]
 #[logos(skip "[ \t\n\r]+")]
+#[logos(skip "//.*")]
+#[logos(skip r"/\*[^*]*\*+([^/*][^*]*\*+)*/")]
 pub enum Kind {
     #[default]
     Eof,
@@ -543,6 +545,31 @@ mod tests {
                 (Ok(Kind::Star), "*"),
                 (Ok(Kind::Slash), "/"),
             ],
+        );
+    }
+
+    #[test]
+    fn test_line_comment() {
+        assert_lexer(
+            "
+                // abcdefgh
+                1
+            ",
+            &[(Ok(Kind::Number), "1")],
+        );
+    }
+
+    #[test]
+    fn test_block_comment() {
+        assert_lexer(
+            "
+                /*
+                 * foo
+                 * bar
+                 */
+                1
+            ",
+            &[(Ok(Kind::Number), "1")],
         );
     }
 
