@@ -2,7 +2,7 @@ use logos::{Lexer, Logos};
 
 use crate::{
     ast::*,
-    diagnostic::{Diagnostic, Result, errors},
+    diagnostic::{Diagnostic, Result},
     span::Span,
     token::{Kind, Token},
 };
@@ -80,7 +80,7 @@ impl<'src> Parser<'src> {
         while !self.at(Kind::Eof) {
             let stmt = self.parse_statement()?;
             if !self.parse_semi(&stmt) && self.is_complex {
-                self.error(errors::semi_required(self.current_token().span()));
+                self.error(semi_required_in_complex(self.current_token().span()));
             }
             match &mut body {
                 ProgramBody::Complex(stmts) => stmts.push(stmt),
@@ -160,8 +160,8 @@ impl<'src> Parser<'src> {
         let span = self.start_span();
         self.expect(Kind::ForEach)?;
         self.expect(Kind::LeftParen)?;
-        if !(self.at(Kind::Variable) || self.at(Kind::Temporary)) {
-            return Err(errors::for_each_wrong_first_arg(self.current_token().span()));
+        if !self.current_kind().is_variable() {
+            return Err(invalid_for_each_first_arg(self.current_token().span()));
         }
         let variable = self.parse_variable_expression()?;
         self.expect(Kind::Comma)?;
@@ -210,13 +210,13 @@ impl<'src> Parser<'src> {
             v if v.is_resource() => self.parse_resource_expression()?,
             Kind::Array => self.parse_array_access_expression()?,
             Kind::Loop | Kind::ForEach => {
-                return Err(errors::loop_in_expression(self.end_span_single(span)));
+                return Err(loop_in_expression(self.end_span_single(span)));
             }
             Kind::This => self.parse_this_expression()?,
             Kind::UnterminatedString => {
-                return Err(errors::unterminated_string(self.end_span(span)));
+                return Err(unterminated_string(self.end_span(span)));
             }
-            _ => return Err(errors::unexpected_token(self.current_token().span())),
+            _ => return Err(unexpected_token(self.current_token().span())),
         };
         self.parse_expression_rest(min_bp, left, span)
     }
@@ -247,12 +247,10 @@ impl<'src> Parser<'src> {
                     left = self.parse_binary_expression(span, left, rbp)?;
                 }
                 kind if kind.is_update_operator() => match left {
-                    Expression::Variable(variable)
-                        if variable.lifetime != VariableLifetime::Context =>
-                    {
+                    Expression::Variable(variable) => {
                         left = self.parse_update_expression(span, *variable)?;
                     }
-                    _ => return Err(errors::illegal_update_operation(self.end_span(span))),
+                    _ => return Err(illegal_update_operation(self.end_span(span))),
                 },
                 Kind::Question => {
                     left = self.parse_ternary_or_conditional_expression(span, left)?;
@@ -267,7 +265,7 @@ impl<'src> Parser<'src> {
         let span = self.start_span();
         let raw = self.current_src();
         self.expect(Kind::Number)?;
-        let value = raw.parse::<f32>().map_err(|_| errors::invalid_number(self.end_span(span)))?;
+        let value = raw.parse::<f32>().map_err(|_| invalid_number(self.end_span(span)))?;
         Ok(NumericLiteral { span: self.end_span(span), value, raw }.into())
     }
 
@@ -304,11 +302,6 @@ impl<'src> Parser<'src> {
     fn parse_parenthesized_expression(&mut self) -> Result<Expression<'src>> {
         let span = self.start_span();
         self.expect(Kind::LeftParen)?;
-        if self.at(Kind::RightParen) {
-            let span = self.start_span();
-            self.bump();
-            return Err(errors::empty_parenthesized_expression(self.end_span(span)));
-        }
         let first_stmt = self.parse_statement()?;
         if self.parse_semi(&first_stmt) {
             self.parse_parenthesized_expression_rest(first_stmt, span)
@@ -321,13 +314,13 @@ impl<'src> Parser<'src> {
             }
             .into())
         } else if self.eat(Kind::Eof) {
-            Err(errors::expected_token(
+            Err(expected_token(
                 Kind::RightParen.as_str(),
                 self.current_kind().as_str(),
                 Span::new(self.prev_token_end, self.current_token().start),
             ))
         } else {
-            Err(errors::unexpected_token(self.current_token().span()))
+            Err(unexpected_token(self.current_token().span()))
         }
     }
 
@@ -343,9 +336,7 @@ impl<'src> Parser<'src> {
             }
             let stmt = self.parse_statement()?;
             if !self.parse_semi(&stmt) {
-                self.error(errors::semi_required_in_parenthesized_expression(
-                    self.current_token().span(),
-                ));
+                self.error(semi_required_in_parenthesized(self.current_token().span()));
             }
             statements.push(stmt);
         }
@@ -370,7 +361,7 @@ impl<'src> Parser<'src> {
         while !self.at(Kind::RightBrace) {
             let stmt = self.parse_statement()?;
             if !self.parse_semi(&stmt) && self.is_complex {
-                self.error(errors::semi_required_in_block_expression(self.current_token().span()));
+                self.error(semi_required_in_block_expression(self.current_token().span()));
             }
             statements.push(stmt)
         }
@@ -565,17 +556,71 @@ impl<'src> Parser<'src> {
     #[inline(always)] // Hot path
     fn expect(&mut self, kind: Kind) -> Result<()> {
         if !self.eat(kind) {
-            return Err(self.expected_token(kind));
+            let curr_token = self.current_token();
+            return Err(expected_token(kind.as_str(), curr_token.kind.as_str(), curr_token.span()));
         }
         Ok(())
-    }
-
-    fn expected_token(&self, kind: Kind) -> Diagnostic {
-        let curr_token = self.current_token();
-        errors::expected_token(kind.as_str(), curr_token.kind.as_str(), curr_token.span())
     }
 
     fn error(&mut self, error: Diagnostic) {
         self.errors.push(error);
     }
+}
+
+#[cold]
+fn invalid_number(span: Span) -> Diagnostic {
+    Diagnostic::error("invalid number").with_label(span)
+}
+
+#[cold]
+fn unexpected_token(span: Span) -> Diagnostic {
+    Diagnostic::error("unexpected token").with_label(span)
+}
+
+#[cold]
+fn expected_token(expected: &str, found: &str, span: Span) -> Diagnostic {
+    Diagnostic::error(format!("expected `{expected}` but found `{found}`")).with_label(span)
+}
+
+#[cold]
+fn semi_required_in_complex(span: Span) -> Diagnostic {
+    Diagnostic::error("semicolons are required for complex programs (containing `=` or `;`)")
+        .with_help("try inserting a semicolon here")
+        .with_label(span)
+}
+
+#[cold]
+fn semi_required_in_parenthesized(span: Span) -> Diagnostic {
+    Diagnostic::error("statements inside parenthesized expressions must be delimited by `;` if the other statements also end with `;`")
+            .with_help("try inserting a semicolon here")
+            .with_label(span)
+}
+
+#[cold]
+fn semi_required_in_block_expression(span: Span) -> Diagnostic {
+    Diagnostic::error("statements inside block expressions must be delimited by `;`")
+        .with_help("try inserting a semicolon here")
+        .with_label(span)
+}
+
+#[cold]
+fn unterminated_string(span: Span) -> Diagnostic {
+    Diagnostic::error("unterminated string").with_label(span)
+}
+
+#[cold]
+fn loop_in_expression(span: Span) -> Diagnostic {
+    Diagnostic::error("`loop` statement cannot be used inside expressions")
+        .with_help("try defining it in a statement")
+        .with_label(span)
+}
+
+#[cold]
+fn illegal_update_operation(span: Span) -> Diagnostic {
+    Diagnostic::error("`++` and `--` can only be used on variables").with_label(span)
+}
+
+#[cold]
+fn invalid_for_each_first_arg(span: Span) -> Diagnostic {
+    Diagnostic::error("`for_each` statement first argument must be a variable").with_label(span)
 }

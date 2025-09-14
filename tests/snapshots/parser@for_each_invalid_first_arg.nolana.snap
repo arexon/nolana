@@ -14,7 +14,7 @@ ParseResult {
     errors: [
         Diagnostic {
             inner: DiagnosticInner {
-                message: "`for_each` first argument must be either a `variable.` or a `temp.`",
+                message: "`for_each` statement first argument must be a variable",
                 labels: Some(
                     [
                         LabeledSpan {

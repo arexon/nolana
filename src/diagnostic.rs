@@ -1,4 +1,4 @@
-use std::{borrow::Cow, fmt, ops};
+use std::{borrow::Cow, error, fmt, ops};
 
 use miette::{Diagnostic as MietteDiagnostic, LabeledSpan, Severity, SourceCode};
 
@@ -85,7 +85,7 @@ impl fmt::Display for Diagnostic {
     }
 }
 
-impl std::error::Error for Diagnostic {}
+impl error::Error for Diagnostic {}
 
 impl ops::Deref for Diagnostic {
     type Target = DiagnosticInner;
@@ -110,108 +110,5 @@ impl MietteDiagnostic for Diagnostic {
             .map(|labels| labels.iter().cloned())
             .map(Box::new)
             .map(|labels| labels as Box<dyn Iterator<Item = LabeledSpan>>)
-    }
-}
-
-pub mod errors {
-    use crate::span::Span;
-
-    use super::*;
-
-    #[cold]
-    pub fn invalid_number(span: Span) -> Diagnostic {
-        Diagnostic::error("Invalid number").with_label(span)
-    }
-
-    #[cold]
-    pub fn for_each_wrong_first_arg(span: Span) -> Diagnostic {
-        Diagnostic::error("`for_each` first argument must be either a `variable.` or a `temp.`")
-            .with_label(span)
-    }
-
-    #[cold]
-    pub fn unexpected_token(span: Span) -> Diagnostic {
-        Diagnostic::error("Unexpected token").with_label(span)
-    }
-
-    #[cold]
-    pub fn expected_token(expected: &str, found: &str, span: Span) -> Diagnostic {
-        Diagnostic::error(format!("Expected `{expected}` but found `{found}`"))
-            .with_label(span.label("Here"))
-    }
-
-    #[cold]
-    pub fn semi_required(span: Span) -> Diagnostic {
-        Diagnostic::error(
-            "Semicolons are required for complex Molang expressions (contain `=` or `;`)",
-        )
-        .with_help("Try inserting a semicolon here")
-        .with_label(span)
-    }
-
-    #[cold]
-    pub fn semi_required_in_parenthesized_expression(span: Span) -> Diagnostic {
-        Diagnostic::error("Statements inside `()` must be delimited by `;` if the other statements also end with `;`")
-            .with_help("Try inserting a semicolon here")
-            .with_label(span)
-    }
-
-    #[cold]
-    pub fn semi_required_in_block_expression(span: Span) -> Diagnostic {
-        Diagnostic::error("Statements inside `{}` must be delimited by `;`")
-            .with_help("Try inserting a semicolon here")
-            .with_label(span)
-    }
-
-    #[cold]
-    pub fn empty_block_expression(span: Span) -> Diagnostic {
-        Diagnostic::error("Block expressions must contain at least one expression").with_label(span)
-    }
-
-    #[cold]
-    pub fn illegal_string_operators(span: Span) -> Diagnostic {
-        Diagnostic::error("Strings only support `==` and `!=` operators").with_label(span)
-    }
-
-    #[cold]
-    pub fn break_outside_loop(span: Span) -> Diagnostic {
-        Diagnostic::error("`break` is only supported inside `loop` and `for_each` expressions")
-            .with_label(span)
-    }
-
-    #[cold]
-    pub fn continue_outside_loop(span: Span) -> Diagnostic {
-        Diagnostic::error("`continue` is only supported inside `loop` and `for_each` expressions")
-            .with_label(span)
-    }
-
-    #[cold]
-    pub fn assigning_context(span: Span) -> Diagnostic {
-        Diagnostic::error("`context.` variables are read-only")
-            .with_help("Try assigning to `variable.` or `temp.` instead")
-            .with_label(span)
-    }
-
-    #[cold]
-    pub fn unterminated_string(span: Span) -> Diagnostic {
-        Diagnostic::error("Unterminated string").with_label(span)
-    }
-
-    #[cold]
-    pub fn empty_parenthesized_expression(span: Span) -> Diagnostic {
-        Diagnostic::error("Empty parenthesized expression").with_label(span)
-    }
-
-    #[cold]
-    pub fn loop_in_expression(span: Span) -> Diagnostic {
-        Diagnostic::error("A loop cannot be used in expressions")
-            .with_help("Try defining it in a statement")
-            .with_label(span)
-    }
-
-    #[cold]
-    pub fn illegal_update_operation(span: Span) -> Diagnostic {
-        Diagnostic::error("`++` and `--` can only be used on `variable.*` and `temp.*`")
-            .with_label(span)
     }
 }

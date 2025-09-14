@@ -6,32 +6,36 @@ ParseResult {
     program: Program {
         span: Span {
             start: 0,
-            end: 0,
+            end: 7,
         },
         source: "c.foo++\n",
-        body: Empty,
-    },
-    errors: [
-        Diagnostic {
-            inner: DiagnosticInner {
-                message: "`++` and `--` can only be used on `variable.*` and `temp.*`",
-                labels: Some(
-                    [
-                        LabeledSpan {
-                            label: None,
-                            span: SourceSpan {
-                                offset: SourceOffset(
-                                    0,
-                                ),
-                                length: 5,
-                            },
-                            primary: false,
+        body: Simple(
+            Update(
+                UpdateExpression {
+                    span: Span {
+                        start: 0,
+                        end: 7,
+                    },
+                    variable: VariableExpression {
+                        span: Span {
+                            start: 0,
+                            end: 5,
                         },
-                    ],
-                ),
-                help: None,
-                severity: Error,
-            },
-        },
-    ],
+                        lifetime: Context,
+                        member: Property {
+                            property: Identifier {
+                                span: Span {
+                                    start: 2,
+                                    end: 5,
+                                },
+                                name: "foo",
+                            },
+                        },
+                    },
+                    operator: Increment,
+                },
+            ),
+        ),
+    },
+    errors: [],
 }

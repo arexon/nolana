@@ -1,28 +1,26 @@
 ---
 source: tests/integration.rs
-input_file: tests/semantic/variable_context_assignment.nolana
+input_file: tests/semantic/for_each_context_first_arg.nolana
 ---
 [
     Diagnostic {
         inner: DiagnosticInner {
-            message: "`context.*` variables are read-only",
+            message: "`for_each` first argument must be either `variable.*` or `temp.*`",
             labels: Some(
                 [
                     LabeledSpan {
                         label: None,
                         span: SourceSpan {
                             offset: SourceOffset(
-                                0,
+                                9,
                             ),
-                            length: 15,
+                            length: 5,
                         },
                         primary: false,
                     },
                 ],
             ),
-            help: Some(
-                "try using `variable.*` or `temp.*` instead",
-            ),
+            help: None,
             severity: Error,
         },
     },
