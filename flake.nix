@@ -1,37 +1,39 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-
-    flake-utils.url = "github:numtide/flake-utils";
-
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    flake-parts.url = "github:hercules-ci/flake-parts";
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = {
-    nixpkgs,
-    flake-utils,
-    rust-overlay,
-    ...
-  }:
-    flake-utils.lib.eachDefaultSystem (system: let
-      pkgs = import nixpkgs {
-        inherit system;
-        overlays = [(import rust-overlay)];
-      };
-    in {
-      formatter = pkgs.alejandra;
+  outputs = inputs:
+    inputs.flake-parts.lib.mkFlake {inherit inputs;} {
+      systems = inputs.nixpkgs.lib.systems.flakeExposed;
+      perSystem = {
+        pkgs,
+        system,
+        ...
+      }: let
+        rust-toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
+      in {
+        _module.args.pkgs = import inputs.nixpkgs {
+          inherit system;
+          overlays = [inputs.rust-overlay.overlays.default];
+        };
 
-      devShells.default = pkgs.mkShell {
-        packages = with pkgs; [
-          (rust-bin.fromRustupToolchainFile ./rust-toolchain.toml)
-          cargo-insta
-          just
-          cargo-edit
-          taplo
-        ];
+        formatter = pkgs.alejandra;
+
+        devShells.default = pkgs.mkShell {
+          packages = with pkgs; [
+            rust-toolchain
+            cargo-insta
+            just
+            cargo-edit
+            taplo
+          ];
+        };
       };
-    });
+    };
 }
