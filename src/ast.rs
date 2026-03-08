@@ -365,8 +365,6 @@ pub enum VariableLifetime {
     Variable,
     /// `context` in `context.foo`
     Context,
-    /// `parameter` in `parameter.foo`
-    Parameter,
 }
 
 impl VariableLifetime {
@@ -375,7 +373,6 @@ impl VariableLifetime {
             Self::Temporary => "temp",
             Self::Variable => "variable",
             Self::Context => "context",
-            Self::Parameter => "parameter",
         }
     }
 
@@ -384,7 +381,6 @@ impl VariableLifetime {
             Self::Temporary => "t",
             Self::Variable => "v",
             Self::Context => "c",
-            Self::Parameter => "p",
         }
     }
 }
@@ -395,7 +391,6 @@ impl From<Kind> for VariableLifetime {
             Kind::Temporary => Self::Temporary,
             Kind::Variable => Self::Variable,
             Kind::Context => Self::Context,
-            Kind::Parameter => Self::Parameter,
             _ => unreachable!("Variable Lifetime: {kind:?}"),
         }
     }

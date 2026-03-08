@@ -198,10 +198,6 @@ pub enum Kind {
     #[token("c", priority = 3)]
     Context,
 
-    #[token("parameter")]
-    #[token("p", priority = 3)]
-    Parameter,
-
     #[token("local")]
     #[token("l", priority = 3)]
     Local,
@@ -309,7 +305,7 @@ impl Kind {
     }
 
     pub fn is_variable(self) -> bool {
-        matches!(self, Kind::Variable | Kind::Temporary | Kind::Context | Kind::Parameter)
+        matches!(self, Kind::Variable | Kind::Temporary | Kind::Context)
     }
 
     pub fn is_call(self) -> bool {
@@ -403,7 +399,6 @@ impl Kind {
             Kind::Temporary => "temp",
             Kind::Variable => "variable",
             Kind::Context => "context",
-            Kind::Parameter => "parameter",
             Kind::Local => "local",
             Kind::Math => "math",
             Kind::Query => "query",
@@ -498,8 +493,6 @@ mod tests {
                 v
                 context
                 c
-                parameter
-                p
                 local
                 l
                 function
@@ -524,8 +517,6 @@ mod tests {
                 (Ok(Kind::Variable), "v"),
                 (Ok(Kind::Context), "context"),
                 (Ok(Kind::Context), "c"),
-                (Ok(Kind::Parameter), "parameter"),
-                (Ok(Kind::Parameter), "p"),
                 (Ok(Kind::Local), "local"),
                 (Ok(Kind::Local), "l"),
                 (Ok(Kind::Function), "function"),
