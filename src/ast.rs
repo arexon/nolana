@@ -339,7 +339,7 @@ pub struct Identifier<'src> {
 #[derive(Debug, Clone, PartialEq)]
 pub struct VariableExpression<'src> {
     pub span: Span,
-    pub lifetime: VariableLifetime,
+    pub scope: VariableScope,
     pub member: VariableMember<'src>,
 }
 
@@ -356,42 +356,42 @@ impl<'src> From<VariableExpression<'src>> for Expression<'src> {
     }
 }
 
-/// The variable lifetime associated with [`VariableExpression`].
+/// The variable scope associated with [`VariableExpression`] or [`CallExpression`].
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
-pub enum VariableLifetime {
+pub enum VariableScope {
     /// `temp` in `temp.foo`
     Temporary,
     /// `variable` in `variable.foo`
     Variable,
     /// `context` in `context.foo`
     Context,
+    /// `math` in `math.foo`
+    Math,
+    /// `query` in `query.foo`
+    Query,
 }
 
-impl VariableLifetime {
-    pub fn as_str_long(&self) -> &'static str {
+impl VariableScope {
+    pub fn as_str(&self) -> &'static str {
         match self {
             Self::Temporary => "temp",
             Self::Variable => "variable",
             Self::Context => "context",
-        }
-    }
-
-    pub fn as_str_short(&self) -> &'static str {
-        match self {
-            Self::Temporary => "t",
-            Self::Variable => "v",
-            Self::Context => "c",
+            Self::Math => "math",
+            Self::Query => "query",
         }
     }
 }
 
-impl From<Kind> for VariableLifetime {
+impl From<Kind> for VariableScope {
     fn from(kind: Kind) -> Self {
         match kind {
             Kind::Temporary => Self::Temporary,
             Kind::Variable => Self::Variable,
             Kind::Context => Self::Context,
-            _ => unreachable!("Variable Lifetime: {kind:?}"),
+            Kind::Math => Self::Math,
+            Kind::Query => Self::Query,
+            _ => unreachable!("Variable Scope: {kind:?}"),
         }
     }
 }
@@ -802,7 +802,7 @@ impl<'src> From<ArrowAccessExpression<'src>> for Expression<'src> {
 #[derive(Debug, Clone, PartialEq)]
 pub struct CallExpression<'src> {
     pub span: Span,
-    pub kind: CallKind,
+    pub scope: VariableScope,
     pub callee: Identifier<'src>,
     pub arguments: Option<Vec<Expression<'src>>>,
 }
@@ -810,41 +810,6 @@ pub struct CallExpression<'src> {
 impl<'src> From<CallExpression<'src>> for Expression<'src> {
     fn from(value: CallExpression<'src>) -> Self {
         Self::Call(value.into())
-    }
-}
-
-/// The call kind for [`CallExpression`].
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum CallKind {
-    /// `math` in `math.foo`
-    Math,
-    /// `query` in `query.foo`
-    Query,
-}
-
-impl CallKind {
-    pub fn as_str_long(&self) -> &'static str {
-        match self {
-            Self::Math => "math",
-            Self::Query => "query",
-        }
-    }
-
-    pub fn as_str_short(&self) -> &'static str {
-        match self {
-            Self::Math => "math",
-            Self::Query => "q",
-        }
-    }
-}
-
-impl From<Kind> for CallKind {
-    fn from(kind: Kind) -> Self {
-        match kind {
-            Kind::Math => Self::Math,
-            Kind::Query => Self::Query,
-            _ => unreachable!("Call Kind: {kind:?}"),
-        }
     }
 }
 

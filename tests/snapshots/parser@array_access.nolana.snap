@@ -29,7 +29,7 @@ ParseResult {
                                 start: 10,
                                 end: 15,
                             },
-                            kind: Query,
+                            scope: Query,
                             callee: Identifier {
                                 span: Span {
                                     start: 12,

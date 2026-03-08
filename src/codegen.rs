@@ -293,15 +293,16 @@ impl Print for StringLiteral<'_> {
 
 impl Print for VariableExpression<'_> {
     fn print(&self, c: &mut Codegen) {
-        self.lifetime.print(c);
+        self.scope.print(c);
         c.print_dot();
         self.member.print(c);
     }
 }
 
-impl Print for VariableLifetime {
+impl Print for VariableScope {
     fn print(&self, c: &mut Codegen) {
-        c.print_str(if c.options.minify { self.as_str_short() } else { self.as_str_long() });
+        let str = self.as_str();
+        c.print_str(if c.options.minify && *self != Self::Math { &str[0..1] } else { str });
     }
 }
 
@@ -448,18 +449,12 @@ impl Print for ArrowAccessExpression<'_> {
 
 impl Print for CallExpression<'_> {
     fn print(&self, c: &mut Codegen) {
-        self.kind.print(c);
+        self.scope.print(c);
         c.print_dot();
         self.callee.print(c);
         if let Some(args) = &self.arguments {
             c.print_wrapped('(', ')', |c| c.print_list(args));
         }
-    }
-}
-
-impl Print for CallKind {
-    fn print(&self, c: &mut Codegen) {
-        c.print_str(if c.options.minify { self.as_str_short() } else { self.as_str_long() });
     }
 }
 

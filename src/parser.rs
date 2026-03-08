@@ -408,7 +408,7 @@ impl<'src> Parser<'src> {
 
     fn parse_variable_expression(&mut self) -> Result<VariableExpression<'src>> {
         let span = self.start_span();
-        let lifetime: VariableLifetime = self.current_kind().into();
+        let scope: VariableScope = self.current_kind().into();
         self.bump();
         self.expect(Kind::Dot)?;
         let property = self.parse_identifier()?;
@@ -417,7 +417,7 @@ impl<'src> Parser<'src> {
             let property = self.parse_identifier()?;
             member = VariableMember::Object { object: member.into(), property };
         }
-        Ok(VariableExpression { span: self.end_span(span), lifetime, member })
+        Ok(VariableExpression { span: self.end_span(span), scope, member })
     }
 
     fn parse_update_expression(
@@ -464,7 +464,7 @@ impl<'src> Parser<'src> {
 
     fn parse_call_expression(&mut self) -> Result<Expression<'src>> {
         let span = self.start_span();
-        let kind: CallKind = self.current_kind().into();
+        let scope: VariableScope = self.current_kind().into();
         self.bump();
         self.expect(Kind::Dot)?;
         let callee = self.parse_identifier()?;
@@ -490,7 +490,7 @@ impl<'src> Parser<'src> {
         } else {
             None
         };
-        Ok(CallExpression { span: self.end_span(span), kind, callee, arguments }.into())
+        Ok(CallExpression { span: self.end_span(span), scope, callee, arguments }.into())
     }
 
     fn parse_function_expression(&mut self) -> Result<Expression<'src>> {

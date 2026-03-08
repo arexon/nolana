@@ -29,7 +29,7 @@ ParseResult {
                                             start: 0,
                                             end: 5,
                                         },
-                                        lifetime: Variable,
+                                        scope: Variable,
                                         member: Property {
                                             property: Identifier {
                                                 span: Span {
@@ -88,7 +88,7 @@ ParseResult {
                                                                 start: 14,
                                                                 end: 19,
                                                             },
-                                                            lifetime: Variable,
+                                                            scope: Variable,
                                                             member: Property {
                                                                 property: Identifier {
                                                                     span: Span {

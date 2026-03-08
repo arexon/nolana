@@ -491,7 +491,7 @@ fn bitwise_operation_statement<'src>(
 fn variable_expression<'src>(name: String) -> VariableExpression<'src> {
     VariableExpression {
         span: SPAN,
-        lifetime: VariableLifetime::Variable,
+        scope: VariableScope::Variable,
         member: VariableMember::Property { property: Identifier { span: SPAN, name: name.into() } },
     }
 }
@@ -543,7 +543,7 @@ fn logical_and_assignment_statement<'src>(
 fn math_pow_expression<'src>(left: Expression<'src>, right: Expression<'src>) -> Expression<'src> {
     CallExpression {
         span: SPAN,
-        kind: CallKind::Math,
+        scope: VariableScope::Math,
         callee: Identifier { span: SPAN, name: "pow".into() },
         arguments: Some(vec![left, right]),
     }
@@ -554,7 +554,7 @@ fn math_pow_expression<'src>(left: Expression<'src>, right: Expression<'src>) ->
 fn math_mod_expression<'src>(left: Expression<'src>, right: Expression<'src>) -> Expression<'src> {
     CallExpression {
         span: SPAN,
-        kind: CallKind::Math,
+        scope: VariableScope::Math,
         callee: Identifier { span: SPAN, name: "mod".into() },
         arguments: Some(vec![left, right]),
     }
@@ -565,7 +565,7 @@ fn math_mod_expression<'src>(left: Expression<'src>, right: Expression<'src>) ->
 fn math_floor_expression<'src>(x: Expression<'src>) -> Expression<'src> {
     CallExpression {
         span: SPAN,
-        kind: CallKind::Math,
+        scope: VariableScope::Math,
         callee: Identifier { span: SPAN, name: "floor".into() },
         arguments: Some(vec![x]),
     }
@@ -576,7 +576,7 @@ fn math_floor_expression<'src>(x: Expression<'src>) -> Expression<'src> {
 fn math_min_expression<'src>(left: Expression<'src>, right: Expression<'src>) -> Expression<'src> {
     CallExpression {
         span: SPAN,
-        kind: CallKind::Math,
+        scope: VariableScope::Math,
         callee: Identifier { span: SPAN, name: "min".into() },
         arguments: Some(vec![left, right]),
     }

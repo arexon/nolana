@@ -1,9 +1,9 @@
 use std::fs;
 
 use nolana::{
-    ast::{CallExpression, CallKind, Program},
+    ParseResult, Parser,
+    ast::{CallExpression, Program, VariableScope},
     traverse::{Traverse, traverse},
-    {ParseResult, Parser},
 };
 
 #[derive(Debug)]
@@ -22,9 +22,10 @@ impl MolangStats {
 
 impl<'a> Traverse<'a> for MolangStats {
     fn enter_call_expression(&mut self, it: &mut CallExpression<'a>) {
-        match it.kind {
-            CallKind::Math => self.math_functions += 1,
-            CallKind::Query => self.queries += 1,
+        match it.scope {
+            VariableScope::Math => self.math_functions += 1,
+            VariableScope::Query => self.queries += 1,
+            _ => (),
         }
     }
 }

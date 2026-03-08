@@ -16,7 +16,7 @@ ParseResult {
                         start: 0,
                         end: 46,
                     },
-                    lifetime: Variable,
+                    scope: Variable,
                     member: Object {
                         object: Object {
                             object: Object {

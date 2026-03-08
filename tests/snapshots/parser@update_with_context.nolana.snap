@@ -21,7 +21,7 @@ ParseResult {
                             start: 0,
                             end: 5,
                         },
-                        lifetime: Context,
+                        scope: Context,
                         member: Property {
                             property: Identifier {
                                 span: Span {

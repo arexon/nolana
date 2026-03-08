@@ -24,7 +24,7 @@ ParseResult {
                                         start: 0,
                                         end: 5,
                                     },
-                                    kind: Query,
+                                    scope: Query,
                                     callee: Identifier {
                                         span: Span {
                                             start: 2,
@@ -61,7 +61,7 @@ ParseResult {
                                         start: 11,
                                         end: 16,
                                     },
-                                    kind: Query,
+                                    scope: Query,
                                     callee: Identifier {
                                         span: Span {
                                             start: 13,
@@ -90,7 +90,7 @@ ParseResult {
                                                         start: 25,
                                                         end: 28,
                                                     },
-                                                    lifetime: Variable,
+                                                    scope: Variable,
                                                     member: Property {
                                                         property: Identifier {
                                                             span: Span {
