@@ -515,12 +515,7 @@ impl<'src> Parser<'src> {
                 _ => Err(non_string_literal_function_params(expr.span())),
             })
             .collect::<Result<Vec<_>>>()?;
-        Ok(FunctionExpression {
-            span: self.end_span(span),
-            parameters: (!parameters.is_empty()).then_some(parameters),
-            body,
-        }
-        .into())
+        Ok(FunctionExpression { span: self.end_span(span), parameters, body }.into())
     }
 
     fn parse_this_expression(&mut self) -> Result<Expression<'src>> {

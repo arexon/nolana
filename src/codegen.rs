@@ -181,12 +181,10 @@ impl Print for FunctionExpression<'_> {
     fn print(&self, c: &mut Codegen) {
         c.print_str("function");
         c.print_wrapped('(', ')', |c| {
-            if let Some(params) = &self.parameters {
-                for param in params {
-                    param.print(c);
-                    c.print_comma();
-                    c.print_space();
-                }
+            for param in &self.parameters {
+                param.print(c);
+                c.print_comma();
+                c.print_space();
             }
             self.body.print(c);
         });

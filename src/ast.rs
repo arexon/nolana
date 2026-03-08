@@ -815,7 +815,7 @@ impl<'src> From<CallExpression<'src>> for Expression<'src> {
 #[derive(Debug, Clone, PartialEq)]
 pub struct FunctionExpression<'src> {
     pub span: Span,
-    pub parameters: Option<Vec<StringLiteral<'src>>>,
+    pub parameters: Vec<StringLiteral<'src>>,
     pub body: Expression<'src>,
 }
 

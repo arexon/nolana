@@ -40,24 +40,22 @@ ParseResult {
                                     start: 8,
                                     end: 53,
                                 },
-                                parameters: Some(
-                                    [
-                                        StringLiteral {
-                                            span: Span {
-                                                start: 17,
-                                                end: 20,
-                                            },
-                                            value: "x",
+                                parameters: [
+                                    StringLiteral {
+                                        span: Span {
+                                            start: 17,
+                                            end: 20,
                                         },
-                                        StringLiteral {
-                                            span: Span {
-                                                start: 22,
-                                                end: 25,
-                                            },
-                                            value: "y",
+                                        value: "x",
+                                    },
+                                    StringLiteral {
+                                        span: Span {
+                                            start: 22,
+                                            end: 25,
                                         },
-                                    ],
-                                ),
+                                        value: "y",
+                                    },
+                                ],
                                 body: Block(
                                     BlockExpression {
                                         span: Span {
@@ -154,24 +152,22 @@ ParseResult {
                                     start: 64,
                                     end: 93,
                                 },
-                                parameters: Some(
-                                    [
-                                        StringLiteral {
-                                            span: Span {
-                                                start: 73,
-                                                end: 76,
-                                            },
-                                            value: "x",
+                                parameters: [
+                                    StringLiteral {
+                                        span: Span {
+                                            start: 73,
+                                            end: 76,
                                         },
-                                        StringLiteral {
-                                            span: Span {
-                                                start: 78,
-                                                end: 81,
-                                            },
-                                            value: "y",
+                                        value: "x",
+                                    },
+                                    StringLiteral {
+                                        span: Span {
+                                            start: 78,
+                                            end: 81,
                                         },
-                                    ],
-                                ),
+                                        value: "y",
+                                    },
+                                ],
                                 body: Binary(
                                     BinaryExpression {
                                         span: Span {

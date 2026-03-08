@@ -236,10 +236,8 @@ fn walk_function_expression<'src>(
     it: &mut FunctionExpression<'src>,
 ) {
     traverser.enter_function_expression(it);
-    if let Some(params) = &mut it.parameters {
-        for param in params {
-            walk_string_literal(traverser, param);
-        }
+    for param in &mut it.parameters {
+        walk_string_literal(traverser, param);
     }
     traverser.exit_function_expression(it);
 }
