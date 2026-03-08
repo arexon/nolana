@@ -39,7 +39,6 @@ pub struct Parser<'src> {
     token: Token,
     prev_token_end: u32,
     is_complex: bool,
-    function_depth: u8,
     errors: Vec<Diagnostic>,
 }
 
@@ -52,7 +51,6 @@ impl<'src> Parser<'src> {
             token: Token::default(),
             prev_token_end: 0,
             is_complex: false,
-            function_depth: 0,
             errors: Vec::new(),
         }
     }
@@ -106,7 +104,6 @@ impl<'src> Parser<'src> {
         let stmt = match self.current_kind() {
             Kind::Semi => self.parse_empty_statement()?,
             v if v.is_variable() => self.parse_assignment_statement_or_expression()?,
-            Kind::Function => self.parse_function_statement()?,
             Kind::Loop => self.parse_loop_statement()?,
             Kind::ForEach => self.parse_for_each_statement()?,
             Kind::Return => self.parse_return_statement()?.into(),
@@ -146,37 +143,6 @@ impl<'src> Parser<'src> {
                 self.parse_expression_rest(0, Expression::Variable(left.into()), span)?.into(),
             )
         })
-    }
-
-    fn parse_function_statement(&mut self) -> Result<Statement<'src>> {
-        let span = self.start_span();
-        self.expect(Kind::Function)?;
-        self.expect(Kind::Dot)?;
-        let name = self.parse_identifier()?;
-        self.expect(Kind::Eq)?;
-        self.expect(Kind::Function)?;
-        self.expect(Kind::LeftParen)?;
-        let mut parameters = Vec::new();
-        loop {
-            if self.at(Kind::LeftBrace) {
-                break;
-            }
-            parameters.push(self.parse_literal_string()?);
-            if self.eat(Kind::Comma) && self.at(Kind::LeftBrace) {
-                break;
-            }
-        }
-        self.enter_function();
-        let body = self.parse_block_expression()?;
-        self.exit_function();
-        self.expect(Kind::RightParen)?;
-        Ok(FunctionStatement {
-            span: self.end_span(span),
-            name,
-            parameters: (!parameters.is_empty()).then_some(parameters),
-            body,
-        }
-        .into())
     }
 
     fn parse_loop_statement(&mut self) -> Result<Statement<'src>> {
@@ -246,6 +212,7 @@ impl<'src> Parser<'src> {
             Kind::Loop | Kind::ForEach => {
                 return Err(loop_in_expression(self.end_span_single(span)));
             }
+            Kind::Function => self.parse_function_expression()?,
             Kind::This => self.parse_this_expression()?,
             Kind::UnterminatedString => {
                 return Err(unterminated_string(self.end_span(span)));
@@ -450,9 +417,6 @@ impl<'src> Parser<'src> {
             let property = self.parse_identifier()?;
             member = VariableMember::Object { object: member.into(), property };
         }
-        if lifetime == VariableLifetime::Parameter && !self.is_in_function() {
-            return Err(function_variable_outside_function(self.end_span(span)));
-        }
         Ok(VariableExpression { span: self.end_span(span), lifetime, member })
     }
 
@@ -529,6 +493,40 @@ impl<'src> Parser<'src> {
         Ok(CallExpression { span: self.end_span(span), kind, callee, arguments }.into())
     }
 
+    fn parse_function_expression(&mut self) -> Result<Expression<'src>> {
+        let span = self.start_span();
+        self.expect(Kind::Function)?;
+        self.expect(Kind::LeftParen)?;
+        let mut exprs = Vec::new();
+        loop {
+            if self.at(Kind::RightParen) {
+                break;
+            }
+            exprs.push(self.parse_expression(0)?);
+            if self.eat(Kind::Comma) {
+                continue;
+            }
+        }
+        self.expect(Kind::RightParen)?;
+        let body = match exprs.len() {
+            0 => return Err(empty_function_body(self.end_span(span))),
+            _ => exprs.pop().unwrap(),
+        };
+        let parameters = exprs
+            .into_iter()
+            .map(|expr| match expr {
+                Expression::StringLiteral(str) => Ok(*str),
+                _ => Err(non_string_literal_function_params(expr.span())),
+            })
+            .collect::<Result<Vec<_>>>()?;
+        Ok(FunctionExpression {
+            span: self.end_span(span),
+            parameters: (!parameters.is_empty()).then_some(parameters),
+            body,
+        }
+        .into())
+    }
+
     fn parse_this_expression(&mut self) -> Result<Expression<'src>> {
         let span = self.start_span();
         self.expect(Kind::This)?;
@@ -602,22 +600,6 @@ impl<'src> Parser<'src> {
     fn error(&mut self, error: Diagnostic) {
         self.errors.push(error);
     }
-
-    #[inline]
-    fn is_in_function(&self) -> bool {
-        self.function_depth > 0
-    }
-
-    #[inline]
-    fn enter_function(&mut self) {
-        self.function_depth += 1;
-    }
-
-    #[inline]
-    fn exit_function(&mut self) {
-        debug_assert!(self.function_depth != 0, "exiting a function but depth is 0");
-        self.function_depth -= 1;
-    }
 }
 
 #[cold]
@@ -679,9 +661,11 @@ fn invalid_for_each_first_arg(span: Span) -> Diagnostic {
 }
 
 #[cold]
-fn function_variable_outside_function(span: Span) -> Diagnostic {
-    Diagnostic::error(
-        "parameter and local variables may only be used inside the body of a function",
-    )
-    .with_label(span)
+fn empty_function_body(span: Span) -> Diagnostic {
+    Diagnostic::error("a function body must contain at least one expression").with_label(span)
+}
+
+#[cold]
+fn non_string_literal_function_params(span: Span) -> Diagnostic {
+    Diagnostic::error("function parameters must be string literals").with_label(span)
 }

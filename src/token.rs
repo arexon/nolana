@@ -206,10 +206,6 @@ pub enum Kind {
     #[token("l", priority = 3)]
     Local,
 
-    #[token("function")]
-    #[token("f", priority = 3)]
-    Function,
-
     #[regex(r"[Mm]ath")]
     Math,
 
@@ -237,6 +233,9 @@ pub enum Kind {
 
     #[token("this")]
     This,
+
+    #[token("function")]
+    Function,
 
     #[token("break")]
     Break,
@@ -314,7 +313,7 @@ impl Kind {
     }
 
     pub fn is_call(self) -> bool {
-        matches!(self, Kind::Math | Kind::Query | Kind::Function)
+        matches!(self, Kind::Math | Kind::Query)
     }
 
     pub fn is_resource(self) -> bool {
@@ -406,7 +405,6 @@ impl Kind {
             Kind::Context => "context",
             Kind::Parameter => "parameter",
             Kind::Local => "local",
-            Kind::Function => "function",
             Kind::Math => "math",
             Kind::Query => "query",
             Kind::Geometry => "geometry",
@@ -416,6 +414,7 @@ impl Kind {
             Kind::True => "true",
             Kind::False => "false",
             Kind::This => "this",
+            Kind::Function => "function",
             Kind::Break => "break",
             Kind::Continue => "continue",
             Kind::ForEach => "for_each",
@@ -504,7 +503,6 @@ mod tests {
                 local
                 l
                 function
-                f
                 Math
                 math
                 Query
@@ -531,7 +529,6 @@ mod tests {
                 (Ok(Kind::Local), "local"),
                 (Ok(Kind::Local), "l"),
                 (Ok(Kind::Function), "function"),
-                (Ok(Kind::Function), "f"),
                 (Ok(Kind::Math), "Math"),
                 (Ok(Kind::Math), "math"),
                 (Ok(Kind::Query), "Query"),

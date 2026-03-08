@@ -6,286 +6,219 @@ ParseResult {
     program: Program {
         span: Span {
             start: 0,
-            end: 172,
+            end: 94,
         },
-        source: "f.add = function('x', 'y', {\n    return p.x + p.y;\n});\n\nf.add = function('x', 'y', {\n    f.sub = function({\n        return p.x - 2;\n    });\n    return f.sub(p.x) + p.y;\n});\n",
+        source: "v.add = function('x', 'y', {\n    return v.x + v.y;\n});\n\nv.sub = function('x', 'y', v.x - v.y);\n\n",
         body: Complex(
             [
-                Function(
-                    FunctionStatement {
+                Assignment(
+                    AssignmentStatement {
                         span: Span {
                             start: 0,
                             end: 53,
                         },
-                        name: Identifier {
+                        left: VariableExpression {
                             span: Span {
-                                start: 2,
+                                start: 0,
                                 end: 5,
                             },
-                            name: "add",
-                        },
-                        parameters: Some(
-                            [
-                                StringLiteral {
+                            lifetime: Variable,
+                            member: Property {
+                                property: Identifier {
                                     span: Span {
-                                        start: 17,
-                                        end: 20,
+                                        start: 2,
+                                        end: 5,
                                     },
-                                    value: "x",
+                                    name: "add",
                                 },
-                                StringLiteral {
-                                    span: Span {
-                                        start: 22,
-                                        end: 25,
-                                    },
-                                    value: "y",
-                                },
-                            ],
-                        ),
-                        body: BlockExpression {
-                            span: Span {
-                                start: 27,
-                                end: 52,
                             },
-                            statements: [
-                                Return(
-                                    ReturnStatement {
-                                        span: Span {
-                                            start: 33,
-                                            end: 49,
-                                        },
-                                        argument: Binary(
-                                            BinaryExpression {
-                                                span: Span {
-                                                    start: 40,
-                                                    end: 49,
-                                                },
-                                                left: Variable(
-                                                    VariableExpression {
-                                                        span: Span {
-                                                            start: 40,
-                                                            end: 43,
-                                                        },
-                                                        lifetime: Parameter,
-                                                        member: Property {
-                                                            property: Identifier {
-                                                                span: Span {
-                                                                    start: 42,
-                                                                    end: 43,
-                                                                },
-                                                                name: "x",
-                                                            },
-                                                        },
-                                                    },
-                                                ),
-                                                operator: Addition,
-                                                right: Variable(
-                                                    VariableExpression {
-                                                        span: Span {
-                                                            start: 46,
-                                                            end: 49,
-                                                        },
-                                                        lifetime: Parameter,
-                                                        member: Property {
-                                                            property: Identifier {
-                                                                span: Span {
-                                                                    start: 48,
-                                                                    end: 49,
-                                                                },
-                                                                name: "y",
-                                                            },
-                                                        },
-                                                    },
-                                                ),
+                        },
+                        operator: Assign,
+                        right: Function(
+                            FunctionExpression {
+                                span: Span {
+                                    start: 8,
+                                    end: 53,
+                                },
+                                parameters: Some(
+                                    [
+                                        StringLiteral {
+                                            span: Span {
+                                                start: 17,
+                                                end: 20,
                                             },
-                                        ),
+                                            value: "x",
+                                        },
+                                        StringLiteral {
+                                            span: Span {
+                                                start: 22,
+                                                end: 25,
+                                            },
+                                            value: "y",
+                                        },
+                                    ],
+                                ),
+                                body: Block(
+                                    BlockExpression {
+                                        span: Span {
+                                            start: 27,
+                                            end: 52,
+                                        },
+                                        statements: [
+                                            Return(
+                                                ReturnStatement {
+                                                    span: Span {
+                                                        start: 33,
+                                                        end: 49,
+                                                    },
+                                                    argument: Binary(
+                                                        BinaryExpression {
+                                                            span: Span {
+                                                                start: 40,
+                                                                end: 49,
+                                                            },
+                                                            left: Variable(
+                                                                VariableExpression {
+                                                                    span: Span {
+                                                                        start: 40,
+                                                                        end: 43,
+                                                                    },
+                                                                    lifetime: Variable,
+                                                                    member: Property {
+                                                                        property: Identifier {
+                                                                            span: Span {
+                                                                                start: 42,
+                                                                                end: 43,
+                                                                            },
+                                                                            name: "x",
+                                                                        },
+                                                                    },
+                                                                },
+                                                            ),
+                                                            operator: Addition,
+                                                            right: Variable(
+                                                                VariableExpression {
+                                                                    span: Span {
+                                                                        start: 46,
+                                                                        end: 49,
+                                                                    },
+                                                                    lifetime: Variable,
+                                                                    member: Property {
+                                                                        property: Identifier {
+                                                                            span: Span {
+                                                                                start: 48,
+                                                                                end: 49,
+                                                                            },
+                                                                            name: "y",
+                                                                        },
+                                                                    },
+                                                                },
+                                                            ),
+                                                        },
+                                                    ),
+                                                },
+                                            ),
+                                        ],
                                     },
                                 ),
-                            ],
-                        },
+                            },
+                        ),
                     },
                 ),
-                Function(
-                    FunctionStatement {
+                Assignment(
+                    AssignmentStatement {
                         span: Span {
                             start: 56,
-                            end: 171,
+                            end: 93,
                         },
-                        name: Identifier {
+                        left: VariableExpression {
                             span: Span {
-                                start: 58,
+                                start: 56,
                                 end: 61,
                             },
-                            name: "add",
-                        },
-                        parameters: Some(
-                            [
-                                StringLiteral {
+                            lifetime: Variable,
+                            member: Property {
+                                property: Identifier {
                                     span: Span {
-                                        start: 73,
-                                        end: 76,
+                                        start: 58,
+                                        end: 61,
                                     },
-                                    value: "x",
+                                    name: "sub",
                                 },
-                                StringLiteral {
-                                    span: Span {
-                                        start: 78,
-                                        end: 81,
-                                    },
-                                    value: "y",
-                                },
-                            ],
-                        ),
-                        body: BlockExpression {
-                            span: Span {
-                                start: 83,
-                                end: 170,
                             },
-                            statements: [
-                                Function(
-                                    FunctionStatement {
-                                        span: Span {
-                                            start: 89,
-                                            end: 138,
-                                        },
-                                        name: Identifier {
+                        },
+                        operator: Assign,
+                        right: Function(
+                            FunctionExpression {
+                                span: Span {
+                                    start: 64,
+                                    end: 93,
+                                },
+                                parameters: Some(
+                                    [
+                                        StringLiteral {
                                             span: Span {
-                                                start: 91,
-                                                end: 94,
+                                                start: 73,
+                                                end: 76,
                                             },
-                                            name: "sub",
+                                            value: "x",
                                         },
-                                        parameters: None,
-                                        body: BlockExpression {
+                                        StringLiteral {
                                             span: Span {
-                                                start: 106,
-                                                end: 137,
+                                                start: 78,
+                                                end: 81,
                                             },
-                                            statements: [
-                                                Return(
-                                                    ReturnStatement {
-                                                        span: Span {
-                                                            start: 116,
-                                                            end: 130,
-                                                        },
-                                                        argument: Binary(
-                                                            BinaryExpression {
-                                                                span: Span {
-                                                                    start: 123,
-                                                                    end: 130,
-                                                                },
-                                                                left: Variable(
-                                                                    VariableExpression {
-                                                                        span: Span {
-                                                                            start: 123,
-                                                                            end: 126,
-                                                                        },
-                                                                        lifetime: Parameter,
-                                                                        member: Property {
-                                                                            property: Identifier {
-                                                                                span: Span {
-                                                                                    start: 125,
-                                                                                    end: 126,
-                                                                                },
-                                                                                name: "x",
-                                                                            },
-                                                                        },
-                                                                    },
-                                                                ),
-                                                                operator: Subtraction,
-                                                                right: NumericLiteral(
-                                                                    NumericLiteral {
-                                                                        span: Span {
-                                                                            start: 129,
-                                                                            end: 130,
-                                                                        },
-                                                                        value: 2.0,
-                                                                        raw: "2",
-                                                                    },
-                                                                ),
-                                                            },
-                                                        ),
-                                                    },
-                                                ),
-                                            ],
+                                            value: "y",
                                         },
-                                    },
+                                    ],
                                 ),
-                                Return(
-                                    ReturnStatement {
+                                body: Binary(
+                                    BinaryExpression {
                                         span: Span {
-                                            start: 144,
-                                            end: 167,
+                                            start: 83,
+                                            end: 92,
                                         },
-                                        argument: Binary(
-                                            BinaryExpression {
+                                        left: Variable(
+                                            VariableExpression {
                                                 span: Span {
-                                                    start: 151,
-                                                    end: 167,
+                                                    start: 83,
+                                                    end: 86,
                                                 },
-                                                left: Call(
-                                                    CallExpression {
+                                                lifetime: Variable,
+                                                member: Property {
+                                                    property: Identifier {
                                                         span: Span {
-                                                            start: 151,
-                                                            end: 161,
+                                                            start: 85,
+                                                            end: 86,
                                                         },
-                                                        kind: Function,
-                                                        callee: Identifier {
-                                                            span: Span {
-                                                                start: 153,
-                                                                end: 156,
-                                                            },
-                                                            name: "sub",
-                                                        },
-                                                        arguments: Some(
-                                                            [
-                                                                Variable(
-                                                                    VariableExpression {
-                                                                        span: Span {
-                                                                            start: 157,
-                                                                            end: 160,
-                                                                        },
-                                                                        lifetime: Parameter,
-                                                                        member: Property {
-                                                                            property: Identifier {
-                                                                                span: Span {
-                                                                                    start: 159,
-                                                                                    end: 160,
-                                                                                },
-                                                                                name: "x",
-                                                                            },
-                                                                        },
-                                                                    },
-                                                                ),
-                                                            ],
-                                                        ),
+                                                        name: "x",
                                                     },
-                                                ),
-                                                operator: Addition,
-                                                right: Variable(
-                                                    VariableExpression {
+                                                },
+                                            },
+                                        ),
+                                        operator: Subtraction,
+                                        right: Variable(
+                                            VariableExpression {
+                                                span: Span {
+                                                    start: 89,
+                                                    end: 92,
+                                                },
+                                                lifetime: Variable,
+                                                member: Property {
+                                                    property: Identifier {
                                                         span: Span {
-                                                            start: 164,
-                                                            end: 167,
+                                                            start: 91,
+                                                            end: 92,
                                                         },
-                                                        lifetime: Parameter,
-                                                        member: Property {
-                                                            property: Identifier {
-                                                                span: Span {
-                                                                    start: 166,
-                                                                    end: 167,
-                                                                },
-                                                                name: "y",
-                                                            },
-                                                        },
+                                                        name: "y",
                                                     },
-                                                ),
+                                                },
                                             },
                                         ),
                                     },
                                 ),
-                            ],
-                        },
+                            },
+                        ),
                     },
                 ),
             ],

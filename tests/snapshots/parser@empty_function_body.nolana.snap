@@ -1,0 +1,37 @@
+---
+source: tests/integration.rs
+input_file: tests/parser/empty_function_body.nolana
+---
+ParseResult {
+    program: Program {
+        span: Span {
+            start: 0,
+            end: 0,
+        },
+        source: "v.add = function();\n",
+        body: Empty,
+    },
+    errors: [
+        Diagnostic {
+            inner: DiagnosticInner {
+                message: "a function body must contain at least one expression",
+                labels: Some(
+                    [
+                        LabeledSpan {
+                            label: None,
+                            span: SourceSpan {
+                                offset: SourceOffset(
+                                    8,
+                                ),
+                                length: 10,
+                            },
+                            primary: false,
+                        },
+                    ],
+                ),
+                help: None,
+                severity: Error,
+            },
+        },
+    ],
+}

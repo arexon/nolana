@@ -1,0 +1,5 @@
+---
+source: tests/integration.rs
+input_file: tests/codegen/function.nolana
+---
+v.add=function('x','y',{return v.x+v.y;});v.sub=function('x','y',v.x-v.y);

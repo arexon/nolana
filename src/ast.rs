@@ -33,7 +33,6 @@ impl ProgramBody<'_> {
 pub enum Statement<'src> {
     Expression(Box<Expression<'src>>),
     Assignment(Box<AssignmentStatement<'src>>),
-    Function(Box<FunctionStatement<'src>>),
     Loop(Box<LoopStatement<'src>>),
     ForEach(Box<ForEachStatement<'src>>),
     Return(Box<ReturnStatement<'src>>),
@@ -143,20 +142,6 @@ impl From<Kind> for AssignmentOperator {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct FunctionStatement<'src> {
-    pub span: Span,
-    pub name: Identifier<'src>,
-    pub parameters: Option<Vec<StringLiteral<'src>>>,
-    pub body: BlockExpression<'src>,
-}
-
-impl<'src> From<FunctionStatement<'src>> for Statement<'src> {
-    fn from(value: FunctionStatement<'src>) -> Self {
-        Self::Function(value.into())
-    }
-}
-
 /// <https://bedrock.dev/docs/stable/Molang#loop>
 ///
 /// `loop(10, { v.x = v.x + 1; });`
@@ -260,7 +245,32 @@ pub enum Expression<'src> {
     ArrayAccess(Box<ArrayAccessExpression<'src>>),
     ArrowAccess(Box<ArrowAccessExpression<'src>>),
     Call(Box<CallExpression<'src>>),
+    Function(Box<FunctionExpression<'src>>),
     This(Box<ThisExpression>),
+}
+
+impl<'src> Expression<'src> {
+    pub fn span(&self) -> Span {
+        match self {
+            Expression::NumericLiteral(expr) => expr.span,
+            Expression::BooleanLiteral(expr) => expr.span,
+            Expression::StringLiteral(expr) => expr.span,
+            Expression::Variable(expr) => expr.span,
+            Expression::Parenthesized(expr) => expr.span,
+            Expression::Block(expr) => expr.span,
+            Expression::Binary(expr) => expr.span,
+            Expression::Unary(expr) => expr.span,
+            Expression::Update(expr) => expr.span,
+            Expression::Ternary(expr) => expr.span,
+            Expression::Conditional(expr) => expr.span,
+            Expression::Resource(expr) => expr.span,
+            Expression::ArrayAccess(expr) => expr.span,
+            Expression::ArrowAccess(expr) => expr.span,
+            Expression::Call(expr) => expr.span,
+            Expression::Function(expr) => expr.span,
+            Expression::This(expr) => expr.span,
+        }
+    }
 }
 
 impl<'src> From<Expression<'src>> for Statement<'src> {
@@ -815,8 +825,6 @@ pub enum CallKind {
     Math,
     /// `query` in `query.foo`
     Query,
-    /// `function` in `function.foo`
-    Function,
 }
 
 impl CallKind {
@@ -824,7 +832,6 @@ impl CallKind {
         match self {
             Self::Math => "math",
             Self::Query => "query",
-            Self::Function => "function",
         }
     }
 
@@ -832,7 +839,6 @@ impl CallKind {
         match self {
             Self::Math => "math",
             Self::Query => "q",
-            Self::Function => "f",
         }
     }
 }
@@ -842,9 +848,21 @@ impl From<Kind> for CallKind {
         match kind {
             Kind::Math => Self::Math,
             Kind::Query => Self::Query,
-            Kind::Function => Self::Function,
             _ => unreachable!("Call Kind: {kind:?}"),
         }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct FunctionExpression<'src> {
+    pub span: Span,
+    pub parameters: Option<Vec<StringLiteral<'src>>>,
+    pub body: Expression<'src>,
+}
+
+impl<'src> From<FunctionExpression<'src>> for Expression<'src> {
+    fn from(value: FunctionExpression<'src>) -> Self {
+        Self::Function(value.into())
     }
 }
 
