@@ -103,7 +103,7 @@ impl<'src> Parser<'src> {
     fn parse_statement(&mut self) -> Result<Statement<'src>> {
         let stmt = match self.current_kind() {
             Kind::Semi => self.parse_empty_statement()?,
-            v if v.is_variable() => self.parse_assignment_statement_or_expression()?,
+            v if v.is_scope_variable() => self.parse_assignment_statement_or_expression()?,
             Kind::Loop => self.parse_loop_statement()?,
             Kind::ForEach => self.parse_for_each_statement()?,
             Kind::Return => self.parse_return_statement()?.into(),
@@ -124,9 +124,11 @@ impl<'src> Parser<'src> {
 
     fn parse_assignment_statement_or_expression(&mut self) -> Result<Statement<'src>> {
         let span = self.start_span();
-        let left = self.parse_variable_expression()?;
+        let left = self.parse_variable_or_call_expression()?;
         let kind = self.current_kind();
-        Ok(if kind.is_assignment_operator() {
+        if kind.is_assignment_operator()
+            && let Expression::Variable(left) = left
+        {
             let operator = kind.into();
             self.bump();
 
@@ -135,14 +137,13 @@ impl<'src> Parser<'src> {
             }
 
             let right = self.parse_expression(0)?;
-            Statement::Assignment(
-                AssignmentStatement { span: self.end_span(span), left, operator, right }.into(),
-            )
+            Ok(Statement::Assignment(
+                AssignmentStatement { span: self.end_span(span), left: *left, operator, right }
+                    .into(),
+            ))
         } else {
-            Statement::Expression(
-                self.parse_expression_rest(0, Expression::Variable(left.into()), span)?.into(),
-            )
-        })
+            Ok(Statement::Expression(self.parse_expression_rest(0, left, span)?.into()))
+        }
     }
 
     fn parse_loop_statement(&mut self) -> Result<Statement<'src>> {
@@ -160,7 +161,7 @@ impl<'src> Parser<'src> {
         let span = self.start_span();
         self.expect(Kind::ForEach)?;
         self.expect(Kind::LeftParen)?;
-        if !self.current_kind().is_variable() {
+        if !self.current_kind().is_scope_variable() {
             return Err(invalid_for_each_first_arg(self.current_token().span()));
         }
         let variable = self.parse_variable_expression()?;
@@ -202,11 +203,10 @@ impl<'src> Parser<'src> {
             Kind::True | Kind::False => self.parse_literal_boolean()?,
             Kind::Number => self.parse_literal_number()?,
             Kind::String => self.parse_literal_string().map(Into::into)?,
-            v if v.is_variable() => self.parse_variable_expression().map(Into::into)?,
+            v if v.is_scope_variable() => self.parse_variable_or_call_expression()?,
             Kind::LeftParen => self.parse_parenthesized_expression()?,
             Kind::LeftBrace => self.parse_block_expression().map(Into::into)?,
             v if v.is_unary_operator() => self.parse_unary_expression()?,
-            v if v.is_call() => self.parse_call_expression()?,
             v if v.is_resource() => self.parse_resource_expression()?,
             Kind::Array => self.parse_array_access_expression()?,
             Kind::Loop | Kind::ForEach => {
@@ -217,7 +217,7 @@ impl<'src> Parser<'src> {
             Kind::UnterminatedString => {
                 return Err(unterminated_string(self.end_span(span)));
             }
-            _ => return Err(unexpected_token(self.current_token().span())),
+            kind => return Err(unexpected_token(kind, self.current_token().span())),
         };
         self.parse_expression_rest(min_bp, left, span)
     }
@@ -294,7 +294,7 @@ impl<'src> Parser<'src> {
         let span = self.start_span();
         let name = self.current_src();
         match self.current_kind() {
-            v if v.is_variable() | v.is_call() => self.bump(),
+            v if v.is_scope_variable() => self.bump(),
             _ => self.expect(Kind::Identifier)?,
         }
         Ok(Identifier { span: self.end_span(span), name: name.into() })
@@ -321,7 +321,7 @@ impl<'src> Parser<'src> {
                 Span::new(self.prev_token_end, self.current_token().start),
             ))
         } else {
-            Err(unexpected_token(self.current_token().span()))
+            Err(unexpected_token(self.current_kind(), self.current_token().span()))
         }
     }
 
@@ -406,6 +406,33 @@ impl<'src> Parser<'src> {
         }
     }
 
+    fn parse_variable_or_call_expression(&mut self) -> Result<Expression<'src>> {
+        let var = self.parse_variable_expression()?;
+        let arguments = if self.eat(Kind::LeftParen) {
+            let mut arguments = Vec::new();
+            let mut first = true;
+            loop {
+                if self.at(Kind::RightParen) || self.at(Kind::Eof) {
+                    break;
+                }
+                if first {
+                    first = false;
+                } else {
+                    self.expect(Kind::Comma)?;
+                    if self.at(Kind::RightParen) {
+                        break;
+                    }
+                }
+                arguments.push(self.parse_expression(0)?);
+            }
+            self.expect(Kind::RightParen)?;
+            arguments
+        } else {
+            return Ok(var.into());
+        };
+        Ok(CallExpression { span: self.end_span(var.span), callee: var, arguments }.into())
+    }
+
     fn parse_variable_expression(&mut self) -> Result<VariableExpression<'src>> {
         let span = self.start_span();
         let scope: VariableScope = self.current_kind().into();
@@ -460,37 +487,6 @@ impl<'src> Parser<'src> {
         self.expect(Kind::Arrow)?;
         let right = self.parse_expression(0)?;
         Ok(ArrowAccessExpression { span: self.end_span(left_span), left, right }.into())
-    }
-
-    fn parse_call_expression(&mut self) -> Result<Expression<'src>> {
-        let span = self.start_span();
-        let scope: VariableScope = self.current_kind().into();
-        self.bump();
-        self.expect(Kind::Dot)?;
-        let callee = self.parse_identifier()?;
-        let arguments = if self.eat(Kind::LeftParen) {
-            let mut arguments = Vec::new();
-            let mut first = true;
-            loop {
-                if self.at(Kind::RightParen) || self.at(Kind::Eof) {
-                    break;
-                }
-                if first {
-                    first = false;
-                } else {
-                    self.expect(Kind::Comma)?;
-                    if self.at(Kind::RightParen) {
-                        break;
-                    }
-                }
-                arguments.push(self.parse_expression(0)?);
-            }
-            self.expect(Kind::RightParen)?;
-            Some(arguments)
-        } else {
-            None
-        };
-        Ok(CallExpression { span: self.end_span(span), scope, callee, arguments }.into())
     }
 
     fn parse_function_expression(&mut self) -> Result<Expression<'src>> {
@@ -608,8 +604,8 @@ fn invalid_number(span: Span) -> Diagnostic {
 }
 
 #[cold]
-fn unexpected_token(span: Span) -> Diagnostic {
-    Diagnostic::error("unexpected token").with_label(span)
+fn unexpected_token(token: Kind, span: Span) -> Diagnostic {
+    Diagnostic::error(format!("unexpected token `{token:?}`")).with_label(span)
 }
 
 #[cold]

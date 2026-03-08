@@ -802,9 +802,8 @@ impl<'src> From<ArrowAccessExpression<'src>> for Expression<'src> {
 #[derive(Debug, Clone, PartialEq)]
 pub struct CallExpression<'src> {
     pub span: Span,
-    pub scope: VariableScope,
-    pub callee: Identifier<'src>,
-    pub arguments: Option<Vec<Expression<'src>>>,
+    pub callee: VariableExpression<'src>,
+    pub arguments: Vec<Expression<'src>>,
 }
 
 impl<'src> From<CallExpression<'src>> for Expression<'src> {

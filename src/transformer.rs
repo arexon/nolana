@@ -543,9 +543,8 @@ fn logical_and_assignment_statement<'src>(
 fn math_pow_expression<'src>(left: Expression<'src>, right: Expression<'src>) -> Expression<'src> {
     CallExpression {
         span: SPAN,
-        scope: VariableScope::Math,
-        callee: Identifier { span: SPAN, name: "pow".into() },
-        arguments: Some(vec![left, right]),
+        callee: single_variable_expression(VariableScope::Math, "pow"),
+        arguments: vec![left, right],
     }
     .into()
 }
@@ -554,9 +553,8 @@ fn math_pow_expression<'src>(left: Expression<'src>, right: Expression<'src>) ->
 fn math_mod_expression<'src>(left: Expression<'src>, right: Expression<'src>) -> Expression<'src> {
     CallExpression {
         span: SPAN,
-        scope: VariableScope::Math,
-        callee: Identifier { span: SPAN, name: "mod".into() },
-        arguments: Some(vec![left, right]),
+        callee: single_variable_expression(VariableScope::Math, "mod"),
+        arguments: vec![left, right],
     }
     .into()
 }
@@ -565,9 +563,8 @@ fn math_mod_expression<'src>(left: Expression<'src>, right: Expression<'src>) ->
 fn math_floor_expression<'src>(x: Expression<'src>) -> Expression<'src> {
     CallExpression {
         span: SPAN,
-        scope: VariableScope::Math,
-        callee: Identifier { span: SPAN, name: "floor".into() },
-        arguments: Some(vec![x]),
+        callee: single_variable_expression(VariableScope::Math, "floor"),
+        arguments: vec![x],
     }
     .into()
 }
@@ -576,9 +573,17 @@ fn math_floor_expression<'src>(x: Expression<'src>) -> Expression<'src> {
 fn math_min_expression<'src>(left: Expression<'src>, right: Expression<'src>) -> Expression<'src> {
     CallExpression {
         span: SPAN,
-        scope: VariableScope::Math,
-        callee: Identifier { span: SPAN, name: "min".into() },
-        arguments: Some(vec![left, right]),
+        callee: single_variable_expression(VariableScope::Math, "min"),
+        arguments: vec![left, right],
     }
     .into()
+}
+
+#[inline]
+fn single_variable_expression(scope: VariableScope, name: &str) -> VariableExpression<'_> {
+    VariableExpression {
+        span: SPAN,
+        scope,
+        member: VariableMember::Property { property: Identifier { span: SPAN, name: name.into() } },
+    }
 }

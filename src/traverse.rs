@@ -458,11 +458,9 @@ fn walk_arrow_access_expression<'src>(
 
 fn walk_call_expression<'src>(traverser: &mut impl Traverse<'src>, it: &mut CallExpression<'src>) {
     traverser.enter_call_expression(it);
-    walk_identifier_reference(traverser, &mut it.callee);
-    if let Some(args) = &mut it.arguments {
-        for arg in args {
-            walk_expression(traverser, arg);
-        }
+    walk_variable_expression(traverser, &mut it.callee);
+    for arg in &mut it.arguments {
+        walk_expression(traverser, arg);
     }
     traverser.exit_call_expression(it);
 }

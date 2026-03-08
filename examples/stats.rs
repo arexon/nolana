@@ -22,7 +22,7 @@ impl MolangStats {
 
 impl<'a> Traverse<'a> for MolangStats {
     fn enter_call_expression(&mut self, it: &mut CallExpression<'a>) {
-        match it.scope {
+        match it.callee.scope {
             VariableScope::Math => self.math_functions += 1,
             VariableScope::Query => self.queries += 1,
             _ => (),

@@ -449,12 +449,8 @@ impl Print for ArrowAccessExpression<'_> {
 
 impl Print for CallExpression<'_> {
     fn print(&self, c: &mut Codegen) {
-        self.scope.print(c);
-        c.print_dot();
         self.callee.print(c);
-        if let Some(args) = &self.arguments {
-            c.print_wrapped('(', ')', |c| c.print_list(args));
-        }
+        c.print_wrapped('(', ')', |c| c.print_list(&self.arguments));
     }
 }
 
