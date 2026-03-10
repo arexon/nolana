@@ -44,7 +44,7 @@ impl<'src> Lowerer<'src> {
     fn lower_statement(&mut self, stmt: &Statement<'src>) -> Option<IrStatement<'src>> {
         match stmt {
             Statement::Expression(stmt) => self.lower_expression(stmt).map(Into::into),
-            Statement::Assignment(stmt) => self.lower_assignment(stmt).map(Into::into),
+            Statement::Assignment(stmt) => self.lower_assignment_statement(stmt).map(Into::into),
             Statement::Loop(stmt) => self.lower_loop_statement(stmt),
             Statement::ForEach(stmt) => self.lower_for_each_statement(stmt),
             Statement::Update(stmt) => Some(self.lower_update_statement(stmt).into()),
@@ -61,15 +61,7 @@ impl<'src> Lowerer<'src> {
             Expression::BooleanLiteral(expr) => Some(IrExpression::Boolean(expr.value)),
             Expression::StringLiteral(expr) => Some(IrExpression::String(expr.value)),
             Expression::Variable(expr) => Some(self.lower_variable_expression(expr).into()),
-            Expression::Parenthesized(expr) => match &expr.body {
-                ParenthesizedBody::Single(expr) => {
-                    self.lower_expression(expr).map(|expr| IrExpression::Parenthesized(expr.into()))
-                }
-                ParenthesizedBody::Multiple(stmts) => {
-                    self.lower_statements(stmts);
-                    None
-                }
-            },
+            Expression::Parenthesized(expr) => self.lower_parenthesized_expression(expr),
             Expression::Block(expr) => Some(self.lower_block_expression(expr)),
             Expression::Binary(expr) => self.lower_binary_expression(expr),
             Expression::Unary(expr) => self.lower_unary_expression(expr),
@@ -84,7 +76,10 @@ impl<'src> Lowerer<'src> {
         }
     }
 
-    fn lower_assignment(&mut self, stmt: &AssignmentStatement<'src>) -> Option<IrAssignment<'src>> {
+    fn lower_assignment_statement(
+        &mut self,
+        stmt: &AssignmentStatement<'src>,
+    ) -> Option<IrAssignment<'src>> {
         let target = self.lower_variable_expression(&stmt.left);
         let target_expr: IrExpression = target.clone().into();
         let value = self.lower_expression(&stmt.right)?;
@@ -229,6 +224,21 @@ impl<'src> Lowerer<'src> {
         }
         name.reverse();
         name
+    }
+
+    fn lower_parenthesized_expression(
+        &mut self,
+        expr: &ParenthesizedExpression<'src>,
+    ) -> Option<IrExpression<'src>> {
+        match &expr.body {
+            ParenthesizedBody::Single(expr) => {
+                self.lower_expression(expr).map(|expr| IrExpression::Parenthesized(expr.into()))
+            }
+            ParenthesizedBody::Multiple(stmts) => {
+                self.lower_statements(stmts);
+                None
+            }
+        }
     }
 
     fn lower_binary_expression(
