@@ -71,7 +71,7 @@ impl<'src> Lowerer<'src> {
             Expression::ArrayAccess(expr) => self.lower_array_access_expression(expr),
             Expression::ArrowAccess(expr) => self.lower_arrow_access_expression(expr),
             Expression::Call(expr) => Some(self.lower_call_expression(expr)),
-            Expression::Function(expr) => None,
+            Expression::Function(_expr) => None,
             Expression::This(_) => Some(IrExpression::This),
         }
     }
