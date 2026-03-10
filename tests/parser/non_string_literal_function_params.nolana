@@ -1,0 +1,3 @@
+v.good = function('a', v.a + 1);
+
+v.bad = function(1, 2);

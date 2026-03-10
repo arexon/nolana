@@ -31,7 +31,7 @@ impl<'a> Traverse<'a> for SemanticChecker {
 
     fn enter_for_each_statement(&mut self, it: &mut ForEachStatement<'a>) {
         self.loop_depth += 1;
-        if it.variable.lifetime == VariableLifetime::Context {
+        if it.variable.scope == VariableScope::Context {
             self.errors.push(for_each_wrong_first_arg(it.variable.span));
         }
     }
@@ -59,7 +59,7 @@ impl<'a> Traverse<'a> for SemanticChecker {
     }
 
     fn enter_assignment_statement(&mut self, it: &mut AssignmentStatement<'a>) {
-        if it.left.lifetime == VariableLifetime::Context {
+        if it.left.scope == VariableScope::Context {
             self.errors.push(context_readonly(it.span))
         }
     }
@@ -76,8 +76,8 @@ impl<'a> Traverse<'a> for SemanticChecker {
         }
     }
 
-    fn enter_update_expression(&mut self, it: &mut UpdateExpression<'a>) {
-        if it.variable.lifetime == VariableLifetime::Context {
+    fn enter_update_statement(&mut self, it: &mut UpdateStatement<'a>) {
+        if it.variable.scope == VariableScope::Context {
             self.errors.push(context_readonly(it.span))
         }
     }

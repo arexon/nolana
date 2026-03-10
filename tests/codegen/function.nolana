@@ -1,0 +1,5 @@
+v.add = function('x', 'y', {
+    return v.x + v.y;
+});
+
+v.sub = function('x', 'y', v.x - v.y);

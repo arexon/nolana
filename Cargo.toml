@@ -23,5 +23,5 @@ name = "parser"
 harness = false
 
 [[bench]]
-name = "codegen"
+name = "printer"
 harness = false

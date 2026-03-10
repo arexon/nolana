@@ -35,6 +35,7 @@ pub enum Statement<'src> {
     Assignment(Box<AssignmentStatement<'src>>),
     Loop(Box<LoopStatement<'src>>),
     ForEach(Box<ForEachStatement<'src>>),
+    Update(Box<UpdateStatement<'src>>),
     Return(Box<ReturnStatement<'src>>),
     Break(Box<BreakStatement>),
     Continue(Box<ContinueStatement>),
@@ -175,6 +176,50 @@ impl<'src> From<ForEachStatement<'src>> for Statement<'src> {
     }
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub struct UpdateStatement<'src> {
+    pub span: Span,
+    pub variable: VariableExpression<'src>,
+    pub operator: UpdateOperator,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum UpdateOperator {
+    /// `++`
+    Increment,
+    /// `--`
+    Decrement,
+}
+
+impl UpdateOperator {
+    /// The string representation of this operator as it appears in source code.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Increment => "++",
+            Self::Decrement => "--",
+        }
+    }
+}
+
+impl From<Kind> for UpdateOperator {
+    fn from(token: Kind) -> Self {
+        match token {
+            Kind::Plus2 => Self::Increment,
+            Kind::Minus2 => Self::Decrement,
+            _ => unreachable!("Update Operator: {token:?}"),
+        }
+    }
+}
+
+impl From<UpdateOperator> for BinaryOperator {
+    fn from(op: UpdateOperator) -> Self {
+        match op {
+            UpdateOperator::Increment => BinaryOperator::Addition,
+            UpdateOperator::Decrement => BinaryOperator::Subtraction,
+        }
+    }
+}
+
 /// `return` in `v.a = 1; return v.a;`
 #[derive(Debug, Clone, PartialEq)]
 pub struct ReturnStatement<'src> {
@@ -238,14 +283,37 @@ pub enum Expression<'src> {
     Block(Box<BlockExpression<'src>>),
     Binary(Box<BinaryExpression<'src>>),
     Unary(Box<UnaryExpression<'src>>),
-    Update(Box<UpdateExpression<'src>>),
     Ternary(Box<TernaryExpression<'src>>),
     Conditional(Box<ConditionalExpression<'src>>),
     Resource(Box<ResourceExpression<'src>>),
     ArrayAccess(Box<ArrayAccessExpression<'src>>),
     ArrowAccess(Box<ArrowAccessExpression<'src>>),
     Call(Box<CallExpression<'src>>),
+    Function(Box<FunctionExpression<'src>>),
     This(Box<ThisExpression>),
+}
+
+impl<'src> Expression<'src> {
+    pub fn span(&self) -> Span {
+        match self {
+            Expression::NumericLiteral(expr) => expr.span,
+            Expression::BooleanLiteral(expr) => expr.span,
+            Expression::StringLiteral(expr) => expr.span,
+            Expression::Variable(expr) => expr.span,
+            Expression::Parenthesized(expr) => expr.span,
+            Expression::Block(expr) => expr.span,
+            Expression::Binary(expr) => expr.span,
+            Expression::Unary(expr) => expr.span,
+            Expression::Ternary(expr) => expr.span,
+            Expression::Conditional(expr) => expr.span,
+            Expression::Resource(expr) => expr.span,
+            Expression::ArrayAccess(expr) => expr.span,
+            Expression::ArrowAccess(expr) => expr.span,
+            Expression::Call(expr) => expr.span,
+            Expression::Function(expr) => expr.span,
+            Expression::This(expr) => expr.span,
+        }
+    }
 }
 
 impl<'src> From<Expression<'src>> for Statement<'src> {
@@ -314,7 +382,7 @@ pub struct Identifier<'src> {
 #[derive(Debug, Clone, PartialEq)]
 pub struct VariableExpression<'src> {
     pub span: Span,
-    pub lifetime: VariableLifetime,
+    pub scope: VariableScope,
     pub member: VariableMember<'src>,
 }
 
@@ -331,42 +399,42 @@ impl<'src> From<VariableExpression<'src>> for Expression<'src> {
     }
 }
 
-/// The variable lifetime associated with [`VariableExpression`].
+/// The variable scope associated with [`VariableExpression`] or [`CallExpression`].
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
-pub enum VariableLifetime {
+pub enum VariableScope {
     /// `temp` in `temp.foo`
     Temporary,
     /// `variable` in `variable.foo`
     Variable,
     /// `context` in `context.foo`
     Context,
+    /// `math` in `math.foo`
+    Math,
+    /// `query` in `query.foo`
+    Query,
 }
 
-impl VariableLifetime {
-    pub fn as_str_long(&self) -> &'static str {
+impl VariableScope {
+    pub fn as_str(&self) -> &'static str {
         match self {
             Self::Temporary => "temp",
             Self::Variable => "variable",
             Self::Context => "context",
-        }
-    }
-
-    pub fn as_str_short(&self) -> &'static str {
-        match self {
-            Self::Temporary => "t",
-            Self::Variable => "v",
-            Self::Context => "c",
+            Self::Math => "math",
+            Self::Query => "query",
         }
     }
 }
 
-impl From<Kind> for VariableLifetime {
+impl From<Kind> for VariableScope {
     fn from(kind: Kind) -> Self {
         match kind {
             Kind::Temporary => Self::Temporary,
             Kind::Variable => Self::Variable,
             Kind::Context => Self::Context,
-            _ => unreachable!("Variable Lifetime: {kind:?}"),
+            Kind::Math => Self::Math,
+            Kind::Query => Self::Query,
+            _ => unreachable!("Variable Scope: {kind:?}"),
         }
     }
 }
@@ -614,50 +682,6 @@ impl From<Kind> for UnaryOperator {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct UpdateExpression<'src> {
-    pub span: Span,
-    pub variable: VariableExpression<'src>,
-    pub operator: UpdateOperator,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum UpdateOperator {
-    /// `++`
-    Increment,
-    /// `--`
-    Decrement,
-}
-
-impl UpdateOperator {
-    /// The string representation of this operator as it appears in source code.
-    pub fn as_str(self) -> &'static str {
-        match self {
-            Self::Increment => "++",
-            Self::Decrement => "--",
-        }
-    }
-}
-
-impl From<Kind> for UpdateOperator {
-    fn from(token: Kind) -> Self {
-        match token {
-            Kind::Plus2 => Self::Increment,
-            Kind::Minus2 => Self::Decrement,
-            _ => unreachable!("Update Operator: {token:?}"),
-        }
-    }
-}
-
-impl From<UpdateOperator> for BinaryOperator {
-    fn from(op: UpdateOperator) -> Self {
-        match op {
-            UpdateOperator::Increment => BinaryOperator::Addition,
-            UpdateOperator::Decrement => BinaryOperator::Subtraction,
-        }
-    }
-}
-
 /// <https://bedrock.dev/docs/stable/Molang#Conditionals>
 ///
 /// `q.foo ? 0 : 1`
@@ -777,9 +801,8 @@ impl<'src> From<ArrowAccessExpression<'src>> for Expression<'src> {
 #[derive(Debug, Clone, PartialEq)]
 pub struct CallExpression<'src> {
     pub span: Span,
-    pub kind: CallKind,
-    pub callee: Identifier<'src>,
-    pub arguments: Option<Vec<Expression<'src>>>,
+    pub callee: VariableExpression<'src>,
+    pub arguments: Vec<Expression<'src>>,
 }
 
 impl<'src> From<CallExpression<'src>> for Expression<'src> {
@@ -788,38 +811,16 @@ impl<'src> From<CallExpression<'src>> for Expression<'src> {
     }
 }
 
-/// The call kind for [`CallExpression`].
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum CallKind {
-    /// `math` in `math.foo`
-    Math,
-    /// `query` in `query.foo`
-    Query,
+#[derive(Debug, Clone, PartialEq)]
+pub struct FunctionExpression<'src> {
+    pub span: Span,
+    pub parameters: Vec<StringLiteral<'src>>,
+    pub body: Expression<'src>,
 }
 
-impl CallKind {
-    pub fn as_str_long(&self) -> &'static str {
-        match self {
-            Self::Math => "math",
-            Self::Query => "query",
-        }
-    }
-
-    pub fn as_str_short(&self) -> &'static str {
-        match self {
-            Self::Math => "math",
-            Self::Query => "q",
-        }
-    }
-}
-
-impl From<Kind> for CallKind {
-    fn from(kind: Kind) -> Self {
-        match kind {
-            Kind::Math => Self::Math,
-            Kind::Query => Self::Query,
-            _ => unreachable!("Call Kind: {kind:?}"),
-        }
+impl<'src> From<FunctionExpression<'src>> for Expression<'src> {
+    fn from(value: FunctionExpression<'src>) -> Self {
+        Self::Function(value.into())
     }
 }
 

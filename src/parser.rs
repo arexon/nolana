@@ -103,7 +103,7 @@ impl<'src> Parser<'src> {
     fn parse_statement(&mut self) -> Result<Statement<'src>> {
         let stmt = match self.current_kind() {
             Kind::Semi => self.parse_empty_statement()?,
-            v if v.is_variable() => self.parse_assignment_statement_or_expression()?,
+            v if v.is_scope_variable() => self.parse_higher_statement()?,
             Kind::Loop => self.parse_loop_statement()?,
             Kind::ForEach => self.parse_for_each_statement()?,
             Kind::Return => self.parse_return_statement()?.into(),
@@ -122,11 +122,13 @@ impl<'src> Parser<'src> {
         false
     }
 
-    fn parse_assignment_statement_or_expression(&mut self) -> Result<Statement<'src>> {
+    fn parse_higher_statement(&mut self) -> Result<Statement<'src>> {
         let span = self.start_span();
-        let left = self.parse_variable_expression()?;
+        let left = self.parse_variable_or_call_expression()?;
         let kind = self.current_kind();
-        Ok(if kind.is_assignment_operator() {
+        if kind.is_assignment_operator()
+            && let Expression::Variable(left) = left
+        {
             let operator = kind.into();
             self.bump();
 
@@ -135,14 +137,17 @@ impl<'src> Parser<'src> {
             }
 
             let right = self.parse_expression(0)?;
-            Statement::Assignment(
-                AssignmentStatement { span: self.end_span(span), left, operator, right }.into(),
-            )
+            Ok(Statement::Assignment(
+                AssignmentStatement { span: self.end_span(span), left: *left, operator, right }
+                    .into(),
+            ))
+        } else if kind.is_update_operator()
+            && let Expression::Variable(left) = left
+        {
+            self.parse_update_statement(span, *left)
         } else {
-            Statement::Expression(
-                self.parse_expression_rest(0, Expression::Variable(left.into()), span)?.into(),
-            )
-        })
+            Ok(Statement::Expression(self.parse_expression_rest(0, left, span)?.into()))
+        }
     }
 
     fn parse_loop_statement(&mut self) -> Result<Statement<'src>> {
@@ -160,7 +165,7 @@ impl<'src> Parser<'src> {
         let span = self.start_span();
         self.expect(Kind::ForEach)?;
         self.expect(Kind::LeftParen)?;
-        if !self.current_kind().is_variable() {
+        if !self.current_kind().is_scope_variable() {
             return Err(invalid_for_each_first_arg(self.current_token().span()));
         }
         let variable = self.parse_variable_expression()?;
@@ -170,6 +175,21 @@ impl<'src> Parser<'src> {
         let block = self.parse_block_expression()?;
         self.expect(Kind::RightParen)?;
         Ok(ForEachStatement { span: self.end_span(span), variable, array, block }.into())
+    }
+
+    fn parse_update_statement(
+        &mut self,
+        span: Span,
+        variable: VariableExpression<'src>,
+    ) -> Result<Statement<'src>> {
+        if !self.is_complex {
+            self.is_complex = true;
+        }
+        let operator = self.current_kind().into();
+        self.bump();
+        Ok(Statement::Update(
+            UpdateStatement { span: self.end_span(span), variable, operator }.into(),
+        ))
     }
 
     fn parse_return_statement(&mut self) -> Result<ReturnStatement<'src>> {
@@ -201,22 +221,22 @@ impl<'src> Parser<'src> {
         let left = match self.current_kind() {
             Kind::True | Kind::False => self.parse_literal_boolean()?,
             Kind::Number => self.parse_literal_number()?,
-            Kind::String => self.parse_literal_string()?,
-            v if v.is_variable() => self.parse_variable_expression().map(Into::into)?,
+            Kind::String => self.parse_literal_string().map(Into::into)?,
+            v if v.is_scope_variable() => self.parse_variable_or_call_expression()?,
             Kind::LeftParen => self.parse_parenthesized_expression()?,
             Kind::LeftBrace => self.parse_block_expression().map(Into::into)?,
             v if v.is_unary_operator() => self.parse_unary_expression()?,
-            Kind::Query | Kind::Math => self.parse_call_expression()?,
             v if v.is_resource() => self.parse_resource_expression()?,
             Kind::Array => self.parse_array_access_expression()?,
             Kind::Loop | Kind::ForEach => {
                 return Err(loop_in_expression(self.end_span_single(span)));
             }
+            Kind::Function => self.parse_function_expression()?,
             Kind::This => self.parse_this_expression()?,
             Kind::UnterminatedString => {
                 return Err(unterminated_string(self.end_span(span)));
             }
-            _ => return Err(unexpected_token(self.current_token().span())),
+            kind => return Err(unexpected_token(kind, self.current_token().span())),
         };
         self.parse_expression_rest(min_bp, left, span)
     }
@@ -246,12 +266,6 @@ impl<'src> Parser<'src> {
                 kind if kind.is_binary_operator() => {
                     left = self.parse_binary_expression(span, left, rbp)?;
                 }
-                kind if kind.is_update_operator() => match left {
-                    Expression::Variable(variable) => {
-                        left = self.parse_update_expression(span, *variable)?;
-                    }
-                    _ => return Err(illegal_update_operation(self.end_span(span))),
-                },
                 Kind::Question => {
                     left = self.parse_ternary_or_conditional_expression(span, left)?;
                 }
@@ -280,12 +294,12 @@ impl<'src> Parser<'src> {
         Ok(BooleanLiteral { span: self.end_span(span), value }.into())
     }
 
-    pub fn parse_literal_string(&mut self) -> Result<Expression<'src>> {
+    fn parse_literal_string(&mut self) -> Result<StringLiteral<'src>> {
         let span = self.start_span();
         let value = self.current_src();
         let value = &value[1..value.len() - 1];
         self.expect(Kind::String)?;
-        Ok(StringLiteral { span: self.end_span(span), value }.into())
+        Ok(StringLiteral { span: self.end_span(span), value })
     }
 
     #[inline(always)] // Hot path
@@ -293,7 +307,7 @@ impl<'src> Parser<'src> {
         let span = self.start_span();
         let name = self.current_src();
         match self.current_kind() {
-            v if v.is_variable() | v.is_call() => self.bump(),
+            v if v.is_scope_variable() => self.bump(),
             _ => self.expect(Kind::Identifier)?,
         }
         Ok(Identifier { span: self.end_span(span), name: name.into() })
@@ -320,7 +334,7 @@ impl<'src> Parser<'src> {
                 Span::new(self.prev_token_end, self.current_token().start),
             ))
         } else {
-            Err(unexpected_token(self.current_token().span()))
+            Err(unexpected_token(self.current_kind(), self.current_token().span()))
         }
     }
 
@@ -405,9 +419,38 @@ impl<'src> Parser<'src> {
         }
     }
 
+    fn parse_variable_or_call_expression(&mut self) -> Result<Expression<'src>> {
+        let callee = self.parse_variable_expression()?;
+        Ok(if self.eat(Kind::LeftParen) {
+            let mut arguments = Vec::new();
+            let mut first = true;
+            loop {
+                if self.at(Kind::RightParen) || self.at(Kind::Eof) {
+                    break;
+                }
+                if first {
+                    first = false;
+                } else {
+                    self.expect(Kind::Comma)?;
+                    if self.at(Kind::RightParen) {
+                        break;
+                    }
+                }
+                arguments.push(self.parse_expression(0)?);
+            }
+            self.expect(Kind::RightParen)?;
+            CallExpression { span: self.end_span(callee.span), callee, arguments }.into()
+        } else if matches!(callee.scope, VariableScope::Math | VariableScope::Query) {
+            CallExpression { span: self.end_span(callee.span), callee, arguments: Vec::new() }
+                .into()
+        } else {
+            callee.into()
+        })
+    }
+
     fn parse_variable_expression(&mut self) -> Result<VariableExpression<'src>> {
         let span = self.start_span();
-        let lifetime: VariableLifetime = self.current_kind().into();
+        let scope: VariableScope = self.current_kind().into();
         self.bump();
         self.expect(Kind::Dot)?;
         let property = self.parse_identifier()?;
@@ -416,19 +459,7 @@ impl<'src> Parser<'src> {
             let property = self.parse_identifier()?;
             member = VariableMember::Object { object: member.into(), property };
         }
-        Ok(VariableExpression { span: self.end_span(span), lifetime, member })
-    }
-
-    fn parse_update_expression(
-        &mut self,
-        span: Span,
-        variable: VariableExpression<'src>,
-    ) -> Result<Expression<'src>> {
-        let operator = self.current_kind().into();
-        self.bump();
-        Ok(Expression::Update(
-            UpdateExpression { span: self.end_span(span), variable, operator }.into(),
-        ))
+        Ok(VariableExpression { span: self.end_span(span), scope, member })
     }
 
     fn parse_resource_expression(&mut self) -> Result<Expression<'src>> {
@@ -461,35 +492,33 @@ impl<'src> Parser<'src> {
         Ok(ArrowAccessExpression { span: self.end_span(left_span), left, right }.into())
     }
 
-    fn parse_call_expression(&mut self) -> Result<Expression<'src>> {
+    fn parse_function_expression(&mut self) -> Result<Expression<'src>> {
         let span = self.start_span();
-        let kind: CallKind = self.current_kind().into();
-        self.bump();
-        self.expect(Kind::Dot)?;
-        let callee = self.parse_identifier()?;
-        let arguments = if self.eat(Kind::LeftParen) {
-            let mut arguments = Vec::new();
-            let mut first = true;
-            loop {
-                if self.at(Kind::RightParen) || self.at(Kind::Eof) {
-                    break;
-                }
-                if first {
-                    first = false;
-                } else {
-                    self.expect(Kind::Comma)?;
-                    if self.at(Kind::RightParen) {
-                        break;
-                    }
-                }
-                arguments.push(self.parse_expression(0)?);
+        self.expect(Kind::Function)?;
+        self.expect(Kind::LeftParen)?;
+        let mut exprs = Vec::new();
+        loop {
+            if self.at(Kind::RightParen) {
+                break;
             }
-            self.expect(Kind::RightParen)?;
-            Some(arguments)
-        } else {
-            None
+            exprs.push(self.parse_expression(0)?);
+            if self.eat(Kind::Comma) {
+                continue;
+            }
+        }
+        self.expect(Kind::RightParen)?;
+        let body = match exprs.len() {
+            0 => return Err(empty_function_body(self.end_span(span))),
+            _ => exprs.pop().unwrap(),
         };
-        Ok(CallExpression { span: self.end_span(span), kind, callee, arguments }.into())
+        let parameters = exprs
+            .into_iter()
+            .map(|expr| match expr {
+                Expression::StringLiteral(str) => Ok(*str),
+                _ => Err(non_string_literal_function_params(expr.span())),
+            })
+            .collect::<Result<Vec<_>>>()?;
+        Ok(FunctionExpression { span: self.end_span(span), parameters, body }.into())
     }
 
     fn parse_this_expression(&mut self) -> Result<Expression<'src>> {
@@ -573,8 +602,8 @@ fn invalid_number(span: Span) -> Diagnostic {
 }
 
 #[cold]
-fn unexpected_token(span: Span) -> Diagnostic {
-    Diagnostic::error("unexpected token").with_label(span)
+fn unexpected_token(token: Kind, span: Span) -> Diagnostic {
+    Diagnostic::error(format!("unexpected token `{token:?}`")).with_label(span)
 }
 
 #[cold]
@@ -616,11 +645,16 @@ fn loop_in_expression(span: Span) -> Diagnostic {
 }
 
 #[cold]
-fn illegal_update_operation(span: Span) -> Diagnostic {
-    Diagnostic::error("`++` and `--` can only be used on variables").with_label(span)
+fn invalid_for_each_first_arg(span: Span) -> Diagnostic {
+    Diagnostic::error("`for_each` statement first argument must be a variable").with_label(span)
 }
 
 #[cold]
-fn invalid_for_each_first_arg(span: Span) -> Diagnostic {
-    Diagnostic::error("`for_each` statement first argument must be a variable").with_label(span)
+fn empty_function_body(span: Span) -> Diagnostic {
+    Diagnostic::error("a function body must contain at least one expression").with_label(span)
+}
+
+#[cold]
+fn non_string_literal_function_params(span: Span) -> Diagnostic {
+    Diagnostic::error("function parameters must be string literals").with_label(span)
 }

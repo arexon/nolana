@@ -24,15 +24,23 @@ ParseResult {
                                         start: 0,
                                         end: 5,
                                     },
-                                    kind: Query,
-                                    callee: Identifier {
+                                    callee: VariableExpression {
                                         span: Span {
-                                            start: 2,
+                                            start: 0,
                                             end: 5,
                                         },
-                                        name: "foo",
+                                        scope: Query,
+                                        member: Property {
+                                            property: Identifier {
+                                                span: Span {
+                                                    start: 2,
+                                                    end: 5,
+                                                },
+                                                name: "foo",
+                                            },
+                                        },
                                     },
-                                    arguments: None,
+                                    arguments: [],
                                 },
                             ),
                             consequent: NumericLiteral(
@@ -61,15 +69,23 @@ ParseResult {
                                         start: 11,
                                         end: 16,
                                     },
-                                    kind: Query,
-                                    callee: Identifier {
+                                    callee: VariableExpression {
                                         span: Span {
-                                            start: 13,
+                                            start: 11,
                                             end: 16,
                                         },
-                                        name: "foo",
+                                        scope: Query,
+                                        member: Property {
+                                            property: Identifier {
+                                                span: Span {
+                                                    start: 13,
+                                                    end: 16,
+                                                },
+                                                name: "foo",
+                                            },
+                                        },
                                     },
-                                    arguments: None,
+                                    arguments: [],
                                 },
                             ),
                             consequent: Block(
@@ -90,7 +106,7 @@ ParseResult {
                                                         start: 25,
                                                         end: 28,
                                                     },
-                                                    lifetime: Variable,
+                                                    scope: Variable,
                                                     member: Property {
                                                         property: Identifier {
                                                             span: Span {

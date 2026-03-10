@@ -29,15 +29,23 @@ ParseResult {
                                 start: 10,
                                 end: 15,
                             },
-                            kind: Query,
-                            callee: Identifier {
+                            callee: VariableExpression {
                                 span: Span {
-                                    start: 12,
+                                    start: 10,
                                     end: 15,
                                 },
-                                name: "bar",
+                                scope: Query,
+                                member: Property {
+                                    property: Identifier {
+                                        span: Span {
+                                            start: 12,
+                                            end: 15,
+                                        },
+                                        name: "bar",
+                                    },
+                                },
                             },
-                            arguments: None,
+                            arguments: [],
                         },
                     ),
                 },

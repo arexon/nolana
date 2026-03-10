@@ -198,6 +198,10 @@ pub enum Kind {
     #[token("c", priority = 3)]
     Context,
 
+    #[token("local")]
+    #[token("l", priority = 3)]
+    Local,
+
     #[regex(r"[Mm]ath")]
     Math,
 
@@ -225,6 +229,9 @@ pub enum Kind {
 
     #[token("this")]
     This,
+
+    #[token("function")]
+    Function,
 
     #[token("break")]
     Break,
@@ -297,12 +304,8 @@ impl Kind {
         matches!(self, Kind::Plus2 | Kind::Minus2)
     }
 
-    pub fn is_variable(self) -> bool {
-        matches!(self, Kind::Variable | Kind::Temporary | Kind::Context)
-    }
-
-    pub fn is_call(self) -> bool {
-        matches!(self, Kind::Math | Kind::Query)
+    pub fn is_scope_variable(self) -> bool {
+        matches!(self, Kind::Variable | Kind::Temporary | Kind::Context | Kind::Math | Kind::Query)
     }
 
     pub fn is_resource(self) -> bool {
@@ -392,6 +395,7 @@ impl Kind {
             Kind::Temporary => "temp",
             Kind::Variable => "variable",
             Kind::Context => "context",
+            Kind::Local => "local",
             Kind::Math => "math",
             Kind::Query => "query",
             Kind::Geometry => "geometry",
@@ -401,6 +405,7 @@ impl Kind {
             Kind::True => "true",
             Kind::False => "false",
             Kind::This => "this",
+            Kind::Function => "function",
             Kind::Break => "break",
             Kind::Continue => "continue",
             Kind::ForEach => "for_each",
@@ -477,7 +482,30 @@ mod tests {
     #[test]
     fn test_members() {
         assert_lexer(
-            "temp t variable v context c Math math Query query q Geometry geometry Texture texture Material material Array array",
+            "
+                temp
+                t
+                variable
+                v
+                context
+                c
+                local
+                l
+                function
+                Math
+                math
+                Query
+                query
+                q
+                Geometry
+                geometry
+                Texture
+                texture
+                Material
+                material
+                Array
+                array
+            ",
             &[
                 (Ok(Kind::Temporary), "temp"),
                 (Ok(Kind::Temporary), "t"),
@@ -485,6 +513,9 @@ mod tests {
                 (Ok(Kind::Variable), "v"),
                 (Ok(Kind::Context), "context"),
                 (Ok(Kind::Context), "c"),
+                (Ok(Kind::Local), "local"),
+                (Ok(Kind::Local), "l"),
+                (Ok(Kind::Function), "function"),
                 (Ok(Kind::Math), "Math"),
                 (Ok(Kind::Math), "math"),
                 (Ok(Kind::Query), "Query"),

@@ -6,39 +6,33 @@ math.mod(variable.x, variable.y);
 math.pow(variable.x, variable.y);
 math.floor(variable.x / math.pow(2, variable.y));
 variable.x * math.pow(2, variable.y);
-{
-    variable.__4_result = 0;
-    variable.__4_bit = 0;
-    loop(24, {
-        variable.__4_left_bit = math.mod(math.floor(variable.x / math.pow(2, variable.__4_bit)), 2);
-        variable.__4_right_bit = math.mod(math.floor(variable.y / math.pow(2, variable.__4_bit)), 2);
-        variable.__4_or_bit = math.min(1, variable.__4_left_bit + variable.__4_right_bit);
-        variable.__4_result = variable.__4_result + variable.__4_or_bit * math.pow(2, variable.__4_bit);
-        variable.__4_bit = variable.__4_bit + 1;
-    });
-};
-query.foo(variable.__4_result);
-{
-    variable.__6_result = 0;
-    variable.__6_bit = 0;
-    loop(24, {
-        variable.__6_left_bit = math.mod(math.floor(variable.x / math.pow(2, variable.__6_bit)), 2);
-        variable.__6_right_bit = math.mod(math.floor(variable.y / math.pow(2, variable.__6_bit)), 2);
-        variable.__6_and_bit = variable.__6_left_bit * variable.__6_right_bit;
-        variable.__6_result = variable.__6_result + variable.__6_and_bit * math.pow(2, variable.__6_bit);
-        variable.__6_bit = variable.__6_bit + 1;
-    });
-};
-query.bar(variable.__6_result);
-{
-    variable.__8_result = 0;
-    variable.__8_bit = 0;
-    loop(24, {
-        variable.__8_left_bit = math.mod(math.floor(variable.x / math.pow(2, variable.__8_bit)), 2);
-        variable.__8_right_bit = math.mod(math.floor(variable.y / math.pow(2, variable.__8_bit)), 2);
-        variable.__8_xor_bit = math.mod(variable.__8_left_bit + variable.__8_right_bit, 2);
-        variable.__8_result = variable.__8_result + variable.__8_xor_bit * math.pow(2, variable.__8_bit);
-        variable.__8_bit = variable.__8_bit + 1;
-    });
-};
-query.baz(variable.__8_result);
+variable.__0 = 0;
+variable.__1 = 0;
+loop(24, {
+    variable.__2 = math.mod(math.floor(variable.x / math.pow(2, variable.__1)), 2);
+    variable.__3 = math.mod(math.floor(variable.y / math.pow(2, variable.__1)), 2);
+    variable.__4 = math.min(1, variable.__2 + variable.__3);
+    variable.__0 = variable.__0 + variable.__4 * math.pow(2, variable.__1);
+    variable.__1 = variable.__1 + 1;
+});
+query.foo(variable.__0);
+variable.__5 = 0;
+variable.__6 = 0;
+loop(24, {
+    variable.__7 = math.mod(math.floor(variable.x / math.pow(2, variable.__6)), 2);
+    variable.__8 = math.mod(math.floor(variable.y / math.pow(2, variable.__6)), 2);
+    variable.__9 = variable.__7 * variable.__8;
+    variable.__5 = variable.__5 + variable.__9 * math.pow(2, variable.__6);
+    variable.__6 = variable.__6 + 1;
+});
+query.bar(variable.__5);
+variable.__10 = 0;
+variable.__11 = 0;
+loop(24, {
+    variable.__12 = math.mod(math.floor(variable.x / math.pow(2, variable.__11)), 2);
+    variable.__13 = math.mod(math.floor(variable.y / math.pow(2, variable.__11)), 2);
+    variable.__14 = math.mod(variable.__12 + variable.__13, 2);
+    variable.__10 = variable.__10 + variable.__14 * math.pow(2, variable.__11);
+    variable.__11 = variable.__11 + 1;
+});
+query.baz(variable.__10);

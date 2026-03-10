@@ -6,35 +6,37 @@ ParseResult {
     program: Program {
         span: Span {
             start: 0,
-            end: 7,
+            end: 8,
         },
-        source: "c.foo++\n",
-        body: Simple(
-            Update(
-                UpdateExpression {
-                    span: Span {
-                        start: 0,
-                        end: 7,
-                    },
-                    variable: VariableExpression {
+        source: "c.foo++;\n",
+        body: Complex(
+            [
+                Update(
+                    UpdateStatement {
                         span: Span {
                             start: 0,
-                            end: 5,
+                            end: 7,
                         },
-                        lifetime: Context,
-                        member: Property {
-                            property: Identifier {
-                                span: Span {
-                                    start: 2,
-                                    end: 5,
+                        variable: VariableExpression {
+                            span: Span {
+                                start: 0,
+                                end: 5,
+                            },
+                            scope: Context,
+                            member: Property {
+                                property: Identifier {
+                                    span: Span {
+                                        start: 2,
+                                        end: 5,
+                                    },
+                                    name: "foo",
                                 },
-                                name: "foo",
                             },
                         },
+                        operator: Increment,
                     },
-                    operator: Increment,
-                },
-            ),
+                ),
+            ],
         ),
     },
     errors: [],

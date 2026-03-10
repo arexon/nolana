@@ -24,15 +24,23 @@ ParseResult {
                                         start: 0,
                                         end: 5,
                                     },
-                                    kind: Query,
-                                    callee: Identifier {
+                                    callee: VariableExpression {
                                         span: Span {
-                                            start: 2,
+                                            start: 0,
                                             end: 5,
                                         },
-                                        name: "foo",
+                                        scope: Query,
+                                        member: Property {
+                                            property: Identifier {
+                                                span: Span {
+                                                    start: 2,
+                                                    end: 5,
+                                                },
+                                                name: "foo",
+                                            },
+                                        },
                                     },
-                                    arguments: None,
+                                    arguments: [],
                                 },
                             ),
                             consequent: Ternary(
@@ -53,7 +61,7 @@ ParseResult {
                                                         start: 8,
                                                         end: 13,
                                                     },
-                                                    lifetime: Variable,
+                                                    scope: Variable,
                                                     member: Property {
                                                         property: Identifier {
                                                             span: Span {
@@ -126,15 +134,23 @@ ParseResult {
                                         start: 33,
                                         end: 38,
                                     },
-                                    kind: Query,
-                                    callee: Identifier {
+                                    callee: VariableExpression {
                                         span: Span {
-                                            start: 35,
+                                            start: 33,
                                             end: 38,
                                         },
-                                        name: "foo",
+                                        scope: Query,
+                                        member: Property {
+                                            property: Identifier {
+                                                span: Span {
+                                                    start: 35,
+                                                    end: 38,
+                                                },
+                                                name: "foo",
+                                            },
+                                        },
                                     },
-                                    arguments: None,
+                                    arguments: [],
                                 },
                             ),
                             consequent: NumericLiteral(
@@ -165,7 +181,7 @@ ParseResult {
                                                         start: 45,
                                                         end: 50,
                                                     },
-                                                    lifetime: Variable,
+                                                    scope: Variable,
                                                     member: Property {
                                                         property: Identifier {
                                                             span: Span {

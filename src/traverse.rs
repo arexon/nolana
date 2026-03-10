@@ -44,6 +44,12 @@ pub trait Traverse<'src>: Sized {
     fn exit_for_each_statement(&mut self, it: &mut ForEachStatement<'src>) {}
 
     #[inline]
+    fn enter_update_statement(&mut self, it: &mut UpdateStatement<'src>) {}
+
+    #[inline]
+    fn exit_update_statement(&mut self, it: &mut UpdateStatement<'src>) {}
+
+    #[inline]
     fn enter_return_statement(&mut self, it: &mut ReturnStatement<'src>) {}
 
     #[inline]
@@ -134,12 +140,6 @@ pub trait Traverse<'src>: Sized {
     fn exit_unary_expression(&mut self, it: &mut UnaryExpression<'src>) {}
 
     #[inline]
-    fn enter_update_expression(&mut self, it: &mut UpdateExpression<'src>) {}
-
-    #[inline]
-    fn exit_update_expression(&mut self, it: &mut UpdateExpression<'src>) {}
-
-    #[inline]
     fn enter_ternary_expression(&mut self, it: &mut TernaryExpression<'src>) {}
 
     #[inline]
@@ -176,6 +176,12 @@ pub trait Traverse<'src>: Sized {
     fn exit_call_expression(&mut self, it: &mut CallExpression<'src>) {}
 
     #[inline]
+    fn enter_function_expression(&mut self, it: &mut FunctionExpression<'src>) {}
+
+    #[inline]
+    fn exit_function_expression(&mut self, it: &mut FunctionExpression<'src>) {}
+
+    #[inline]
     fn enter_this_expression(&mut self, it: &mut ThisExpression) {}
 
     #[inline]
@@ -207,6 +213,7 @@ fn walk_statement<'src>(traverser: &mut impl Traverse<'src>, it: &mut Statement<
         Statement::Assignment(it) => walk_assignment_statement(traverser, it),
         Statement::Loop(it) => walk_loop_statement(traverser, it),
         Statement::ForEach(it) => walk_for_each_statement(traverser, it),
+        Statement::Update(it) => walk_update_statement(traverser, it),
         Statement::Return(it) => walk_return_statement(traverser, it),
         Statement::Break(it) => walk_break_statement(traverser, it),
         Statement::Continue(it) => walk_continue_statement(traverser, it),
@@ -225,6 +232,17 @@ fn walk_assignment_statement<'src>(
     traverser.exit_assignment_statement(it);
 }
 
+fn walk_function_expression<'src>(
+    traverser: &mut impl Traverse<'src>,
+    it: &mut FunctionExpression<'src>,
+) {
+    traverser.enter_function_expression(it);
+    for param in &mut it.parameters {
+        walk_string_literal(traverser, param);
+    }
+    traverser.exit_function_expression(it);
+}
+
 fn walk_loop_statement<'src>(traverser: &mut impl Traverse<'src>, it: &mut LoopStatement<'src>) {
     traverser.enter_loop_statement(it);
     walk_expression(traverser, &mut it.count);
@@ -241,6 +259,12 @@ fn walk_for_each_statement<'src>(
     walk_expression(traverser, &mut it.array);
     walk_block_expression(traverser, &mut it.block);
     traverser.exit_for_each_statement(it);
+}
+
+fn walk_update_statement<'src>(visitor: &mut impl Traverse<'src>, it: &mut UpdateStatement<'src>) {
+    visitor.enter_update_statement(it);
+    walk_variable_expression(visitor, &mut it.variable);
+    visitor.exit_update_statement(it);
 }
 
 fn walk_return_statement<'src>(
@@ -278,13 +302,13 @@ fn walk_expression<'src>(traverser: &mut impl Traverse<'src>, it: &mut Expressio
         Expression::Block(it) => walk_block_expression(traverser, it),
         Expression::Binary(it) => walk_binary_expression(traverser, it),
         Expression::Unary(it) => walk_unary_expression(traverser, it),
-        Expression::Update(it) => walk_update_expression(traverser, it),
         Expression::Ternary(it) => walk_ternary_expression(traverser, it),
         Expression::Conditional(it) => walk_conditional_expression(traverser, it),
         Expression::Resource(it) => walk_resource_expression(traverser, it),
         Expression::ArrayAccess(it) => walk_array_access_expression(traverser, it),
         Expression::ArrowAccess(it) => walk_arrow_access_expression(traverser, it),
         Expression::Call(it) => walk_call_expression(traverser, it),
+        Expression::Function(it) => walk_function_expression(traverser, it),
         Expression::This(it) => walk_this_expression(traverser, it),
     }
     traverser.exit_expression(it);
@@ -377,15 +401,6 @@ fn walk_unary_expression<'src>(
     traverser.exit_unary_expression(it);
 }
 
-fn walk_update_expression<'src>(
-    visitor: &mut impl Traverse<'src>,
-    it: &mut UpdateExpression<'src>,
-) {
-    visitor.enter_update_expression(it);
-    walk_variable_expression(visitor, &mut it.variable);
-    visitor.exit_update_expression(it);
-}
-
 fn walk_ternary_expression<'src>(
     traverser: &mut impl Traverse<'src>,
     it: &mut TernaryExpression<'src>,
@@ -438,11 +453,9 @@ fn walk_arrow_access_expression<'src>(
 
 fn walk_call_expression<'src>(traverser: &mut impl Traverse<'src>, it: &mut CallExpression<'src>) {
     traverser.enter_call_expression(it);
-    walk_identifier_reference(traverser, &mut it.callee);
-    if let Some(args) = &mut it.arguments {
-        for arg in args {
-            walk_expression(traverser, arg);
-        }
+    walk_variable_expression(traverser, &mut it.callee);
+    for arg in &mut it.arguments {
+        walk_expression(traverser, arg);
     }
     traverser.exit_call_expression(it);
 }

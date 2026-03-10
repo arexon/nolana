@@ -2,15 +2,13 @@
 source: tests/integration.rs
 input_file: tests/transformer/binary_bitwise_simple_into_complex.nolana
 ---
-{
-    variable.__0_result = 0;
-    variable.__0_bit = 0;
-    loop(24, {
-        variable.__0_left_bit = math.mod(math.floor(variable.x / math.pow(2, variable.__0_bit)), 2);
-        variable.__0_right_bit = math.mod(math.floor(variable.y / math.pow(2, variable.__0_bit)), 2);
-        variable.__0_or_bit = math.min(1, variable.__0_left_bit + variable.__0_right_bit);
-        variable.__0_result = variable.__0_result + variable.__0_or_bit * math.pow(2, variable.__0_bit);
-        variable.__0_bit = variable.__0_bit + 1;
-    });
-};
-return variable.__0_result;
+variable.__0 = 0;
+variable.__1 = 0;
+loop(24, {
+    variable.__2 = math.mod(math.floor(variable.x / math.pow(2, variable.__1)), 2);
+    variable.__3 = math.mod(math.floor(variable.y / math.pow(2, variable.__1)), 2);
+    variable.__4 = math.min(1, variable.__2 + variable.__3);
+    variable.__0 = variable.__0 + variable.__4 * math.pow(2, variable.__1);
+    variable.__1 = variable.__1 + 1;
+});
+return variable.__0;
