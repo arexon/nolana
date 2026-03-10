@@ -103,7 +103,7 @@ impl<'src> Parser<'src> {
     fn parse_statement(&mut self) -> Result<Statement<'src>> {
         let stmt = match self.current_kind() {
             Kind::Semi => self.parse_empty_statement()?,
-            v if v.is_scope_variable() => self.parse_assignment_statement_or_expression()?,
+            v if v.is_scope_variable() => self.parse_higher_statement()?,
             Kind::Loop => self.parse_loop_statement()?,
             Kind::ForEach => self.parse_for_each_statement()?,
             Kind::Return => self.parse_return_statement()?.into(),
@@ -122,7 +122,7 @@ impl<'src> Parser<'src> {
         false
     }
 
-    fn parse_assignment_statement_or_expression(&mut self) -> Result<Statement<'src>> {
+    fn parse_higher_statement(&mut self) -> Result<Statement<'src>> {
         let span = self.start_span();
         let left = self.parse_variable_or_call_expression()?;
         let kind = self.current_kind();
@@ -141,6 +141,10 @@ impl<'src> Parser<'src> {
                 AssignmentStatement { span: self.end_span(span), left: *left, operator, right }
                     .into(),
             ))
+        } else if kind.is_update_operator()
+            && let Expression::Variable(left) = left
+        {
+            self.parse_update_statement(span, *left)
         } else {
             Ok(Statement::Expression(self.parse_expression_rest(0, left, span)?.into()))
         }
@@ -171,6 +175,21 @@ impl<'src> Parser<'src> {
         let block = self.parse_block_expression()?;
         self.expect(Kind::RightParen)?;
         Ok(ForEachStatement { span: self.end_span(span), variable, array, block }.into())
+    }
+
+    fn parse_update_statement(
+        &mut self,
+        span: Span,
+        variable: VariableExpression<'src>,
+    ) -> Result<Statement<'src>> {
+        if !self.is_complex {
+            self.is_complex = true;
+        }
+        let operator = self.current_kind().into();
+        self.bump();
+        Ok(Statement::Update(
+            UpdateStatement { span: self.end_span(span), variable, operator }.into(),
+        ))
     }
 
     fn parse_return_statement(&mut self) -> Result<ReturnStatement<'src>> {
@@ -247,12 +266,6 @@ impl<'src> Parser<'src> {
                 kind if kind.is_binary_operator() => {
                     left = self.parse_binary_expression(span, left, rbp)?;
                 }
-                kind if kind.is_update_operator() => match left {
-                    Expression::Variable(variable) => {
-                        left = self.parse_update_expression(span, *variable)?;
-                    }
-                    _ => return Err(illegal_update_operation(self.end_span(span))),
-                },
                 Kind::Question => {
                     left = self.parse_ternary_or_conditional_expression(span, left)?;
                 }
@@ -407,8 +420,8 @@ impl<'src> Parser<'src> {
     }
 
     fn parse_variable_or_call_expression(&mut self) -> Result<Expression<'src>> {
-        let var = self.parse_variable_expression()?;
-        let arguments = if self.eat(Kind::LeftParen) {
+        let callee = self.parse_variable_expression()?;
+        Ok(if self.eat(Kind::LeftParen) {
             let mut arguments = Vec::new();
             let mut first = true;
             loop {
@@ -426,11 +439,13 @@ impl<'src> Parser<'src> {
                 arguments.push(self.parse_expression(0)?);
             }
             self.expect(Kind::RightParen)?;
-            arguments
+            CallExpression { span: self.end_span(callee.span), callee, arguments }.into()
+        } else if matches!(callee.scope, VariableScope::Math | VariableScope::Query) {
+            CallExpression { span: self.end_span(callee.span), callee, arguments: Vec::new() }
+                .into()
         } else {
-            return Ok(var.into());
-        };
-        Ok(CallExpression { span: self.end_span(var.span), callee: var, arguments }.into())
+            callee.into()
+        })
     }
 
     fn parse_variable_expression(&mut self) -> Result<VariableExpression<'src>> {
@@ -445,18 +460,6 @@ impl<'src> Parser<'src> {
             member = VariableMember::Object { object: member.into(), property };
         }
         Ok(VariableExpression { span: self.end_span(span), scope, member })
-    }
-
-    fn parse_update_expression(
-        &mut self,
-        span: Span,
-        variable: VariableExpression<'src>,
-    ) -> Result<Expression<'src>> {
-        let operator = self.current_kind().into();
-        self.bump();
-        Ok(Expression::Update(
-            UpdateExpression { span: self.end_span(span), variable, operator }.into(),
-        ))
     }
 
     fn parse_resource_expression(&mut self) -> Result<Expression<'src>> {
@@ -639,11 +642,6 @@ fn loop_in_expression(span: Span) -> Diagnostic {
     Diagnostic::error("`loop` statement cannot be used inside expressions")
         .with_help("try defining it in a statement")
         .with_label(span)
-}
-
-#[cold]
-fn illegal_update_operation(span: Span) -> Diagnostic {
-    Diagnostic::error("`++` and `--` can only be used on variables").with_label(span)
 }
 
 #[cold]

@@ -35,6 +35,7 @@ pub enum Statement<'src> {
     Assignment(Box<AssignmentStatement<'src>>),
     Loop(Box<LoopStatement<'src>>),
     ForEach(Box<ForEachStatement<'src>>),
+    Update(Box<UpdateStatement<'src>>),
     Return(Box<ReturnStatement<'src>>),
     Break(Box<BreakStatement>),
     Continue(Box<ContinueStatement>),
@@ -175,6 +176,50 @@ impl<'src> From<ForEachStatement<'src>> for Statement<'src> {
     }
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub struct UpdateStatement<'src> {
+    pub span: Span,
+    pub variable: VariableExpression<'src>,
+    pub operator: UpdateOperator,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum UpdateOperator {
+    /// `++`
+    Increment,
+    /// `--`
+    Decrement,
+}
+
+impl UpdateOperator {
+    /// The string representation of this operator as it appears in source code.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Increment => "++",
+            Self::Decrement => "--",
+        }
+    }
+}
+
+impl From<Kind> for UpdateOperator {
+    fn from(token: Kind) -> Self {
+        match token {
+            Kind::Plus2 => Self::Increment,
+            Kind::Minus2 => Self::Decrement,
+            _ => unreachable!("Update Operator: {token:?}"),
+        }
+    }
+}
+
+impl From<UpdateOperator> for BinaryOperator {
+    fn from(op: UpdateOperator) -> Self {
+        match op {
+            UpdateOperator::Increment => BinaryOperator::Addition,
+            UpdateOperator::Decrement => BinaryOperator::Subtraction,
+        }
+    }
+}
+
 /// `return` in `v.a = 1; return v.a;`
 #[derive(Debug, Clone, PartialEq)]
 pub struct ReturnStatement<'src> {
@@ -238,7 +283,6 @@ pub enum Expression<'src> {
     Block(Box<BlockExpression<'src>>),
     Binary(Box<BinaryExpression<'src>>),
     Unary(Box<UnaryExpression<'src>>),
-    Update(Box<UpdateExpression<'src>>),
     Ternary(Box<TernaryExpression<'src>>),
     Conditional(Box<ConditionalExpression<'src>>),
     Resource(Box<ResourceExpression<'src>>),
@@ -260,7 +304,6 @@ impl<'src> Expression<'src> {
             Expression::Block(expr) => expr.span,
             Expression::Binary(expr) => expr.span,
             Expression::Unary(expr) => expr.span,
-            Expression::Update(expr) => expr.span,
             Expression::Ternary(expr) => expr.span,
             Expression::Conditional(expr) => expr.span,
             Expression::Resource(expr) => expr.span,
@@ -635,50 +678,6 @@ impl From<Kind> for UnaryOperator {
             Kind::Bang => Self::Not,
             Kind::Tilde => Self::BitwiseNot,
             _ => unreachable!("Unary Operator: {kind:?}"),
-        }
-    }
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct UpdateExpression<'src> {
-    pub span: Span,
-    pub variable: VariableExpression<'src>,
-    pub operator: UpdateOperator,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum UpdateOperator {
-    /// `++`
-    Increment,
-    /// `--`
-    Decrement,
-}
-
-impl UpdateOperator {
-    /// The string representation of this operator as it appears in source code.
-    pub fn as_str(self) -> &'static str {
-        match self {
-            Self::Increment => "++",
-            Self::Decrement => "--",
-        }
-    }
-}
-
-impl From<Kind> for UpdateOperator {
-    fn from(token: Kind) -> Self {
-        match token {
-            Kind::Plus2 => Self::Increment,
-            Kind::Minus2 => Self::Decrement,
-            _ => unreachable!("Update Operator: {token:?}"),
-        }
-    }
-}
-
-impl From<UpdateOperator> for BinaryOperator {
-    fn from(op: UpdateOperator) -> Self {
-        match op {
-            UpdateOperator::Increment => BinaryOperator::Addition,
-            UpdateOperator::Decrement => BinaryOperator::Subtraction,
         }
     }
 }

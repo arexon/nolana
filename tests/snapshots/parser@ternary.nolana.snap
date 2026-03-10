@@ -18,22 +18,29 @@ ParseResult {
                                 start: 0,
                                 end: 31,
                             },
-                            test: Variable(
-                                VariableExpression {
+                            test: Call(
+                                CallExpression {
                                     span: Span {
                                         start: 0,
                                         end: 5,
                                     },
-                                    scope: Query,
-                                    member: Property {
-                                        property: Identifier {
-                                            span: Span {
-                                                start: 2,
-                                                end: 5,
+                                    callee: VariableExpression {
+                                        span: Span {
+                                            start: 0,
+                                            end: 5,
+                                        },
+                                        scope: Query,
+                                        member: Property {
+                                            property: Identifier {
+                                                span: Span {
+                                                    start: 2,
+                                                    end: 5,
+                                                },
+                                                name: "foo",
                                             },
-                                            name: "foo",
                                         },
                                     },
+                                    arguments: [],
                                 },
                             ),
                             consequent: Ternary(
@@ -121,22 +128,29 @@ ParseResult {
                                 start: 33,
                                 end: 64,
                             },
-                            test: Variable(
-                                VariableExpression {
+                            test: Call(
+                                CallExpression {
                                     span: Span {
                                         start: 33,
                                         end: 38,
                                     },
-                                    scope: Query,
-                                    member: Property {
-                                        property: Identifier {
-                                            span: Span {
-                                                start: 35,
-                                                end: 38,
+                                    callee: VariableExpression {
+                                        span: Span {
+                                            start: 33,
+                                            end: 38,
+                                        },
+                                        scope: Query,
+                                        member: Property {
+                                            property: Identifier {
+                                                span: Span {
+                                                    start: 35,
+                                                    end: 38,
+                                                },
+                                                name: "foo",
                                             },
-                                            name: "foo",
                                         },
                                     },
+                                    arguments: [],
                                 },
                             ),
                             consequent: NumericLiteral(

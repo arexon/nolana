@@ -23,22 +23,29 @@ ParseResult {
                         },
                         name: "foo",
                     },
-                    index: Variable(
-                        VariableExpression {
+                    index: Call(
+                        CallExpression {
                             span: Span {
                                 start: 10,
                                 end: 15,
                             },
-                            scope: Query,
-                            member: Property {
-                                property: Identifier {
-                                    span: Span {
-                                        start: 12,
-                                        end: 15,
+                            callee: VariableExpression {
+                                span: Span {
+                                    start: 10,
+                                    end: 15,
+                                },
+                                scope: Query,
+                                member: Property {
+                                    property: Identifier {
+                                        span: Span {
+                                            start: 12,
+                                            end: 15,
+                                        },
+                                        name: "bar",
                                     },
-                                    name: "bar",
                                 },
                             },
+                            arguments: [],
                         },
                     ),
                 },

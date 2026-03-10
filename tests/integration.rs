@@ -1,7 +1,7 @@
 use std::{fs, path::Path};
 
 use insta::Settings;
-use nolana::{Codegen, CodegenOptions, MolangTransformer, Parser, semantic::SemanticChecker};
+use nolana::{Parser, Printer, PrinterOptions, lowerer::Lowerer, semantic::SemanticChecker};
 
 fn with_settings(f: impl FnOnce()) {
     let mut settings = Settings::clone_current();
@@ -20,7 +20,8 @@ fn read_and_codegen(path: &Path) -> String {
     let source = fs::read_to_string(path).unwrap();
     let result = Parser::new(&source).parse();
     assert!(result.errors.is_empty());
-    Codegen::default().build(&result.program)
+    let ir = Lowerer::default().lower(&result.program);
+    Printer::default().print(&ir)
 }
 
 fn read_and_semantic(path: &Path) -> String {
@@ -32,9 +33,9 @@ fn read_and_semantic(path: &Path) -> String {
 
 fn read_and_transform(path: &Path) -> String {
     let source = fs::read_to_string(path).unwrap();
-    let mut result = Parser::new(&source).parse();
-    MolangTransformer::new(&mut result.program).transform();
-    Codegen::default().with_options(CodegenOptions { minify: false }).build(&result.program)
+    let result = Parser::new(&source).parse();
+    let ir = Lowerer::default().lower(&result.program);
+    Printer::default().with_options(PrinterOptions { minify: false }).print(&ir)
 }
 
 #[test]

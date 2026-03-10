@@ -1,18 +1,19 @@
 use std::fs;
 
 use criterion::{Criterion, criterion_group, criterion_main};
-use nolana::{Codegen, Parser, ast::Program};
+use nolana::{Parser, Printer, ir::IrProgram, lowerer::Lowerer};
 
-fn codegen(program: &Program) {
-    let _ = Codegen::default().build(program);
+fn print(program: &IrProgram) {
+    let _ = Printer::default().print(program);
 }
 
 fn bench_codegen(c: &mut Criterion) {
     let source_code = fs::read_to_string("benches/sample.molang").unwrap();
-    let ret = Parser::new(&source_code).parse();
+    let result = Parser::new(&source_code).parse();
+    let ir = Lowerer::default().lower(&result.program);
     c.bench_function("codegen", |b| {
         b.iter(|| {
-            codegen(&ret.program);
+            print(&ir);
         });
     });
 }

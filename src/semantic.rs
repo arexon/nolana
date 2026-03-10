@@ -76,7 +76,7 @@ impl<'a> Traverse<'a> for SemanticChecker {
         }
     }
 
-    fn enter_update_expression(&mut self, it: &mut UpdateExpression<'a>) {
+    fn enter_update_statement(&mut self, it: &mut UpdateStatement<'a>) {
         if it.variable.scope == VariableScope::Context {
             self.errors.push(context_readonly(it.span))
         }

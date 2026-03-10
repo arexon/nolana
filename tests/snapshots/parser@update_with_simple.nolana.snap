@@ -1,14 +1,14 @@
 ---
 source: tests/integration.rs
-input_file: tests/parser/update.nolana
+input_file: tests/parser/update_with_simple.nolana
 ---
 ParseResult {
     program: Program {
         span: Span {
             start: 0,
-            end: 17,
+            end: 7,
         },
-        source: "v.foo++;\nv.bar--;\n",
+        source: "v.foo++\n",
         body: Complex(
             [
                 Update(
@@ -36,33 +36,32 @@ ParseResult {
                         operator: Increment,
                     },
                 ),
-                Update(
-                    UpdateStatement {
-                        span: Span {
-                            start: 9,
-                            end: 16,
-                        },
-                        variable: VariableExpression {
-                            span: Span {
-                                start: 9,
-                                end: 14,
-                            },
-                            scope: Variable,
-                            member: Property {
-                                property: Identifier {
-                                    span: Span {
-                                        start: 11,
-                                        end: 14,
-                                    },
-                                    name: "bar",
-                                },
-                            },
-                        },
-                        operator: Decrement,
-                    },
-                ),
             ],
         ),
     },
-    errors: [],
+    errors: [
+        Diagnostic {
+            inner: DiagnosticInner {
+                message: "semicolons are required for complex programs (containing `=` or `;`)",
+                labels: Some(
+                    [
+                        LabeledSpan {
+                            label: None,
+                            span: SourceSpan {
+                                offset: SourceOffset(
+                                    8,
+                                ),
+                                length: 0,
+                            },
+                            primary: false,
+                        },
+                    ],
+                ),
+                help: Some(
+                    "try inserting a semicolon here",
+                ),
+                severity: Error,
+            },
+        },
+    ],
 }

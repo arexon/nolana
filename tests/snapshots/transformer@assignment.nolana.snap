@@ -3,53 +3,47 @@ source: tests/integration.rs
 input_file: tests/transformer/assignment.nolana
 ---
 variable.x = variable.y;
-variable.x = variable.x ?? 0 + variable.y;
-variable.x = variable.x ?? 0 - variable.y;
-variable.x = variable.x ?? 0 * variable.y;
-variable.x = variable.x ?? 0 / variable.y;
-variable.x = math.pow(variable.x ?? 0, variable.y);
-variable.x = math.mod(variable.x ?? 0, variable.y);
+variable.x = variable.x + variable.y;
+variable.x = variable.x - variable.y;
+variable.x = variable.x * variable.y;
+variable.x = variable.x / variable.y;
+variable.x = math.pow(variable.x, variable.y);
+variable.x = math.mod(variable.x, variable.y);
 variable.x ? {
     variable.x = variable.y;
 };
 !variable.x ? {
     variable.x = variable.y;
 };
-variable.x = math.floor(variable.x ?? 0 / math.pow(2, variable.y));
-variable.x = variable.x ?? 0 * math.pow(2, variable.y);
-{
-    variable.__11_result = 0;
-    variable.__11_bit = 0;
-    loop(24, {
-        variable.__11_left_bit = math.mod(math.floor(variable.x ?? 0 / math.pow(2, variable.__11_bit)), 2);
-        variable.__11_right_bit = math.mod(math.floor(variable.y / math.pow(2, variable.__11_bit)), 2);
-        variable.__11_or_bit = math.min(1, variable.__11_left_bit + variable.__11_right_bit);
-        variable.__11_result = variable.__11_result + variable.__11_or_bit * math.pow(2, variable.__11_bit);
-        variable.__11_bit = variable.__11_bit + 1;
-    });
-};
-variable.x = variable.__11_result;
-{
-    variable.__13_result = 0;
-    variable.__13_bit = 0;
-    loop(24, {
-        variable.__13_left_bit = math.mod(math.floor(variable.x ?? 0 / math.pow(2, variable.__13_bit)), 2);
-        variable.__13_right_bit = math.mod(math.floor(variable.y / math.pow(2, variable.__13_bit)), 2);
-        variable.__13_and_bit = variable.__13_left_bit * variable.__13_right_bit;
-        variable.__13_result = variable.__13_result + variable.__13_and_bit * math.pow(2, variable.__13_bit);
-        variable.__13_bit = variable.__13_bit + 1;
-    });
-};
-variable.x = variable.__13_result;
-{
-    variable.__15_result = 0;
-    variable.__15_bit = 0;
-    loop(24, {
-        variable.__15_left_bit = math.mod(math.floor(variable.x ?? 0 / math.pow(2, variable.__15_bit)), 2);
-        variable.__15_right_bit = math.mod(math.floor(variable.y / math.pow(2, variable.__15_bit)), 2);
-        variable.__15_xor_bit = math.mod(variable.__15_left_bit + variable.__15_right_bit, 2);
-        variable.__15_result = variable.__15_result + variable.__15_xor_bit * math.pow(2, variable.__15_bit);
-        variable.__15_bit = variable.__15_bit + 1;
-    });
-};
-variable.x = variable.__15_result;
+variable.x = math.floor(variable.x / math.pow(2, variable.y));
+variable.x = variable.x * math.pow(2, variable.y);
+variable.__0 = 0;
+variable.__1 = 0;
+loop(24, {
+    variable.__2 = math.mod(math.floor(variable.x / math.pow(2, variable.__1)), 2);
+    variable.__3 = math.mod(math.floor(variable.y / math.pow(2, variable.__1)), 2);
+    variable.__4 = math.min(1, variable.__2 + variable.__3);
+    variable.__0 = variable.__0 + variable.__4 * math.pow(2, variable.__1);
+    variable.__1 = variable.__1 + 1;
+});
+variable.x = variable.__0;
+variable.__5 = 0;
+variable.__6 = 0;
+loop(24, {
+    variable.__7 = math.mod(math.floor(variable.x / math.pow(2, variable.__6)), 2);
+    variable.__8 = math.mod(math.floor(variable.y / math.pow(2, variable.__6)), 2);
+    variable.__9 = variable.__7 * variable.__8;
+    variable.__5 = variable.__5 + variable.__9 * math.pow(2, variable.__6);
+    variable.__6 = variable.__6 + 1;
+});
+variable.x = variable.__5;
+variable.__10 = 0;
+variable.__11 = 0;
+loop(24, {
+    variable.__12 = math.mod(math.floor(variable.x / math.pow(2, variable.__11)), 2);
+    variable.__13 = math.mod(math.floor(variable.y / math.pow(2, variable.__11)), 2);
+    variable.__14 = math.mod(variable.__12 + variable.__13, 2);
+    variable.__10 = variable.__10 + variable.__14 * math.pow(2, variable.__11);
+    variable.__11 = variable.__11 + 1;
+});
+variable.x = variable.__10;

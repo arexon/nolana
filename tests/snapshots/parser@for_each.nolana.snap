@@ -33,22 +33,29 @@ ParseResult {
                                 },
                             },
                         },
-                        array: Variable(
-                            VariableExpression {
+                        array: Call(
+                            CallExpression {
                                 span: Span {
                                     start: 14,
                                     end: 19,
                                 },
-                                scope: Query,
-                                member: Property {
-                                    property: Identifier {
-                                        span: Span {
-                                            start: 16,
-                                            end: 19,
+                                callee: VariableExpression {
+                                    span: Span {
+                                        start: 14,
+                                        end: 19,
+                                    },
+                                    scope: Query,
+                                    member: Property {
+                                        property: Identifier {
+                                            span: Span {
+                                                start: 16,
+                                                end: 19,
+                                            },
+                                            name: "foo",
                                         },
-                                        name: "foo",
                                     },
                                 },
+                                arguments: [],
                             },
                         ),
                         block: BlockExpression {
